@@ -1,0 +1,16 @@
+#!/bin/sh
+
+echo "Running pre-commit hooks"
+npx lint-staged
+lint_staged_status=$?
+
+npm run lint
+npm_lint_status=$?
+
+npm run check-types
+npm_check_types_status=$?
+
+if [ $lint_staged_status -ne 0 ] || [ $npm_lint_status -ne 0 ] || [ $npm_check_types_status -ne 0 ]; then
+    echo "Error: Linting failed. Aborting commit."
+    exit 1
+fi
