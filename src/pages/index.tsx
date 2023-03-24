@@ -82,7 +82,6 @@ export default function Home() {
     <Flex height="100vh" width="100vw" align="center" justify="center">
       <VideoUploader videoFile={videoFile} onChangeVideoFile={setVideoFile} />
       <Button onClick={onSubmit}>Submit</Button>
-      <div></div>
     </Flex>
   );
 }
