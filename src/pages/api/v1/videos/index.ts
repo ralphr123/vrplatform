@@ -9,7 +9,7 @@ const querySchema = z.object({
   limit: z.number().optional().default(10),
 });
 
-export type GetVideosSuccessResp = {
+export type GetVideosResp = {
   videos: Video[];
   totalVideoCount: number;
   page: number;
@@ -23,7 +23,7 @@ const getVideos = async ({
 }: {
   page: number;
   limit: number;
-}): Promise<ApiReturnType<GetVideosSuccessResp>> => {
+}): Promise<ApiReturnType<GetVideosResp>> => {
   try {
     const videos = await prisma.video.findMany({
       skip: (Number(page) - 1) * Number(limit),

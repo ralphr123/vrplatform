@@ -1,17 +1,21 @@
 import { ApiReturnType } from "@app/lib/types/api";
 import {
-  BlobServiceClient,
+  AccountSASPermissions,
+  AccountSASResourceTypes,
+  AccountSASServices,
+  generateAccountSASQueryParameters,
+  SASProtocol,
   StorageSharedKeyCredential,
 } from "@azure/storage-blob";
 import type { NextApiRequest, NextApiResponse } from "next/types";
 
-export type GenerateAzureStorageSasTokenSuccessResp = {
+export type GenerateAzureStorageSasTokenResp = {
   sasToken: string;
   storageUri: string;
 };
 
 const generateAzureStorageSasToken = async (): Promise<
-  ApiReturnType<GenerateAzureStorageSasTokenSuccessResp>
+  ApiReturnType<GenerateAzureStorageSasTokenResp>
 > => {
   try {
     const {
@@ -24,46 +28,30 @@ const generateAzureStorageSasToken = async (): Promise<
       accountName,
       accountKey
     );
-    const blobServiceClient = new BlobServiceClient(
-      `https://${accountName}.blob.core.windows.net`,
+
+    const sasOptions = {
+      services: AccountSASServices.parse("btqf").toString(), // blobs, tables, queues, files
+      resourceTypes: AccountSASResourceTypes.parse("sco").toString(), // service, container, object
+      permissions: AccountSASPermissions.parse("rwdlacupi"), // permissions
+      protocol: SASProtocol.Https,
+      startsOn: new Date(),
+      expiresOn: new Date(new Date().valueOf() + 10 * 60 * 1000), // 10 minutes
+    };
+
+    const sasToken = generateAccountSASQueryParameters(
+      sasOptions,
       sharedKeyCredential
-    );
-    const containerClient = blobServiceClient.getContainerClient(containerName);
-
-    const startDate = new Date();
-    const expiryDate = new Date(startDate);
-    expiryDate.setMinutes(startDate.getMinutes() + 100);
-    startDate.setMinutes(startDate.getMinutes() - 100);
-
-    const sasToken = await containerClient.generateSasUrl({
-      permissions: {
-        read: false,
-        add: true,
-        create: true,
-        delete: false,
-        move: false,
-        execute: false,
-        filterByTags: false,
-        list: false,
-        deleteVersion: false,
-        permanentDelete: false,
-        setImmutabilityPolicy: false,
-        tag: false,
-        write: false,
-      },
-      startsOn: startDate,
-      expiresOn: expiryDate,
-    });
+    ).toString();
 
     return {
       success: true,
       data: {
-        sasToken,
+        sasToken: sasToken[0] === "?" ? sasToken : `?${sasToken}`,
         storageUri: `https://${accountName}.blob.core.windows.net/${containerName}`,
       },
     };
   } catch (error) {
-    console.error(error);
+    console.error(`Failed to generate SAS token: ${error}`);
     return {
       success: false,
       error: `Failed to fetch videos: ${error}`,

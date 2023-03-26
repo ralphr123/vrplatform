@@ -32,13 +32,13 @@ const setTimeoutPromise = util.promisify(setTimeout);
 // Args
 const NAME_PREFIX = "stream";
 
-export type GetStreamingUrlsFromBlobSuccessResp = {
+export type GetStreamingUrlsFromBlobResp = {
   streamingUrls: string[];
 };
 
 export const getStreamingUrlsFromBlob = async (
   blobUrl: string
-): Promise<ApiReturnType<GetStreamingUrlsFromBlobSuccessResp>> => {
+): Promise<ApiReturnType<GetStreamingUrlsFromBlobResp>> => {
   // Define the name to use for the encoding Transform that will be created
   const encodingTransformName = "ContentAwareEncoding";
 
