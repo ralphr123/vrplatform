@@ -9,7 +9,7 @@ enum VRContentType {
   SBS = "sbs",
 }
 
-export default function VideoPlayer() {
+export const VideoPlayer = () => {
   const videoPlayer = useRef<HTMLDivElement>(null);
 
   const [player, setPlayer] = useState<PlayerAPI>();
@@ -44,12 +44,5 @@ export default function VideoPlayer() {
     }
   }, [player]);
 
-  return (
-    <Flex
-      ref={videoPlayer}
-      maxHeight="400px"
-      maxWidth="700px"
-      // overflow="scroll"
-    ></Flex>
-  );
-}
+  return <Flex ref={videoPlayer} height="100%" minWidth="100%"></Flex>;
+};

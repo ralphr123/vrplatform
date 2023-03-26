@@ -5,8 +5,21 @@ import { Video } from "@prisma/client";
 import { ApiReturnType } from "@app/lib/types/api";
 
 const querySchema = z.object({
-  page: z.number().optional().default(1),
-  limit: z.number().optional().default(10),
+  page: z.preprocess((value) => {
+    const processed = z.string().transform(Number).safeParse(value);
+    return processed.success ? processed.data : value;
+  }, z.number().default(1)),
+  limit: z.preprocess((value) => {
+    const processed = z.string().transform(Number).safeParse(value);
+    return processed.success ? processed.data : value;
+  }, z.number().default(10)),
+  pendingReview: z.preprocess((value) => {
+    const processed = z
+      .string()
+      .transform((input) => (input === "true" ? true : false))
+      .safeParse(value);
+    return processed.success ? processed.data : value;
+  }, z.boolean().default(false)),
 });
 
 export type GetVideosResp = {
@@ -20,14 +33,19 @@ export type GetVideosResp = {
 const getVideos = async ({
   page,
   limit,
+  pendingReview,
 }: {
   page: number;
   limit: number;
+  pendingReview: boolean;
 }): Promise<ApiReturnType<GetVideosResp>> => {
   try {
     const videos = await prisma.video.findMany({
       skip: (Number(page) - 1) * Number(limit),
       take: Number(limit),
+      where: pendingReview
+        ? { verified_date: { equals: null } }
+        : { verified_date: { not: { equals: null } } },
     });
     const totalVideos = await prisma.video.count();
 
@@ -54,8 +72,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     switch (req.method) {
       case "GET": {
-        const { page, limit } = querySchema.parse(req.query);
-        const result = await getVideos({ page, limit });
+        const { page, limit, pendingReview } = querySchema.parse(req.query);
+        const result = await getVideos({ page, limit, pendingReview });
         return res.status(result.success ? 200 : 500).json(result);
       }
       default:
