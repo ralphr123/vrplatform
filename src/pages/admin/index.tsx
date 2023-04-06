@@ -1,4 +1,3 @@
-import { LeftNavbar } from "@app/components/LeftNavbar";
 import { Flex } from "@chakra-ui/react";
 
 export default function Home() {

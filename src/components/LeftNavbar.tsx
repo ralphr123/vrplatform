@@ -15,13 +15,9 @@ import { FiUsers, FiVideo, FiSettings, FiUser } from "react-icons/fi";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { Route } from "nextjs-routes";
 
-const navbarItemIndex = {
-  videos: 0,
-  users: 1,
-  administration: 2,
-  myAccount: 3,
-};
+type Pathname = Route["pathname"];
 
 interface Props {
   flex?: number;
@@ -32,25 +28,50 @@ export const LeftNavbar = ({ flex = 1 }: Props) => {
   const session = useSession();
   const [activeNavbarItemIndex, setActiveNavbarItemIndex] = useState<number>();
 
+  const navbarItems: {
+    title: string;
+    icon: IconType;
+    routes: { title: string; pathname: Pathname }[];
+  }[] = [
+    {
+      title: "Videos",
+      icon: FiVideo,
+      routes: [
+        { title: "Published", pathname: "/admin/videos/published" },
+        { title: "Pending Review", pathname: "/admin/videos/pending-review" },
+      ],
+    },
+    {
+      title: "Users",
+      icon: FiUsers,
+      routes: [],
+    },
+    {
+      title: "Administration",
+      icon: FiSettings,
+      routes: [],
+    },
+    {
+      title: "My Account",
+      icon: FiUser,
+      routes: [],
+    },
+  ];
+
   useEffect(() => {
     if (session.status !== "loading") {
       if (session.status === "authenticated") {
-        switch (router.pathname) {
-          case "/videos/published":
-          case "/videos/pending-review":
-            setActiveNavbarItemIndex(0);
-            break;
-          default:
-            break;
+        for (const [i, { routes }] of Object.entries(navbarItems)) {
+          if (routes.find(({ pathname }) => pathname === router.pathname)) {
+            setActiveNavbarItemIndex(Number(i));
+            return;
+          }
         }
+        router.replace("/admin/videos/published");
       } else {
-        switch (router.pathname) {
-          case "/videos/published":
-            setActiveNavbarItemIndex(0);
-            break;
-          default:
-            break;
-        }
+        /** @TODO: make custom signin page */
+        // @ts-ignore
+        router.replace("/api/auth/signin");
       }
     }
   }, [router.pathname, session]);
@@ -82,54 +103,16 @@ export const LeftNavbar = ({ flex = 1 }: Props) => {
         index={activeNavbarItemIndex}
       >
         {session.status === "authenticated" ? (
-          <>
+          Object.entries(navbarItems).map(([i, { title, icon, routes }]) => (
             <LeftNavbarItem
-              icon={FiVideo}
-              title="Videos"
-              currPath={router.pathname}
-              onClick={() => setActiveNavbarItemIndex(navbarItemIndex.videos)}
-              items={[
-                { text: "Published Videos", href: "/videos/published" },
-                { text: "Pending Review", href: "/videos/pending-review" },
-                { text: "Bookmarked", href: "#" },
-              ]}
+              key={i}
+              icon={icon}
+              title={title}
+              routes={routes}
+              currentPath={router.pathname}
+              onClick={() => setActiveNavbarItemIndex(Number(i))}
             />
-            <LeftNavbarItem
-              icon={FiUsers}
-              title="Users"
-              onClick={() => setActiveNavbarItemIndex(navbarItemIndex.users)}
-              currPath={router.pathname}
-              items={[
-                { text: "All Users", href: "#" },
-                { text: "Pending Verification", href: "#" },
-                { text: "Bookmarked", href: "#" },
-              ]}
-            />
-            <LeftNavbarItem
-              icon={FiSettings}
-              title="Administration"
-              onClick={() =>
-                setActiveNavbarItemIndex(navbarItemIndex.administration)
-              }
-              currPath={router.pathname}
-              items={[
-                { text: "Admin Users", href: "#" },
-                { text: "Configurations", href: "#" },
-              ]}
-            />
-            <LeftNavbarItem
-              icon={FiUser}
-              title="My Account"
-              onClick={() =>
-                setActiveNavbarItemIndex(navbarItemIndex.myAccount)
-              }
-              currPath={router.pathname}
-              items={[
-                { text: "My Profile", href: "#" },
-                { text: "Log Out", href: "#" },
-              ]}
-            />
-          </>
+          ))
         ) : (
           <></>
         )}
@@ -141,14 +124,14 @@ export const LeftNavbar = ({ flex = 1 }: Props) => {
 const LeftNavbarItem = ({
   icon,
   title,
-  items,
-  currPath,
+  routes,
+  currentPath,
   onClick,
 }: {
   icon: IconType;
   title: string;
-  items: { text: string; href: string }[];
-  currPath: string;
+  routes: { title: string; pathname: Pathname }[];
+  currentPath: Pathname;
   onClick?: () => void;
 }) => {
   return (
@@ -171,7 +154,7 @@ const LeftNavbarItem = ({
         <AccordionIcon />
       </AccordionButton>
       <AccordionPanel width="100%" padding="0 0 0.75em 0">
-        {items.map(({ href, text }, i) => (
+        {routes.map(({ title, pathname }, i) => (
           <Flex
             _hover={{
               bgColor: "#FAFAFA",
@@ -182,15 +165,19 @@ const LeftNavbarItem = ({
             }}
             height="3em"
             align="center"
-            bgColor={currPath === href ? "#FAFAFA" : undefined}
-            color={currPath === href ? "#87B0F5" : undefined}
+            bgColor={currentPath === pathname ? "#FAFAFA" : undefined}
+            color={currentPath === pathname ? "#87B0F5" : undefined}
             key={i}
           >
-            <Link style={{ width: "100%", padding: "1em 1.5em" }} href={href}>
+            <Link
+              style={{ width: "100%", padding: "1em 1.5em" }}
+              // @ts-ignore
+              href={{ pathname }}
+            >
               <Flex gap="1em">
                 <Icon fontSize="1.3em" opacity="0" />
                 <Text fontSize="0.95em" fontWeight="500">
-                  {text}
+                  {title}
                 </Text>
               </Flex>
             </Link>

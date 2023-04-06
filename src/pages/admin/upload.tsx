@@ -2,10 +2,10 @@ import { VideoUploader } from "@app/components/video/VideoUploader";
 import { Button, Flex } from "@chakra-ui/react";
 import { useState } from "react";
 import { showToast } from "@app/lib/client/showToast";
-import { GenerateAzureStorageSasTokenResp } from "./api/v1/azure/generateStorageSasToken";
 import { ApiReturnType } from "@app/lib/types/api";
 import { BlockBlobClient } from "@azure/storage-blob";
 import { GetStreamingUrlsFromBlobResp } from "@app/lib/azure/encode";
+import { GenerateAzureStorageSasTokenResp } from "../api/v1/azure/generateStorageSasToken";
 
 export default function Upload() {
   const [videoFile, setVideoFile] = useState<File>();
