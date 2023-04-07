@@ -4,8 +4,9 @@ import { useState } from "react";
 import { showToast } from "@app/lib/client/showToast";
 import { ApiReturnType } from "@app/lib/types/api";
 import { BlockBlobClient } from "@azure/storage-blob";
-import { GetStreamingUrlsFromBlobResp } from "@app/lib/azure/encode";
-import { GenerateAzureStorageSasTokenResp } from "../api/v1/azure/generateStorageSasToken";
+import { EncodeVideoOnAzureFromBlobResp } from "@app/lib/azure/encode";
+import { GenerateAzureStorageSasTokenResp } from "./api/v1/azure/generateStorageSasToken";
+import { route } from "nextjs-routes";
 
 export default function Upload() {
   const [videoFile, setVideoFile] = useState<File>();
@@ -39,12 +40,13 @@ export default function Upload() {
       const blobUrl = `${storageUri}/${videoFile.name}`;
 
       // 3. Call backend to transform blob video to azure media services asset and get streaming urls
-      const streamingUrlsRes: ApiReturnType<GetStreamingUrlsFromBlobResp> =
+      const streamingUrlsRes: ApiReturnType<EncodeVideoOnAzureFromBlobResp> =
         await (
           await fetch(
-            `/api/v1/azure/getStreamingUrlsFromBlob/${encodeURIComponent(
-              blobUrl
-            )}`
+            route({
+              pathname: "/api/v1/azure/encodeVideoOnAzureFromBlob/[blobUrl]",
+              query: { blobUrl: encodeURIComponent(blobUrl) },
+            })
           )
         ).json();
 
@@ -52,9 +54,9 @@ export default function Upload() {
         throw Error(streamingUrlsRes.error);
       }
 
-      const { streamingUrls } = streamingUrlsRes.data;
+      const { streamingUrls, thumbnailUrl } = streamingUrlsRes.data;
 
-      console.log(streamingUrls);
+      console.log(streamingUrls, thumbnailUrl);
     } catch (error) {
       console.error(error);
       showToast({

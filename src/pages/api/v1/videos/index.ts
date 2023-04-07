@@ -1,10 +1,30 @@
 import prisma from "../../../../lib/prismadb";
 import type { NextApiRequest, NextApiResponse } from "next/types";
 import { z } from "zod";
-import { Video } from "@prisma/client";
+import { User, Video } from "@prisma/client";
 import { ApiReturnType } from "@app/lib/types/api";
+import { encodeVideoOnAzureFromBlob } from "@app/lib/azure/encode";
 
-const querySchema = z.object({
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+  try {
+    switch (req.method) {
+      case "GET": {
+        const { page, limit, pendingReview } = getQuerySchema.parse(req.query);
+        const result = await getVideos({ page, limit, pendingReview });
+        return res.status(result.success ? 200 : 500).json(result);
+      }
+      default:
+        return res.status(405).json({ message: "Method not allowed." });
+    }
+  } catch (error) {
+    console.error(
+      `Something went wrong making a request to /api/v1/videos: ${error}`
+    );
+    return res.status(500).json({ message: `Something went wrong: ${error}` });
+  }
+};
+
+const getQuerySchema = z.object({
   page: z.preprocess((value) => {
     const processed = z.string().transform(Number).safeParse(value);
     return processed.success ? processed.data : value;
@@ -23,7 +43,9 @@ const querySchema = z.object({
 });
 
 export type GetVideosResp = {
-  videos: Video[];
+  videos: (Video & {
+    user: User;
+  })[];
   totalVideoCount: number;
   page: number;
   limit: number;
@@ -46,6 +68,7 @@ const getVideos = async ({
       where: pendingReview
         ? { verified_date: { equals: null } }
         : { verified_date: { not: { equals: null } } },
+      include: { user: true },
     });
     const totalVideos = await prisma.video.count();
 
@@ -68,23 +91,22 @@ const getVideos = async ({
   }
 };
 
-const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  try {
-    switch (req.method) {
-      case "GET": {
-        const { page, limit, pendingReview } = querySchema.parse(req.query);
-        const result = await getVideos({ page, limit, pendingReview });
-        return res.status(result.success ? 200 : 500).json(result);
-      }
-      default:
-        return res.status(405).json({ message: "Method not allowed." });
-    }
-  } catch (error) {
-    console.error(
-      `Something went wrong making a request to /api/v1/videos: ${error}`
-    );
-    return res.status(500).json({ message: `Something went wrong: ${error}` });
+const postBodySchema = z.object({});
+
+const uploadAndSaveVideo = async (userId: string, blobUrl: string) => {
+  const encodeVideoResp = await encodeVideoOnAzureFromBlob(blobUrl);
+
+  if (!encodeVideoResp.success) {
+    throw Error("Error encoding video in Azure Media Services.");
   }
+
+  const { streamingUrls, thumbnailUrl } = encodeVideoResp.data;
+
+  // const uploadRes = await prisma.video.create({
+  //   data: {
+
+  //   }
+  // })
 };
 
 export { handler as default };

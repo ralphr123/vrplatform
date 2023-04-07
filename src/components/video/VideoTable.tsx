@@ -1,32 +1,27 @@
 import {
   TableContainer,
   Table,
-  TableCaption,
   Thead,
   Tr,
   Th,
   Tbody,
   Td,
-  Tfoot,
   Spinner,
   Flex,
 } from "@chakra-ui/react";
-import { Video } from "@prisma/client";
-import { useEffect } from "react";
+import { User, Video } from "@prisma/client";
 
 export const VideoTable = ({
   videos,
   isLoading,
   isPublished = true,
 }: {
-  videos?: Video[];
+  videos?: (Video & {
+    user: User;
+  })[];
   isLoading?: boolean;
   isPublished?: boolean;
 }) => {
-  useEffect(() => {
-    console.log(isLoading);
-  }, [isLoading]);
-
   return (
     <TableContainer width="100%">
       <Table variant="simple">
@@ -49,7 +44,7 @@ export const VideoTable = ({
               likes,
               duration_seconds,
               upload_date,
-              userId,
+              user: { name: userFullName },
             }) => (
               <Tr key={id}>
                 <Td width="25em">{name}</Td>
@@ -57,7 +52,8 @@ export const VideoTable = ({
                 <Td hidden={!isPublished}>{likes}</Td>
                 <Td>{duration_seconds}</Td>
                 <Td>{new Date(upload_date).toDateString()}</Td>
-                <Td>{userId}</Td>
+                {/* @TODO: Should be a link to user page */}
+                <Td>{userFullName}</Td>
               </Tr>
             )
           )}

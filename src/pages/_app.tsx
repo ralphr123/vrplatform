@@ -11,7 +11,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <SessionProvider>
       <ChakraProvider>
         <Flex height="100vh" width="100vw" bgColor="#FAFAFA">
-          <LeftNavbar flex={1} />
+          {/* <LeftNavbar flex={1} /> */}
           <Flex flex={4} padding="3em 3.5em">
             <Component {...pageProps} />
           </Flex>

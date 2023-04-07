@@ -13,17 +13,17 @@ declare module "nextjs-routes" {
   export type Route =
     | StaticRoute<"/404">
     | StaticRoute<"/admin">
-    | StaticRoute<"/admin/upload">
     | DynamicRoute<"/admin/videos/[videoId]", { "videoId": string }>
     | StaticRoute<"/admin/videos/pending-review">
     | StaticRoute<"/admin/videos/published">
     | DynamicRoute<"/api/auth/[...nextauth]", { "nextauth": string[] }>
     | StaticRoute<"/api/hello">
+    | DynamicRoute<"/api/v1/azure/encodeVideoOnAzureFromBlob/[blobUrl]", { "blobUrl": string }>
     | StaticRoute<"/api/v1/azure/generateStorageSasToken">
-    | DynamicRoute<"/api/v1/azure/getStreamingUrlsFromBlob/[blobUrl]", { "blobUrl": string }>
     | DynamicRoute<"/api/v1/videos/[videoId]", { "videoId": string }>
     | StaticRoute<"/api/v1/videos">
-    | StaticRoute<"/login">;
+    | StaticRoute<"/login">
+    | StaticRoute<"/upload">;
 
   interface StaticRoute<Pathname> {
     pathname: Pathname;

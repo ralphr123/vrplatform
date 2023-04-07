@@ -1,4 +1,4 @@
-import { getStreamingUrlsFromBlob } from "@app/lib/azure/encode";
+import { encodeVideoOnAzureFromBlob } from "@app/lib/azure/encode";
 import { NextApiRequest, NextApiResponse } from "next";
 import { z } from "zod";
 
@@ -11,7 +11,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     switch (req.method) {
       case "GET": {
         const { blobUrl } = querySchema.parse(req.query);
-        const result = await getStreamingUrlsFromBlob(blobUrl);
+        const result = await encodeVideoOnAzureFromBlob(blobUrl);
         return res.status(result.success ? 200 : 500).json(result);
       }
       default:
@@ -19,7 +19,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     }
   } catch (error) {
     console.error(
-      `Something went wrong making a request to /api/v1/azure/getStreamingUrlsFromBlob: ${error}`
+      `Something went wrong making a request to /api/v1/azure/encodeVideoOnAzureFromBlob: ${error}`
     );
     return res.status(500).json({ message: `Something went wrong: ${error}` });
   }
