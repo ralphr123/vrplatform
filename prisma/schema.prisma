@@ -33,12 +33,18 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+enum UserRole {
+  member
+  admin
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String
   email         String    @unique
   emailVerified DateTime?
   image         String?
+  role          UserRole  @default(member)
   accounts      Account[]
   sessions      Session[]
   videos        Video[]

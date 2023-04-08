@@ -1,28 +1,10 @@
 import prisma from "../../../../lib/prismadb";
 import type { NextApiRequest, NextApiResponse } from "next/types";
 import { z } from "zod";
-import { User, Video } from "@prisma/client";
+import { User, Video, VideoType } from "@prisma/client";
 import { ApiReturnType } from "@app/lib/types/api";
 import { encodeVideoOnAzureFromBlob } from "@app/lib/azure/encode";
-
-const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  try {
-    switch (req.method) {
-      case "GET": {
-        const { page, limit, pendingReview } = getQuerySchema.parse(req.query);
-        const result = await getVideos({ page, limit, pendingReview });
-        return res.status(result.success ? 200 : 500).json(result);
-      }
-      default:
-        return res.status(405).json({ message: "Method not allowed." });
-    }
-  } catch (error) {
-    console.error(
-      `Something went wrong making a request to /api/v1/videos: ${error}`
-    );
-    return res.status(500).json({ message: `Something went wrong: ${error}` });
-  }
-};
+import { authenticateRequest } from "@app/lib/server/authenticateRequest";
 
 const getQuerySchema = z.object({
   page: z.preprocess((value) => {
@@ -41,6 +23,44 @@ const getQuerySchema = z.object({
     return processed.success ? processed.data : value;
   }, z.boolean().default(false)),
 });
+
+const postBodySchema = z.object({
+  name: z.string(),
+  blobUrl: z.string(),
+  type: z.enum(["REGULAR", "VR"]),
+});
+
+export type EncodeAndSaveVideoBody = z.TypeOf<typeof postBodySchema>;
+
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+  try {
+    switch (req.method) {
+      case "GET": {
+        const { page, limit, pendingReview } = getQuerySchema.parse(req.query);
+        const result = await getVideos({ page, limit, pendingReview });
+        return res.status(result.success ? 200 : 500).json(result);
+      }
+      case "POST": {
+        const { name, blobUrl, type } = postBodySchema.parse(req.body);
+        const { id: userId } = await authenticateRequest(req);
+        const result = await encodeAndSaveVideo({
+          userId,
+          name,
+          blobUrl,
+          type,
+        });
+        return res.status(200).json(result);
+      }
+      default:
+        return res.status(405).json({ message: "Method not allowed." });
+    }
+  } catch (error) {
+    console.error(
+      `Something went wrong making a request to /api/v1/videos: ${error}`
+    );
+    return res.status(500).json({ message: `Something went wrong: ${error}` });
+  }
+};
 
 export type GetVideosResp = {
   videos: (Video & {
@@ -91,22 +111,58 @@ const getVideos = async ({
   }
 };
 
-const postBodySchema = z.object({});
+export type EncodeAndSaveVideoResp = {
+  videoId: string;
+};
 
-const uploadAndSaveVideo = async (userId: string, blobUrl: string) => {
-  const encodeVideoResp = await encodeVideoOnAzureFromBlob(blobUrl);
+const encodeAndSaveVideo = async ({
+  userId,
+  name,
+  blobUrl,
+  type,
+}: {
+  userId: string;
+  name: string;
+  blobUrl: string;
+  type: VideoType;
+}): Promise<ApiReturnType<EncodeAndSaveVideoResp>> => {
+  try {
+    const encodeVideoResp = await encodeVideoOnAzureFromBlob(blobUrl);
 
-  if (!encodeVideoResp.success) {
-    throw Error("Error encoding video in Azure Media Services.");
+    if (!encodeVideoResp.success) {
+      throw Error("Error encoding video in Azure Media Services.");
+    }
+
+    const { streamingUrls, thumbnailUrl } = encodeVideoResp.data;
+
+    console.log("STErAMING", streamingUrls);
+
+    const video = await prisma.video.create({
+      data: {
+        userId,
+        name,
+        blobUrl,
+        type,
+        hlsUrl:
+          streamingUrls.find((url) => url.includes("format=m3u8-cmaf")) || "",
+        dashUrl:
+          streamingUrls.find((url) => url.includes("format=mpd-time-cmaf")) ||
+          "",
+        smoothStreamingUrl:
+          streamingUrls.find((url) => url[url.length - 1] === "t") || "",
+        thumbnailUrl,
+        duration_seconds: 69,
+      },
+    });
+
+    return { success: true, data: { videoId: video.id } };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      error: `Failed to fetch videos: ${error}`,
+    };
   }
-
-  const { streamingUrls, thumbnailUrl } = encodeVideoResp.data;
-
-  // const uploadRes = await prisma.video.create({
-  //   data: {
-
-  //   }
-  // })
 };
 
 export { handler as default };

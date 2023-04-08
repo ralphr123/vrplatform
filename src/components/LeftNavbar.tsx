@@ -16,8 +16,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { Route } from "nextjs-routes";
-
-type Pathname = Route["pathname"];
+import { Pathname } from "@app/lib/types/api";
 
 interface Props {
   flex?: number;

@@ -1,3 +1,5 @@
+import { UserRole } from "@app/lib/types/prisma";
+import { User } from "@prisma/client";
 import { type DefaultSession } from "next-auth";
 declare global {
   namespace NodeJS {
@@ -28,11 +30,7 @@ declare module "next-auth" {
    * Defaults to default prisma schema, needs to be updated on User table schema changes
    */
   interface Session {
-    user?: {
-      name: string;
-      email: string;
-      image?: string | null;
-    };
+    user: User | null;
   }
 }
 

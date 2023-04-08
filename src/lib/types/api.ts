@@ -1,3 +1,7 @@
+import { Route } from "nextjs-routes";
+
+export type Pathname = Route["pathname"];
+
 export type FailReturnType = {
   success: false;
   error: string;

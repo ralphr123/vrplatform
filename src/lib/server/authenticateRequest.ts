@@ -1,9 +1,11 @@
+import { User } from "@prisma/client";
 import { NextApiRequest } from "next";
+import { Session } from "next-auth";
 import { getSession } from "next-auth/react";
 
 export const authenticateRequest = async (
   req: NextApiRequest
-): Promise<{ name: string; email: string; image?: string | null }> => {
+): Promise<User> => {
   const session = await getSession({ req });
 
   if (!session?.user) {
