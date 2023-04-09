@@ -66,14 +66,13 @@ export const LeftNavbar = ({ flex = 1 }: Props) => {
             return;
           }
         }
-        router.replace("/admin/videos/published");
       } else {
         /** @TODO: make custom signin page */
         // @ts-ignore
         router.replace("/api/auth/signin");
       }
     }
-  }, [router.pathname, session]);
+  }, [session, router]);
 
   return (
     <Flex

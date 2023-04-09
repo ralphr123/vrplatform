@@ -54,7 +54,7 @@ export default function Upload() {
         body: {
           blobUrl,
           name: "Test Video",
-          type: "REGULAR",
+          type: "Regular",
         },
       });
 

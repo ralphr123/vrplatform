@@ -9,9 +9,14 @@ enum VRContentType {
   SBS = "sbs",
 }
 
-export const VideoPlayer = () => {
+export const VideoPlayer = ({
+  name,
+  hlsUrl,
+}: {
+  name: string;
+  hlsUrl?: string;
+}) => {
   const videoPlayer = useRef<HTMLDivElement>(null);
-
   const [player, setPlayer] = useState<PlayerAPI>();
 
   useEffect(() => {
@@ -31,10 +36,8 @@ export const VideoPlayer = () => {
   useEffect(() => {
     if (player) {
       player.load({
-        title: "Test",
-        hls: "https://vrplatform-usea.streaming.media.azure.net/651b0da5-6d1e-4ab6-a26b-ed15df234bcb/ForBiggerBlazes.ism/manifest(format=m3u8-cmaf)",
-        // progressive:
-        //   "https://cdn.bitmovin.com/content/assets/playhouse-vr/progressive.mp4",
+        title: name,
+        hls: hlsUrl,
         // vr: {
         //   startPosition: 180,
         //   contentType: VRContentType.Single,
@@ -42,7 +45,7 @@ export const VideoPlayer = () => {
       });
       UIFactory.buildDefaultUI(player);
     }
-  }, [player]);
+  }, [player, hlsUrl, name]);
 
   return <Flex ref={videoPlayer} height="100%" minWidth="100%"></Flex>;
 };

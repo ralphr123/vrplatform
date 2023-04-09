@@ -26,11 +26,13 @@ export default function Video() {
     );
   }
 
+  const video = data.video;
+
   return (
     <Flex flexDirection="column" width="100%" gap="1.5em">
-      <PageHeader>{data.video.name}</PageHeader>
+      <PageHeader>{video.name}</PageHeader>
       <Flex width="100%" rounded="5px" overflow="hidden">
-        <VideoPlayer />
+        <VideoPlayer name={video.name} hlsUrl={video.hlsUrl} />
       </Flex>
       <Flex
         width="100%"
@@ -53,8 +55,8 @@ export default function Video() {
             Published on
           </Text>
           <Text fontSize="0.9em" color="#666666">
-            {data.video.verified_date
-              ? new Date(data.video.verified_date).toDateString()
+            {video.verified_date
+              ? new Date(video.verified_date).toDateString()
               : "-"}
           </Text>
         </Flex>
@@ -69,7 +71,7 @@ export default function Video() {
             Views
           </Text>
           <Text fontSize="0.9em" color="#666666">
-            {data.video.views}
+            {video.views}
           </Text>
         </Flex>
         <Flex
@@ -83,7 +85,7 @@ export default function Video() {
             Likes
           </Text>
           <Text fontSize="0.9em" color="#666666">
-            {data.video.likes}
+            {video.likes}
           </Text>
         </Flex>
         <Flex
@@ -97,7 +99,7 @@ export default function Video() {
             Uploaded On
           </Text>
           <Text fontSize="0.9em" color="#666666">
-            {new Date(data.video.upload_date).toDateString()}
+            {new Date(video.upload_date).toDateString()}
           </Text>
         </Flex>
       </Flex>

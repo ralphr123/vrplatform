@@ -1,4 +1,3 @@
-import { UserRole } from "@app/lib/types/prisma";
 import { User } from "@prisma/client";
 import { type DefaultSession } from "next-auth";
 declare global {

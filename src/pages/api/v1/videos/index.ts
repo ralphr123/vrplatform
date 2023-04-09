@@ -5,6 +5,9 @@ import { User, Video, VideoType } from "@prisma/client";
 import { ApiReturnType } from "@app/lib/types/api";
 import { encodeVideoOnAzureFromBlob } from "@app/lib/azure/encode";
 import { authenticateRequest } from "@app/lib/server/authenticateRequest";
+import { videoTypes } from "@app/lib/types/prisma";
+
+const videoTypeSchema = z.enum(videoTypes);
 
 const getQuerySchema = z.object({
   page: z.preprocess((value) => {
@@ -22,12 +25,22 @@ const getQuerySchema = z.object({
       .safeParse(value);
     return processed.success ? processed.data : value;
   }, z.boolean().default(false)),
+  searchText: z.string().optional(),
+  type: videoTypeSchema.optional(),
+  uploadedAfterDate: z.preprocess((value) => {
+    const processed = z
+      .string()
+      .transform((val) => new Date(val))
+      .safeParse(value);
+    return processed.success ? processed.data : value;
+  }, z.date().optional()),
+  userId: z.string().optional(),
 });
 
 const postBodySchema = z.object({
   name: z.string(),
   blobUrl: z.string(),
-  type: z.enum(["REGULAR", "VR"]),
+  type: videoTypeSchema,
 });
 
 export type EncodeAndSaveVideoBody = z.TypeOf<typeof postBodySchema>;
@@ -36,18 +49,14 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     switch (req.method) {
       case "GET": {
-        const { page, limit, pendingReview } = getQuerySchema.parse(req.query);
-        const result = await getVideos({ page, limit, pendingReview });
+        const result = await getVideos(getQuerySchema.parse(req.query));
         return res.status(result.success ? 200 : 500).json(result);
       }
       case "POST": {
-        const { name, blobUrl, type } = postBodySchema.parse(req.body);
         const { id: userId } = await authenticateRequest(req);
         const result = await encodeAndSaveVideo({
           userId,
-          name,
-          blobUrl,
-          type,
+          ...postBodySchema.parse(req.body),
         });
         return res.status(200).json(result);
       }
@@ -76,20 +85,42 @@ const getVideos = async ({
   page,
   limit,
   pendingReview,
+  searchText,
+  type,
+  uploadedAfterDate,
+  userId,
 }: {
   page: number;
   limit: number;
   pendingReview: boolean;
+  searchText?: string;
+  type?: VideoType;
+  uploadedAfterDate?: Date;
+  userId?: string;
 }): Promise<ApiReturnType<GetVideosResp>> => {
   try {
     const videos = await prisma.video.findMany({
       skip: (Number(page) - 1) * Number(limit),
       take: Number(limit),
-      where: pendingReview
-        ? { verified_date: { equals: null } }
-        : { verified_date: { not: { equals: null } } },
+      where: {
+        ...(pendingReview
+          ? { verified_date: { equals: null } }
+          : { verified_date: { not: { equals: null } } }),
+        ...(searchText && {
+          OR: [
+            { name: { contains: searchText } },
+            { id: { contains: searchText } },
+          ],
+        }),
+        ...(type && { type: { equals: type } }),
+        ...(userId && { id: { equals: userId } }),
+        ...(uploadedAfterDate && {
+          upload_date: { gte: uploadedAfterDate },
+        }),
+      },
       include: { user: true },
     });
+
     const totalVideos = await prisma.video.count();
 
     return {
@@ -127,6 +158,7 @@ const encodeAndSaveVideo = async ({
   type: VideoType;
 }): Promise<ApiReturnType<EncodeAndSaveVideoResp>> => {
   try {
+    // @TODO: Very very expensive, figure out ways to decrease cost
     const encodeVideoResp = await encodeVideoOnAzureFromBlob(blobUrl);
 
     if (!encodeVideoResp.success) {
@@ -134,8 +166,6 @@ const encodeAndSaveVideo = async ({
     }
 
     const { streamingUrls, thumbnailUrl } = encodeVideoResp.data;
-
-    console.log("STErAMING", streamingUrls);
 
     const video = await prisma.video.create({
       data: {
