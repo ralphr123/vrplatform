@@ -13,13 +13,12 @@ import { IconType } from "react-icons";
 
 import { FiUsers, FiVideo, FiSettings, FiUser } from "react-icons/fi";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
-import { Route } from "nextjs-routes";
 import { Pathname } from "@app/lib/types/api";
 
 interface Props {
-  flex?: number;
+  flex?: number | string;
 }
 
 export const LeftNavbar = ({ flex = 1 }: Props) => {
@@ -31,31 +30,39 @@ export const LeftNavbar = ({ flex = 1 }: Props) => {
     title: string;
     icon: IconType;
     routes: { title: string; pathname: Pathname }[];
-  }[] = [
-    {
-      title: "Videos",
-      icon: FiVideo,
-      routes: [
-        { title: "Published", pathname: "/admin/videos/published" },
-        { title: "Pending Review", pathname: "/admin/videos/pending-review" },
-      ],
-    },
-    {
-      title: "Users",
-      icon: FiUsers,
-      routes: [],
-    },
-    {
-      title: "Administration",
-      icon: FiSettings,
-      routes: [],
-    },
-    {
-      title: "My Account",
-      icon: FiUser,
-      routes: [],
-    },
-  ];
+  }[] = useMemo(
+    () => [
+      {
+        title: "Videos",
+        icon: FiVideo,
+        routes: [
+          { title: "Published", pathname: "/admin/videos/published" },
+          { title: "Pending Review", pathname: "/admin/videos/pending-review" },
+        ],
+      },
+      {
+        title: "Users",
+        icon: FiUsers,
+        routes: [
+          {
+            title: "Pending Verification",
+            pathname: "/admin/users/pending-review",
+          },
+        ],
+      },
+      {
+        title: "Administration",
+        icon: FiSettings,
+        routes: [],
+      },
+      {
+        title: "My Account",
+        icon: FiUser,
+        routes: [],
+      },
+    ],
+    []
+  );
 
   useEffect(() => {
     if (session.status !== "loading") {
@@ -72,12 +79,14 @@ export const LeftNavbar = ({ flex = 1 }: Props) => {
         router.replace("/api/auth/signin");
       }
     }
-  }, [session, router]);
+  }, [session, router, navbarItems]);
 
   return (
     <Flex
       height="100vh"
       flex={flex}
+      // flexGrow={0}
+      flexShrink={0}
       bgColor="white"
       borderRight="1px solid #EEEEEE"
       flexDirection="column"

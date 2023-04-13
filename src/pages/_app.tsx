@@ -15,7 +15,7 @@ export default function App({ Component, pageProps }: AppProps) {
       <ChakraProvider>
         <Flex height="100vh" width="100vw" bgColor="#FAFAFA">
           {router.pathname.split("/")[1] === "admin" && <LeftNavbar flex={1} />}
-          <Flex flex={4} padding="3em 3.5em">
+          <Flex flex={4} padding="3em 2.5em">
             <Component {...pageProps} />
           </Flex>
         </Flex>

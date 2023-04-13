@@ -1,9 +1,12 @@
-import { Flex } from "@chakra-ui/react";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 
-export default function Home() {
-  return (
-    <Flex height="100%" width="100%">
-      Hello
-    </Flex>
-  );
+export default function Admin() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.push("/admin/videos/published");
+  }, []);
+
+  return <></>;
 }

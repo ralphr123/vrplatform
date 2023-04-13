@@ -6,36 +6,26 @@ import { ApiReturnType } from "@app/lib/types/api";
 import { encodeVideoOnAzureFromBlob } from "@app/lib/azure/encode";
 import { authenticateRequest } from "@app/lib/server/authenticateRequest";
 import { videoTypes } from "@app/lib/types/prisma";
+import { basePaginationQuerySchema } from "@app/lib/types/zod";
+import { sendEmail } from "@app/lib/server/sendEmail";
 
 const videoTypeSchema = z.enum(videoTypes);
 
-const getQuerySchema = z.object({
-  page: z.preprocess((value) => {
-    const processed = z.string().transform(Number).safeParse(value);
-    return processed.success ? processed.data : value;
-  }, z.number().default(1)),
-  limit: z.preprocess((value) => {
-    const processed = z.string().transform(Number).safeParse(value);
-    return processed.success ? processed.data : value;
-  }, z.number().default(10)),
-  pendingReview: z.preprocess((value) => {
-    const processed = z
-      .string()
-      .transform((input) => (input === "true" ? true : false))
-      .safeParse(value);
-    return processed.success ? processed.data : value;
-  }, z.boolean().default(false)),
-  searchText: z.string().optional(),
-  type: videoTypeSchema.optional(),
-  uploadedAfterDate: z.preprocess((value) => {
-    const processed = z
-      .string()
-      .transform((val) => new Date(val))
-      .safeParse(value);
-    return processed.success ? processed.data : value;
-  }, z.date().optional()),
-  userId: z.string().optional(),
-});
+const getQuerySchema = z.intersection(
+  basePaginationQuerySchema,
+  z.object({
+    searchText: z.string().optional(),
+    type: videoTypeSchema.optional(),
+    uploadedAfterDate: z.preprocess((value) => {
+      const processed = z
+        .string()
+        .transform((val) => new Date(val))
+        .safeParse(value);
+      return processed.success ? processed.data : value;
+    }, z.date().optional()),
+    userId: z.string().optional(),
+  })
+);
 
 const postBodySchema = z.object({
   name: z.string(),
@@ -158,7 +148,6 @@ const encodeAndSaveVideo = async ({
   type: VideoType;
 }): Promise<ApiReturnType<EncodeAndSaveVideoResp>> => {
   try {
-    // @TODO: Very very expensive, figure out ways to decrease cost
     const encodeVideoResp = await encodeVideoOnAzureFromBlob(blobUrl);
 
     if (!encodeVideoResp.success) {

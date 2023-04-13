@@ -1,3 +1,4 @@
+import { Pathname } from "@app/lib/types/api";
 import { User } from "@prisma/client";
 import { type DefaultSession } from "next-auth";
 declare global {
@@ -20,6 +21,7 @@ declare global {
       AZURE_SUBSCRIPTION_ID: string;
       AZURE_ARM_TOKEN_AUDIENCE: string;
       AZURE_ARM_ENDPOINT: string;
+      SENDGRID_API_KEY: string;
     }
   }
 }
@@ -31,6 +33,10 @@ declare module "next-auth" {
   interface Session {
     user: User | null;
   }
+}
+
+declare module "nextjs-routes" {
+  export function route(r: Route): Pathname;
 }
 
 export {};

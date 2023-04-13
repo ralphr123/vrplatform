@@ -17,9 +17,11 @@ import {
   Input,
 } from "@chakra-ui/react";
 import { User, Video, VideoType } from "@prisma/client";
+import { useRouter } from "next/router";
 import { useState } from "react";
 import { BsBookmark, BsBookmarkFill, BsCalendar } from "react-icons/bs";
 import { HiOutlineUserCircle } from "react-icons/hi";
+import { IoIosArrowForward } from "react-icons/io";
 import { MdOndemandVideo } from "react-icons/md";
 import { Select } from "../Select";
 
@@ -42,8 +44,8 @@ export const VideoTable = ({
   });
 
   return (
-    <Flex flexDir="column" gap={5}>
-      <Flex align="center" justify="space-between" gap={5}>
+    <Flex flexDir="column" gap={5} padding={0}>
+      <Flex align="center" justify="space-between" gap={5} maxWidth="100%">
         <Input
           type="text"
           placeholder="Search by name or id"
@@ -80,7 +82,6 @@ export const VideoTable = ({
                   _createdAfterDate.getDate() - Number(value)
                 );
 
-                console.log(_createdAfterDate);
                 setCreatedAfterDate(_createdAfterDate);
               } else {
                 setCreatedAfterDate(undefined);
@@ -97,7 +98,13 @@ export const VideoTable = ({
           />
         </Flex>
       </Flex>
-      <TableContainer width="100%">
+      <TableContainer
+        width="100%"
+        bgColor="white"
+        rounded={8}
+        whiteSpace="normal"
+        overflowX={undefined}
+      >
         <Table variant="simple">
           <Thead>
             <Tr>
@@ -107,6 +114,7 @@ export const VideoTable = ({
               <Th>Duration</Th>
               <Th>Uploaded on</Th>
               <Th>Uploaded by</Th>
+              <Th></Th>
             </Tr>
           </Thead>
           <Tbody hidden={isLoading} fontSize="0.8em">
@@ -151,8 +159,14 @@ const VideoTableRow = ({
   };
   pendingReview?: boolean;
 }) => {
+  const router = useRouter();
+
   return (
-    <Tr key={id}>
+    <Tr
+      key={id}
+      _hover={{ bgColor: "gray.50", cursor: "pointer" }}
+      onClick={() => router.push(`/admin/videos/${id}`)}
+    >
       <Td width={2}>
         <Flex align="center" gap={3}>
           <Flex align={"center"} gap={5}>
@@ -165,8 +179,9 @@ const VideoTableRow = ({
                 rounded={3}
                 _hover={{ cursor: "pointer", bgColor: "gray.100" }}
                 transition={"all 0.1s ease-in-out"}
+                onClick={(e) => e.stopPropagation()}
               >
-                <Icon fontSize={"lg"} as={BsBookmark} />
+                <Icon as={BsBookmark} fontSize={"lg"} />
               </Flex>
             )}
             <Image
@@ -191,6 +206,9 @@ const VideoTableRow = ({
       <Td>{new Date(upload_date).toDateString()}</Td>
       {/* @TODO: Should be a link to user page */}
       <Td>{userFullName}</Td>
+      <Td>
+        <Icon fontSize={20} as={IoIosArrowForward} color="gray.500" />
+      </Td>
     </Tr>
   );
 };
