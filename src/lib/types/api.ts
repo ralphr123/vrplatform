@@ -22,12 +22,16 @@ export type ApiReturnType<T> = SuccessReturnType<T> | FailReturnType;
 /** ------------------- SendGrid ------------------- */
 /** ------------------------------------------------ */
 
-const sendGridEmailTypes = ["verify-email"] as const;
+const sendGridTemplateNames = ["verify-email"] as const;
 
-export type SendGridTemplateId = (typeof sendGridEmailTypes)[number];
+export type SendGridTemplateName = (typeof sendGridTemplateNames)[number];
 
-export type SendGridTemplateData<T extends SendGridTemplateId> = {
+export type SendGridTemplateData<T extends SendGridTemplateName> = {
   "verify-email": {
-    Verify_Url: string;
+    Verify_Url: Pathname;
   };
 }[T];
+
+export const sendGridTemplateNameToId: Record<SendGridTemplateName, string> = {
+  "verify-email": process.env.SENDGRID_TEMPLATE_ID_VERIFY_EMAIL,
+};

@@ -4,10 +4,9 @@ import { z } from "zod";
 import { User, Video, VideoType } from "@prisma/client";
 import { ApiReturnType } from "@app/lib/types/api";
 import { encodeVideoOnAzureFromBlob } from "@app/lib/azure/encode";
-import { authenticateRequest } from "@app/lib/server/authenticateRequest";
 import { videoTypes } from "@app/lib/types/prisma";
 import { basePaginationQuerySchema } from "@app/lib/types/zod";
-import { sendEmail } from "@app/lib/server/sendEmail";
+import { authenticateRequest } from "@app/lib/server/authenticateRequest";
 
 const videoTypeSchema = z.enum(videoTypes);
 

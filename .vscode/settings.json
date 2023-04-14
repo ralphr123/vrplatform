@@ -1,3 +1,7 @@
 {
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "eslint.rules.customizations": [
+    { "rule": "prettier/prettier", "severity": "off" },
+    { "rule": "quotes", "severity": "off" }
+  ]
 }

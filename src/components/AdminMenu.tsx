@@ -16,12 +16,13 @@ import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
 import { Pathname } from "@app/lib/types/api";
+import { Logo } from "./Logo";
 
 interface Props {
   flex?: number | string;
 }
 
-export const LeftNavbar = ({ flex = 1 }: Props) => {
+export const AdminMenu = ({ flex = 1 }: Props) => {
   const router = useRouter();
   const session = useSession();
   const [activeNavbarItemIndex, setActiveNavbarItemIndex] = useState<number>();
@@ -58,7 +59,7 @@ export const LeftNavbar = ({ flex = 1 }: Props) => {
       {
         title: "My Account",
         icon: FiUser,
-        routes: [],
+        routes: [{ title: "Sign out", pathname: "/auth/signout" }],
       },
     ],
     []
@@ -73,10 +74,6 @@ export const LeftNavbar = ({ flex = 1 }: Props) => {
             return;
           }
         }
-      } else {
-        /** @TODO: make custom signin page */
-        // @ts-ignore
-        router.replace("/api/auth/signin");
       }
     }
   }, [session, router, navbarItems]);
@@ -91,18 +88,7 @@ export const LeftNavbar = ({ flex = 1 }: Props) => {
       borderRight="1px solid #EEEEEE"
       flexDirection="column"
     >
-      <Flex flex={1} align="center" paddingLeft="1.5em">
-        <Flex
-          height="5em"
-          width="9em"
-          bgColor="#F3F3F3"
-          align="center"
-          justify="center"
-          rounded="7px"
-        >
-          Logo
-        </Flex>
-      </Flex>
+      <Logo paddingLeft="1.5em" />
       <Accordion
         allowToggle
         width="100%"

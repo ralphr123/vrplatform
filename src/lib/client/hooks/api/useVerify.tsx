@@ -1,35 +1,42 @@
 import { ApiReturnType } from "@app/lib/types/api";
-import { GetUsersResp } from "@app/pages/api/v1/users";
-import { GetVideosResp } from "@app/pages/api/v1/videos";
-import { VideoType } from "@prisma/client";
+import { VerifyEmailBody } from "@app/pages/api/v1/auth/verify-email";
 import { route } from "nextjs-routes";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import useSWR from "swr";
-import { showToast } from "../../showToast";
+import { fetchJson } from "../../fetchJson";
 
 export const useVerify = ({
   token,
 }: {
   token?: string;
 } = {}) => {
-  const { data, error, isLoading } = useSWR<ApiReturnType<{}>>(
-    route({
-      pathname: "/api/v1/auth/verify-email",
-      query: {
-        ...(token && { token }),
-      },
-    }),
-    async (url: string) => await (await fetch(url)).json()
-  );
+  const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState<{}>();
 
   useEffect(() => {
-    if (error || (!data?.success && data?.error)) {
-      console.error(error || (!data?.success ? data?.error : undefined));
+    if (token) {
+      (async () => {
+        setIsLoading(true);
+        try {
+          const resp = await fetchJson<{}, VerifyEmailBody>({
+            method: "POST",
+            url: "/api/v1/auth/verify-email",
+            body: {
+              token,
+            },
+          });
+
+          setData(resp);
+        } catch (error) {
+          console.error("Error verifying email", error);
+        }
+        setIsLoading(false);
+      })();
     }
-  }, [error, isLoading, data]);
+  }, [token]);
 
   return {
-    data: data?.success ? data.data : undefined,
+    data,
     isLoading,
   };
 };

@@ -1,13 +1,17 @@
 import sgMail from "@sendgrid/mail";
-import { SendGridTemplateData, SendGridTemplateId } from "../types/api";
+import {
+  SendGridTemplateData,
+  SendGridTemplateName,
+  sendGridTemplateNameToId,
+} from "../types/api";
 
-export const sendEmail = async <T extends SendGridTemplateId>({
+export const sendEmail = async <T extends SendGridTemplateName>({
   email,
-  templateId,
+  templateName,
   dynamicTemplateData,
 }: {
   email: string;
-  templateId: T;
+  templateName: T;
   dynamicTemplateData: SendGridTemplateData<T>;
 }) => {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -15,7 +19,7 @@ export const sendEmail = async <T extends SendGridTemplateId>({
   const msg = {
     to: email,
     from: "ralph.rouhana@gmail.com",
-    templateId,
+    templateId: sendGridTemplateNameToId[templateName],
     dynamicTemplateData: {
       ...dynamicTemplateData,
       Sender_Address: "63 Hillhurst Blvd",
@@ -28,6 +32,6 @@ export const sendEmail = async <T extends SendGridTemplateId>({
   try {
     const sendResp = await sgMail.send(msg);
   } catch (error) {
-    console.error(error);
+    console.error(JSON.stringify(error));
   }
 };

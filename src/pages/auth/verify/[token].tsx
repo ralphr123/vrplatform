@@ -30,9 +30,10 @@ export default function Verify() {
       </Flex>
     );
   } else {
-    /** @TODO: make custom signin page */
-    // @ts-ignore
-    router.push("/api/auth/signin");
+    router.push({
+      pathname: "/auth/signin",
+      query: { hasJustVerifiedEmail: "true" },
+    });
   }
 
   return (

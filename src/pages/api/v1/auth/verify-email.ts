@@ -7,6 +7,8 @@ const postBodySchema = z.object({
   token: z.string(),
 });
 
+export type VerifyEmailBody = z.TypeOf<typeof postBodySchema>;
+
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     switch (req.method) {

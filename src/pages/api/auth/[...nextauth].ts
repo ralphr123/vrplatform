@@ -50,14 +50,17 @@ export const authOptions = {
           });
 
           await sendEmail({
-            email: "rrouhana@uwaterloo.ca",
-            templateId: "verify-email",
+            email: user.email,
+            templateName: "verify-email",
             dynamicTemplateData: {
-              Verify_Url: `http://localhost:3000/api/auth/verify-email?token=${token}`,
+              Verify_Url: route({
+                pathname: "/auth/verify/[token]",
+                query: { token },
+              }),
             },
           });
 
-          return route({ pathname: "/auth/verify/[token]", query: { token } });
+          return route({ pathname: "/auth/verify" });
         } catch (error) {
           console.error(`Error sending email verification token: ${error}`);
         }

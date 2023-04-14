@@ -22,6 +22,7 @@ declare global {
       AZURE_ARM_TOKEN_AUDIENCE: string;
       AZURE_ARM_ENDPOINT: string;
       SENDGRID_API_KEY: string;
+      SENDGRID_TEMPLATE_ID_VERIFY_EMAIL: string;
     }
   }
 }
