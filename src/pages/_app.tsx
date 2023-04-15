@@ -1,4 +1,5 @@
-import { AdminMenu } from "@app/components/AdminMenu";
+import { AdminMenu } from "@app/components/admin/AdminMenu";
+import { Menu } from "@app/components/Menu";
 import { ToastContainer } from "@app/lib/client/showToast";
 import "@app/styles/globals.css";
 import { ChakraProvider, Flex } from "@chakra-ui/react";
@@ -10,27 +11,16 @@ import "../styles/bitmovin.min.css";
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
-  const isAdminPanel = router.pathname.split("/")[1] === "admin";
-  const pageGroup = router.pathname.split("/")[1] as
-    | "admin"
-    | "dashboard"
-    | "auth";
-  const [pageLayout, setPageLayout] = useState<ReactNode>();
+  const portal = router.pathname.split("/")[1] as "admin" | "auth" | undefined;
+  const [portalLayout, setPortalLayout] = useState<ReactNode>();
 
   useEffect(() => {
-    switch (pageGroup) {
+    // Chakra UI is broken in Safari, so we need to set color mode manually
+    localStorage.setItem("chakra-ui-color-mode", "light");
+
+    switch (portal) {
       case "admin":
-        setPageLayout(
-          <Flex height="100vh" width="100vw" bgColor="#FAFAFA">
-            <AdminMenu flex={1} />
-            <Flex flex={4} padding="3em 2.5em">
-              <Component {...pageProps} />
-            </Flex>
-          </Flex>
-        );
-        break;
-      case "dashboard":
-        setPageLayout(
+        setPortalLayout(
           <Flex height="100vh" width="100vw" bgColor="#FAFAFA">
             <AdminMenu flex={1} />
             <Flex flex={4} padding="3em 2.5em">
@@ -40,21 +30,30 @@ export default function App({ Component, pageProps }: AppProps) {
         );
         break;
       case "auth":
-        setPageLayout(
+        setPortalLayout(
           <Flex height="100vh" width="100vw" bgColor="gray.100">
             <Component {...pageProps} />
           </Flex>
         );
         break;
       default:
+        setPortalLayout(
+          <Flex height="100vh" width="100vw" bgColor="#FAFAFA">
+            <Menu />
+            {/* Top padding is to leave space for Menu */}
+            <Flex padding="12vh 3em 3em 3em" height="100vh" width="100vw">
+              <Component {...pageProps} />
+            </Flex>
+          </Flex>
+        );
         break;
     }
-  }, [pageGroup, Component, pageProps]);
+  }, [portal, Component, pageProps]);
 
   return (
     <SessionProvider>
       <ChakraProvider>
-        {pageLayout}
+        {portalLayout}
         <ToastContainer />
       </ChakraProvider>
     </SessionProvider>

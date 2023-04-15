@@ -1,5 +1,5 @@
-import { PageHeader } from "@app/components/PageHeader";
-import { VideoTable } from "@app/components/video/VideoTable";
+import { PageHeader } from "@app/components/admin/PageHeader";
+import { VideoTable } from "@app/components/admin/tables/VideoTable";
 import { useVideos } from "@app/lib/client/hooks/api/useVideos";
 import { showToast } from "@app/lib/client/showToast";
 import { Flex } from "@chakra-ui/react";

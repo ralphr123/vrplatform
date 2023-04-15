@@ -15,6 +15,7 @@ import {
   Image,
   Text,
   Input,
+  Stack,
 } from "@chakra-ui/react";
 import { User, Video, VideoType } from "@prisma/client";
 import { useRouter } from "next/router";
@@ -23,7 +24,7 @@ import { BsBookmark, BsBookmarkFill, BsCalendar } from "react-icons/bs";
 import { HiOutlineUserCircle } from "react-icons/hi";
 import { IoIosArrowForward } from "react-icons/io";
 import { MdOndemandVideo } from "react-icons/md";
-import { Select } from "../Select";
+import { Select } from "../../input/Select";
 
 export const VideoTable = ({
   pendingReview = false,
@@ -54,7 +55,7 @@ export const VideoTable = ({
           value={searchText}
           onChange={({ target: { value } }) => setSearchText(value)}
         />
-        <Flex flex={1}>
+        <Stack flex={1}>
           <Select
             options={[
               { value: "", label: "All videos", icon: MdOndemandVideo },
@@ -66,8 +67,8 @@ export const VideoTable = ({
             ]}
             onChange={(value) => setType(value as VideoType)}
           />
-        </Flex>
-        <Flex flex={1}>
+        </Stack>
+        <Stack flex={1}>
           <Select
             options={[
               { label: "All time", value: "" },
@@ -89,14 +90,14 @@ export const VideoTable = ({
             }}
             defaultIcon={BsCalendar}
           />
-        </Flex>
-        <Flex flex={1}>
+        </Stack>
+        <Stack flex={1}>
           <Select
             options={[{ label: "All users", value: "" }]}
             defaultIcon={HiOutlineUserCircle}
             isSearchable
           />
-        </Flex>
+        </Stack>
       </Flex>
       <TableContainer
         width="100%"
@@ -112,8 +113,8 @@ export const VideoTable = ({
               <Th hidden={pendingReview}>Views</Th>
               <Th hidden={pendingReview}>Likes</Th>
               <Th>Duration</Th>
-              <Th>Uploaded on</Th>
-              <Th>Uploaded by</Th>
+              <Th whiteSpace="nowrap">Uploaded on</Th>
+              <Th whiteSpace="nowrap">Uploaded by</Th>
               <Th></Th>
             </Tr>
           </Thead>
@@ -149,7 +150,7 @@ const VideoTableRow = ({
     likes,
     thumbnailUrl,
     duration_seconds,
-    upload_date,
+    uploadDate,
     user: { name: userFullName },
   },
   pendingReview = false,
@@ -203,7 +204,7 @@ const VideoTableRow = ({
       <Td hidden={pendingReview}>{views}</Td>
       <Td hidden={pendingReview}>{likes}</Td>
       <Td>{duration_seconds}</Td>
-      <Td>{new Date(upload_date).toDateString()}</Td>
+      <Td whiteSpace="nowrap">{new Date(uploadDate).toDateString()}</Td>
       {/* @TODO: Should be a link to user page */}
       <Td>{userFullName}</Td>
       <Td>

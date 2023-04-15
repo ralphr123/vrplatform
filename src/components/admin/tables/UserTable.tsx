@@ -21,7 +21,7 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { BsBookmark, BsBookmarkFill, BsCalendar } from "react-icons/bs";
 import { IoIosArrowForward } from "react-icons/io";
-import { Select } from "../Select";
+import { Select } from "../../input/Select";
 
 export const UserTable = ({
   pendingReview = false,

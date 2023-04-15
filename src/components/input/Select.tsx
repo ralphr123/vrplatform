@@ -65,6 +65,7 @@ export const Select = ({
         control: (provided) => ({
           ...provided,
           border: "1px solid #E2E8F0",
+          width: "100%",
         }),
       }}
     />

@@ -16,7 +16,7 @@ import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
 import { Pathname } from "@app/lib/types/api";
-import { Logo } from "./Logo";
+import { Logo } from "../Logo";
 
 interface Props {
   flex?: number | string;
@@ -46,8 +46,12 @@ export const AdminMenu = ({ flex = 1 }: Props) => {
         icon: FiUsers,
         routes: [
           {
+            title: "Verified",
+            pathname: "/admin/users/verified",
+          },
+          {
             title: "Pending Verification",
-            pathname: "/admin/users/pending-review",
+            pathname: "/admin/users/pending-verification",
           },
         ],
       },
@@ -82,13 +86,12 @@ export const AdminMenu = ({ flex = 1 }: Props) => {
     <Flex
       height="100vh"
       flex={flex}
-      // flexGrow={0}
       flexShrink={0}
       bgColor="white"
       borderRight="1px solid #EEEEEE"
       flexDirection="column"
     >
-      <Logo paddingLeft="1.5em" />
+      <Logo height="5em" width="9em" margin={5} />
       <Accordion
         allowToggle
         width="100%"

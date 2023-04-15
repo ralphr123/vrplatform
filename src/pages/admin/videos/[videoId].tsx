@@ -1,4 +1,4 @@
-import { PageHeader } from "@app/components/PageHeader";
+import { PageHeader } from "@app/components/admin/PageHeader";
 import { VideoPlayer } from "@app/components/video/VideoPlayer";
 import { useVideo } from "@app/lib/client/hooks/api/useVideo";
 import { Flex, Spinner, Text } from "@chakra-ui/react";
@@ -55,8 +55,8 @@ export default function Video() {
             Published on
           </Text>
           <Text fontSize="0.9em" color="#666666">
-            {video.verified_date
-              ? new Date(video.verified_date).toDateString()
+            {video.verifiedDate
+              ? new Date(video.verifiedDate).toDateString()
               : "-"}
           </Text>
         </Flex>
@@ -99,7 +99,7 @@ export default function Video() {
             Uploaded On
           </Text>
           <Text fontSize="0.9em" color="#666666">
-            {new Date(video.upload_date).toDateString()}
+            {new Date(video.uploadDate).toDateString()}
           </Text>
         </Flex>
       </Flex>

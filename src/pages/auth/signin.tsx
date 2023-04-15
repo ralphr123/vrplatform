@@ -60,7 +60,7 @@ export default function SignIn() {
         gap={10}
         width={"35vw"}
       >
-        <Logo />
+        <Logo height="5em" width="9em" />
         <Flex flexDirection="column" gap={2}>
           <Heading size={"lg"}>Sign In</Heading>
           <Text>Please fill in your account credentials.</Text>
@@ -83,6 +83,7 @@ export default function SignIn() {
           </Button>
           <Button
             bgColor="gray.100"
+            // variant="primary"
             padding={6}
             onClick={() => signIn("google", { redirect: false })}
           >

@@ -93,8 +93,8 @@ const getVideos = async ({
       take: Number(limit),
       where: {
         ...(pendingReview
-          ? { verified_date: { equals: null } }
-          : { verified_date: { not: { equals: null } } }),
+          ? { verifiedDate: { equals: null } }
+          : { verifiedDate: { not: { equals: null } } }),
         ...(searchText && {
           OR: [
             { name: { contains: searchText } },
@@ -104,7 +104,7 @@ const getVideos = async ({
         ...(type && { type: { equals: type } }),
         ...(userId && { id: { equals: userId } }),
         ...(uploadedAfterDate && {
-          upload_date: { gte: uploadedAfterDate },
+          uploadDate: { gte: uploadedAfterDate },
         }),
       },
       include: { user: true },

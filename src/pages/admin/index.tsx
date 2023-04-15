@@ -6,7 +6,7 @@ export default function Admin() {
 
   useEffect(() => {
     router.push("/admin/videos/published");
-  }, []);
+  }, [router]);
 
   return <></>;
 }

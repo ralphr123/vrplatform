@@ -36,6 +36,7 @@ model Session {
 enum UserRole {
   Member
   Admin
+  SuperAdmin
 }
 
 model User {
@@ -79,7 +80,7 @@ model Video {
   views              Int       @default(0)
   likes              Int       @default(0)
   duration_seconds   Int
-  upload_date        DateTime  @default(now())
-  verified_date      DateTime?
+  uploadDate         DateTime  @default(now())
+  verifiedDate       DateTime?
   user               User      @relation(fields: [userId], references: [id])
 }
