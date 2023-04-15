@@ -1,16 +1,18 @@
-import { Flex, FlexProps } from "@chakra-ui/react";
+import { Flex, LinkProps, Link } from "@chakra-ui/react";
 
-export const Logo = (props: FlexProps) => {
+export const Logo = (props: LinkProps) => {
   return (
-    <Flex
-      // flex={1}
+    <Link
+      href="/"
       {...props}
       bgColor="#F3F3F3"
-      align="center"
-      justify="center"
       rounded="7px"
+      cursor="pointer"
+      _hover={{ textDecoration: "none" }}
     >
-      Logo
-    </Flex>
+      <Flex w="100%" h="100%" align="center" justify="center">
+        Logo
+      </Flex>
+    </Link>
   );
 };

@@ -37,11 +37,12 @@ export const VideoPlayer = ({
     if (player) {
       player.load({
         title: name,
-        hls: hlsUrl,
-        // vr: {
-        //   startPosition: 180,
-        //   contentType: VRContentType.Single,
-        // },
+        // hls: hlsUrl,
+        hls: "https://bitmovin-a.akamaihd.net/content/playhouse-vr/m3u8s/105560.m3u8",
+        vr: {
+          startPosition: 180,
+          contentType: VRContentType.Single,
+        },
       });
       UIFactory.buildDefaultUI(player);
     }

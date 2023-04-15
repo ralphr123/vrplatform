@@ -24,6 +24,7 @@ declare module "nextjs-routes" {
     | StaticRoute<"/api/v1/auth/verify-email">
     | DynamicRoute<"/api/v1/azure/encodeVideoOnAzureFromBlob/[blobUrl]", { "blobUrl": string }>
     | StaticRoute<"/api/v1/azure/generateStorageSasToken">
+    | DynamicRoute<"/api/v1/users/[userId]", { "userId": string }>
     | StaticRoute<"/api/v1/users">
     | DynamicRoute<"/api/v1/videos/[videoId]", { "videoId": string }>
     | StaticRoute<"/api/v1/videos">
@@ -32,7 +33,8 @@ declare module "nextjs-routes" {
     | DynamicRoute<"/auth/verify/[token]", { "token": string }>
     | StaticRoute<"/auth/verify">
     | StaticRoute<"/">
-    | StaticRoute<"/upload">;
+    | StaticRoute<"/upload">
+    | DynamicRoute<"/videos/[videoId]", { "videoId": string }>;
 
   interface StaticRoute<Pathname> {
     pathname: Pathname;

@@ -10,18 +10,10 @@ export default function Video() {
     router.query["videoId"] as string | undefined
   );
 
-  if (isLoading) {
+  if (isLoading || !data?.video) {
     return (
       <Flex width="100%" height="100%">
-        <Spinner></Spinner>
-      </Flex>
-    );
-  }
-
-  if (!data?.video) {
-    return (
-      <Flex width="100%" height="100%">
-        Not found
+        <Spinner />
       </Flex>
     );
   }

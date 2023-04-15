@@ -28,8 +28,10 @@ import { Select } from "../../input/Select";
 
 export const VideoTable = ({
   pendingReview = false,
+  setUserId,
 }: {
   pendingReview?: boolean;
+  setUserId?: string;
 }) => {
   const [searchText, setSearchText] = useState<string>();
   const [type, setType] = useState<VideoType>();
@@ -42,6 +44,7 @@ export const VideoTable = ({
     searchText: debouncedSearchText,
     type,
     uploadedAfterDate,
+    userId: setUserId,
   });
 
   return (
@@ -91,13 +94,15 @@ export const VideoTable = ({
             defaultIcon={BsCalendar}
           />
         </Stack>
-        <Stack flex={1}>
-          <Select
-            options={[{ label: "All users", value: "" }]}
-            defaultIcon={HiOutlineUserCircle}
-            isSearchable
-          />
-        </Stack>
+        {!setUserId && (
+          <Stack flex={1}>
+            <Select
+              options={[{ label: "All users", value: "" }]}
+              defaultIcon={HiOutlineUserCircle}
+              isSearchable
+            />
+          </Stack>
+        )}
       </Flex>
       <TableContainer
         width="100%"
@@ -114,7 +119,9 @@ export const VideoTable = ({
               <Th hidden={pendingReview}>Likes</Th>
               <Th>Duration</Th>
               <Th whiteSpace="nowrap">Uploaded on</Th>
-              <Th whiteSpace="nowrap">Uploaded by</Th>
+              <Th whiteSpace="nowrap" hidden={!!setUserId}>
+                Uploaded by
+              </Th>
               <Th></Th>
             </Tr>
           </Thead>
@@ -123,6 +130,7 @@ export const VideoTable = ({
               <VideoTableRow
                 key={video.id}
                 video={video}
+                setUserId={setUserId}
                 pendingReview={pendingReview}
               />
             ))}
@@ -154,11 +162,13 @@ const VideoTableRow = ({
     user: { name: userFullName },
   },
   pendingReview = false,
+  setUserId,
 }: {
   video: Video & {
     user: User;
   };
   pendingReview?: boolean;
+  setUserId?: string;
 }) => {
   const router = useRouter();
 
@@ -206,7 +216,7 @@ const VideoTableRow = ({
       <Td>{duration_seconds}</Td>
       <Td whiteSpace="nowrap">{new Date(uploadDate).toDateString()}</Td>
       {/* @TODO: Should be a link to user page */}
-      <Td>{userFullName}</Td>
+      <Td hidden={!!setUserId}>{userFullName}</Td>
       <Td>
         <Icon fontSize={20} as={IoIosArrowForward} color="gray.500" />
       </Td>

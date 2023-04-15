@@ -54,7 +54,7 @@ const VideoCard = ({
         cursor: "pointer",
       }}
       transition="transform 0.1s"
-      onClick={() => router.push(`/admin/videos/${id}`)}
+      onClick={() => router.push(`/videos/${id}`)}
     >
       <Flex flexDirection="column" height="100%" width="100%">
         <Image

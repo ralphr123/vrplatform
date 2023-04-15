@@ -1,17 +1,16 @@
 import { ApiReturnType } from "@app/lib/types/api";
-import { GetVideosResp } from "@app/pages/api/v1/videos";
-import { GetVideoResp } from "@app/pages/api/v1/videos/[videoId]";
+import { GetUserResp } from "@app/pages/api/v1/users/[userId]";
 import { useEffect } from "react";
 import useSWR from "swr";
 import { showToast } from "../../showToast";
 
-export const useVideo = (videoId?: string) => {
+export const useUser = (userId?: string) => {
   const {
     data,
     error: fetchError,
     isLoading,
-  } = useSWR<ApiReturnType<GetVideoResp>>(
-    videoId ? `/api/v1/videos/${videoId}` : null,
+  } = useSWR<ApiReturnType<GetUserResp>>(
+    userId ? `/api/v1/users/${userId}` : null,
     async (url: string) => await (await fetch(url)).json()
   );
 

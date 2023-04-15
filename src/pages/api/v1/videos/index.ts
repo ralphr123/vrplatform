@@ -50,13 +50,17 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         return res.status(200).json(result);
       }
       default:
-        return res.status(405).json({ message: "Method not allowed." });
+        return res
+          .status(405)
+          .json({ success: false, error: "Method not allowed." });
     }
   } catch (error) {
     console.error(
       `Something went wrong making a request to /api/v1/videos: ${error}`
     );
-    return res.status(500).json({ message: `Something went wrong: ${error}` });
+    return res
+      .status(500)
+      .json({ success: false, error: `Something went wrong: ${error}` });
   }
 };
 
@@ -88,6 +92,7 @@ const getVideos = async ({
   userId?: string;
 }): Promise<ApiReturnType<GetVideosResp>> => {
   try {
+    console.log(userId);
     const videos = await prisma.video.findMany({
       skip: (Number(page) - 1) * Number(limit),
       take: Number(limit),
@@ -102,7 +107,7 @@ const getVideos = async ({
           ],
         }),
         ...(type && { type: { equals: type } }),
-        ...(userId && { id: { equals: userId } }),
+        ...(userId && { userId: { equals: userId } }),
         ...(uploadedAfterDate && {
           uploadDate: { gte: uploadedAfterDate },
         }),

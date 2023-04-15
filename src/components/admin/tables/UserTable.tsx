@@ -11,10 +11,10 @@ import {
   Spinner,
   Flex,
   Icon,
-  Image,
   Text,
   Input,
   Avatar,
+  Stack,
 } from "@chakra-ui/react";
 import { User, Video } from "@prisma/client";
 import { useRouter } from "next/router";
@@ -50,7 +50,7 @@ export const UserTable = ({
           value={searchText}
           onChange={({ target: { value } }) => setSearchText(value)}
         />
-        <Flex flex={1}>
+        <Stack flex={1}>
           <Select
             options={[
               { label: "All time", value: "" },
@@ -74,7 +74,7 @@ export const UserTable = ({
             }}
             defaultIcon={BsCalendar}
           />
-        </Flex>
+        </Stack>
       </Flex>
       <TableContainer width="100%" bgColor="white" rounded={8}>
         <Table variant="simple">
@@ -91,7 +91,7 @@ export const UserTable = ({
           </Thead>
           <Tbody hidden={isLoading} fontSize="0.8em">
             {users?.map((user) => (
-              <VideoTableRow key={user.id} user={user} />
+              <UserTableRow key={user.id} user={user} />
             ))}
           </Tbody>
         </Table>
@@ -109,7 +109,7 @@ export const UserTable = ({
   );
 };
 
-const VideoTableRow = ({
+const UserTableRow = ({
   user: { id, name, image, registeredDate, lastLoginDate, videos },
 }: {
   user: User & { videos: Video[] };

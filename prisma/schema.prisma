@@ -47,7 +47,7 @@ model User {
   emailVerificationToken String?
   image                  String?
   registeredDate         DateTime  @default(now())
-  lastLoginDate          DateTime?
+  lastLoginDate          DateTime  @default(now())
   role                   UserRole  @default(Member)
   accounts               Account[]
   sessions               Session[]

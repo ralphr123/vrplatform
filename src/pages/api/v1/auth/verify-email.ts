@@ -18,13 +18,17 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         return res.status(200).json(result);
       }
       default:
-        return res.status(405).json({ message: "Method not allowed." });
+        return res
+          .status(405)
+          .json({ success: false, error: "Method not allowed." });
     }
   } catch (error) {
     console.error(
       `Something went wrong making a request to /api/v1/auth/verify-email: ${error}`
     );
-    return res.status(500).json({ message: `Something went wrong: ${error}` });
+    return res
+      .status(500)
+      .json({ success: false, error: `Something went wrong: ${error}` });
   }
 };
 
