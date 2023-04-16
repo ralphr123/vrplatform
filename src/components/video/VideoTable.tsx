@@ -25,7 +25,7 @@ import { BsBookmark, BsBookmarkFill, BsCalendar } from "react-icons/bs";
 import { HiOutlineUserCircle } from "react-icons/hi";
 import { IoIosArrowForward } from "react-icons/io";
 import { MdOndemandVideo } from "react-icons/md";
-import { Select } from "../../input/Select";
+import { Select } from "../input/Select";
 
 export const VideoTable = ({
   pendingReview = false,
