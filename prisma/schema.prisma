@@ -40,18 +40,23 @@ enum UserRole {
 }
 
 model User {
-  id                     String    @id @default(cuid())
+  id                     String          @id @default(cuid())
   name                   String
-  email                  String    @unique
-  emailVerified          DateTime? @map("emailVerifiedDate")
+  email                  String          @unique
+  emailVerified          DateTime?       @map("emailVerifiedDate")
   emailVerificationToken String?
   image                  String?
-  registeredDate         DateTime  @default(now())
-  lastLoginDate          DateTime  @default(now())
-  role                   UserRole  @default(Member)
+  registeredDate         DateTime        @default(now())
+  lastLoginDate          DateTime        @default(now())
+  role                   UserRole        @default(Member)
   accounts               Account[]
   sessions               Session[]
   videos                 Video[]
+  VideoLike              VideoLike[]
+  VideoView              VideoView[]
+  VideoBookmark          VideoBookmark[]
+  BookmarkedUsers        UserBookmark[]  @relation("AdminUser")
+  BookmarkedBy           UserBookmark[]  @relation("UserBookmarked")
 }
 
 model VerificationToken {
@@ -68,19 +73,62 @@ enum VideoType {
 }
 
 model Video {
-  id                 String    @id @default(cuid())
+  id                 String          @id @default(cuid())
   userId             String
   name               String
-  blobUrl            String    @map(name: "url")
+  blobUrl            String          @map(name: "url")
   hlsUrl             String
   dashUrl            String
   smoothStreamingUrl String
   thumbnailUrl       String
-  type               VideoType @default(Regular)
-  views              Int       @default(0)
-  likes              Int       @default(0)
+  type               VideoType       @default(Regular)
+  views              Int             @default(0)
+  likes              Int             @default(0)
   duration_seconds   Int
-  uploadDate         DateTime  @default(now())
+  uploadDate         DateTime        @default(now())
   verifiedDate       DateTime?
-  user               User      @relation(fields: [userId], references: [id])
+  user               User            @relation(fields: [userId], references: [id])
+  VideoLike          VideoLike[]
+  VideoView          VideoView[]
+  VideoBookmark      VideoBookmark[]
+}
+
+model VideoLike {
+  id      String @id @default(cuid())
+  videoId String
+  userId  String
+  video   Video  @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([videoId, userId])
+}
+
+model VideoView {
+  id      String @id @default(cuid())
+  videoId String
+  userId  String
+  video   Video  @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([videoId, userId])
+}
+
+model VideoBookmark {
+  id      String @id @default(cuid())
+  videoId String
+  userId  String
+  video   Video  @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([videoId, userId])
+}
+
+model UserBookmark {
+  id      String @id @default(cuid())
+  adminId String
+  userId  String
+  admin   User   @relation("AdminUser", fields: [adminId], references: [id], onDelete: Cascade)
+  user    User   @relation("UserBookmarked", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([adminId, userId])
 }
