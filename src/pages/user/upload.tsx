@@ -5,13 +5,13 @@ import { showToast } from "@app/lib/client/showToast";
 import { ApiReturnType } from "@app/lib/types/api";
 import { BlockBlobClient } from "@azure/storage-blob";
 import { EncodeVideoOnAzureFromBlobResp } from "@app/lib/azure/encode";
-import { GenerateAzureStorageSasTokenResp } from "./api/v1/azure/generateStorageSasToken";
+import { GenerateAzureStorageSasTokenResp } from "../api/v1/azure/generateStorageSasToken";
 import { route } from "nextjs-routes";
 import { fetchJson } from "@app/lib/client/fetchJson";
 import {
   EncodeAndSaveVideoBody,
   EncodeAndSaveVideoResp,
-} from "./api/v1/videos";
+} from "../api/v1/videos";
 
 export default function Upload() {
   const [videoFile, setVideoFile] = useState<File>();
@@ -69,8 +69,7 @@ export default function Upload() {
       console.error(error);
       showToast({
         status: "error",
-        description:
-          "Failed to upload video. If this error persists, contact support at support@vrplatform.com",
+        description: "Failed to upload video.",
       });
     }
   };

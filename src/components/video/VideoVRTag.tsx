@@ -6,7 +6,7 @@ export const VideoVRTag = () => (
   <Flex
     bgColor="#87B0F5"
     padding={"0.25em 0.5em"}
-    borderRadius="lg"
+    rounded="lg"
     fontSize="0.8em"
     color="white"
     align="center"

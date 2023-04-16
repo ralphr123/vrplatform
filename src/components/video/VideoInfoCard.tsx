@@ -12,7 +12,7 @@ export const VideoInfoCard = ({
     height="5em"
     bgColor="white"
     border="1px solid #DDDDDD"
-    borderRadius="lg"
+    rounded="lg"
     align="center"
     justify="space-between"
     padding="3.25em 2.5em"
@@ -39,7 +39,7 @@ export const VideoInfoCardDetail = ({
   value: string;
 }) => (
   <Stack justify="center" width="12em">
-    <Text fontWeight="600" color="#BBBBBB">
+    <Text fontWeight="600" color="#999999">
       {label}
     </Text>
     <Text fontSize="0.9em" color="#666666">

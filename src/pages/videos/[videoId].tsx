@@ -53,22 +53,22 @@ const VideoCard = ({
       bgColor="white"
       height="min-content"
       padding={10}
-      borderRadius="lg"
+      rounded="lg"
     >
       {/* ----------- Video player ----------- */}
-      <Flex flex={6} width="100%" borderRadius="lg" overflow="hidden">
+      <Flex flex={6} width="100%" rounded="lg" overflow="hidden">
         {/* <VideoPlayer name={video.name} hlsUrl={video.hlsUrl} /> */}
         <Flex
           height="450px"
           minWidth="100%"
-          borderRadius="lg"
+          rounded="lg"
           bgColor="#87B0F5"
         ></Flex>
       </Flex>
       {/* ------------------------------------ */}
 
       {/* ------------ Video info ------------ */}
-      <Stack width="100%" borderRadius="lg" flex={2.75} gap={5}>
+      <Stack width="100%" rounded="lg" flex={2.75} gap={5}>
         {/* ------------ Video data ------------ */}
         <Flex flexDirection="column">
           <Text fontSize="1.8em" fontWeight={500}>

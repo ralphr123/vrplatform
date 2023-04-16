@@ -1,5 +1,6 @@
 import { AdminMenu } from "@app/components/admin/AdminMenu";
 import { Menu } from "@app/components/Menu";
+import { UserMenu } from "@app/components/user/UserMenu";
 import { ToastContainer } from "@app/lib/client/showToast";
 import "@app/styles/globals.css";
 import { ChakraProvider, Flex } from "@chakra-ui/react";
@@ -9,9 +10,11 @@ import { useRouter } from "next/router";
 import { ReactNode, useEffect, useState } from "react";
 import "../styles/bitmovin.min.css";
 
+type Portal = "admin" | "auth" | "user" | undefined;
+
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
-  const portal = router.pathname.split("/")[1] as "admin" | "auth" | undefined;
+  const portal = router.pathname.split("/")[1] as Portal;
   const [portalLayout, setPortalLayout] = useState<ReactNode>();
 
   useEffect(() => {
@@ -33,6 +36,30 @@ export default function App({ Component, pageProps }: AppProps) {
         setPortalLayout(
           <Flex height="100vh" width="100vw" bgColor="gray.100">
             <Component {...pageProps} />
+          </Flex>
+        );
+        break;
+      case "user":
+        setPortalLayout(
+          <Flex height="100vh" width="100vw" bgColor="#FAFAFA">
+            <Menu />
+            <Flex
+              // Top padding is to leave space for Menu
+              padding="12vh 3em 3em 3em"
+              height="100vh"
+              width="100vw"
+              gap={5}
+            >
+              <UserMenu flex={1} />
+              <Flex
+                flex={3}
+                padding="1.25em 1.75em"
+                bgColor="white"
+                rounded="lg"
+              >
+                <Component {...pageProps} />
+              </Flex>
+            </Flex>
           </Flex>
         );
         break;

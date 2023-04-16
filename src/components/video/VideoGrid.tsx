@@ -1,5 +1,7 @@
 import { formatDate } from "@app/lib/client/formatDate";
 import { useVideos } from "@app/lib/client/hooks/api/useVideos";
+import { showToast } from "@app/lib/client/showToast";
+import { toastMessages } from "@app/lib/types/toast";
 import { Flex, Grid, GridItem, Image, Spinner, Text } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
@@ -7,26 +9,39 @@ import { useEffect } from "react";
 export const VideoGrid = () => {
   const { data: { videos } = {}, isLoading } = useVideos({});
 
+  if (isLoading) {
+    return (
+      <Flex width="100%" height="50%" align="center" justify="center">
+        <Spinner />
+      </Flex>
+    );
+  }
+
+  if (!videos) {
+    showToast({
+      status: "error",
+      description: toastMessages.videosErrorFetching,
+      contactSupport: true,
+    });
+    return null;
+  }
+
   return (
     <Grid
       width="100%"
       templateColumns="repeat(auto-fill, minmax(18em, 1fr))"
       gridGap={5}
     >
-      {videos ? (
-        videos.map(({ id, name, thumbnailUrl, uploadDate, views }) => (
-          <VideoCard
-            id={id}
-            key={name}
-            name={name}
-            thumbnailUrl={thumbnailUrl}
-            uploadDate={uploadDate}
-            views={views}
-          />
-        ))
-      ) : (
-        <Spinner />
-      )}
+      {videos.map(({ id, name, thumbnailUrl, uploadDate, views }) => (
+        <VideoCard
+          id={id}
+          key={name}
+          name={name}
+          thumbnailUrl={thumbnailUrl}
+          uploadDate={uploadDate}
+          views={views}
+        />
+      ))}
     </Grid>
   );
 };
@@ -47,7 +62,7 @@ const VideoCard = ({
   const router = useRouter();
   return (
     <GridItem
-      borderRadius="lg"
+      rounded="lg"
       height="16em"
       overflow="hidden"
       _hover={{
@@ -64,7 +79,7 @@ const VideoCard = ({
           minHeight={0}
           flex={4}
           objectFit="cover"
-          borderRadius="sm"
+          rounded="sm"
         />
         <Flex
           flexDirection="column"

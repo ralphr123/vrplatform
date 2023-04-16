@@ -22,8 +22,7 @@ export const useVideo = (videoId?: string) => {
       console.error(error);
       showToast({
         status: "error",
-        description:
-          "Failed to fetch video. If this error persists, please contact support.",
+        description: "Failed to fetch video.",
       });
     }
   }, [error]);

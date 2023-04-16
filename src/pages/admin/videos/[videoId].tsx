@@ -34,7 +34,7 @@ export default function Video() {
         width="100%"
         bgColor="white"
         border="1px solid #DDDDDD"
-        borderRadius="lg"
+        rounded="lg"
         padding="1.25em 2em"
       >
         <Text fontWeight="600" color="#BBBBBB">

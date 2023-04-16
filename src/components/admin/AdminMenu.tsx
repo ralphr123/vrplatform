@@ -100,7 +100,7 @@ export const AdminMenu = ({ flex = 1 }: Props) => {
       >
         {session.status === "authenticated" ? (
           Object.entries(navbarItems).map(([i, { title, icon, routes }]) => (
-            <LeftNavbarItem
+            <AdminMenuItem
               key={i}
               icon={icon}
               title={title}
@@ -117,7 +117,7 @@ export const AdminMenu = ({ flex = 1 }: Props) => {
   );
 };
 
-const LeftNavbarItem = ({
+const AdminMenuItem = ({
   icon,
   title,
   routes,
@@ -161,7 +161,7 @@ const LeftNavbarItem = ({
             }}
             height="3em"
             align="center"
-            bgColor={currentPath === pathname ? "#FAFAFA" : undefined}
+            bgColor={currentPath === pathname ? "gray.50" : undefined}
             color={currentPath === pathname ? "#87B0F5" : undefined}
             key={i}
           >

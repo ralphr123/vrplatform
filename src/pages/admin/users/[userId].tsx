@@ -15,7 +15,6 @@ import {
 import { useRouter } from "next/router";
 import { BsBookmark, BsTrash, BsCalendar } from "react-icons/bs";
 import { AiOutlineInfoCircle } from "react-icons/ai";
-import { HiOutlineUserCircle } from "react-icons/hi";
 import { FiVideo } from "react-icons/fi";
 import { MdContentCopy } from "react-icons/md";
 import { Dropdown } from "@app/components/input/Dropdown";

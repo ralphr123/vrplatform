@@ -170,10 +170,7 @@ const waitForJobToFinish = async (transformName: string, jobName: string) => {
   return await pollForJobStatus();
 };
 
-// Selects the JobInput type to use based on the value of inputFile or blobUrl.
-// Set inputFile to null to create a Job input that sources from an HTTP URL path
 // Creates a new input Asset and uploads the local file to it before returning a JobInputAsset object
-// Returns a JobInputHttp object if inputFile is set to null, and the blobUrl is set to a valid URL
 const getJobInputType = async ({
   blobUrl,
   uniqueness,
@@ -221,7 +218,8 @@ const createStreamingLocator = async (
 ) => {
   const streamingLocator = {
     assetName: assetName,
-    streamingPolicyName: "Predefined_ClearStreamingOnly", // no DRM or AES128 encryption protection on this asset. Clear means unencrypted.
+    // no DRM or AES128 encryption protection on this asset. Clear means unencrypted.
+    streamingPolicyName: "Predefined_ClearStreamingOnly",
   };
 
   const locator = await mediaServicesClient.streamingLocators.create(
@@ -235,7 +233,6 @@ const createStreamingLocator = async (
 };
 
 const getStreamingUrls = async (locatorName: string) => {
-  // Make sure the streaming endpoint is in the "Running" state on account
   const streamingEndpoint = await mediaServicesClient.streamingEndpoints.get(
     resourceGroupName,
     mediaServicesAccountName,
