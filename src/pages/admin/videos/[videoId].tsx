@@ -1,8 +1,8 @@
 import { PageHeader } from "@app/components/admin/PageHeader";
+import { VideoInfoCard } from "@app/components/video/VideoInfoCard";
 import { VideoPlayer } from "@app/components/video/VideoPlayer";
-import { formatDate } from "@app/lib/client/formatDate";
 import { useVideo } from "@app/lib/client/hooks/api/useVideo";
-import { Flex, Spinner, Text } from "@chakra-ui/react";
+import { Flex, Spinner, Stack, Text } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 
 export default function Video() {
@@ -19,81 +19,30 @@ export default function Video() {
     );
   }
 
-  const video = data.video;
+  const { name, description, hlsUrl } = data.video;
 
   return (
     <Flex flexDirection="column" width="100%" gap="1.5em">
-      <PageHeader>{video.name}</PageHeader>
-      <Flex width="100%" rounded="5px" overflow="hidden">
-        <VideoPlayer name={video.name} hlsUrl={video.hlsUrl} />
-      </Flex>
-      <Flex
+      <PageHeader>{name}</PageHeader>
+      <VideoPlayer name={name} hlsUrl={hlsUrl} />
+      {/* ---------- Video info card --------- */}
+      <VideoInfoCard video={data.video} />
+      {/* ------------------------------------ */}
+
+      {/* -------- Video description --------- */}
+      <Stack
         width="100%"
-        height="5em"
         bgColor="white"
         border="1px solid #DDDDDD"
-        rounded="8px"
-        align="center"
-        justify="space-between"
-        padding="3.25em 2.5em"
+        borderRadius="lg"
+        padding="1.25em 2em"
       >
-        <Flex
-          direction="column"
-          justify="center"
-          gap="0.5em"
-          width="12em"
-          borderRight="1px solid #EEEEEE"
-        >
-          <Text fontWeight="600" color="#BBBBBB">
-            Published on
-          </Text>
-          <Text fontSize="0.9em" color="#666666">
-            {video.verifiedDate ? formatDate(video.verifiedDate) : "-"}
-          </Text>
-        </Flex>
-        <Flex
-          direction="column"
-          justify="center"
-          gap="0.5em"
-          width="12em"
-          borderRight="1px solid #EEEEEE"
-        >
-          <Text fontWeight="600" color="#BBBBBB">
-            Views
-          </Text>
-          <Text fontSize="0.9em" color="#666666">
-            {video.views}
-          </Text>
-        </Flex>
-        <Flex
-          direction="column"
-          justify="center"
-          gap="0.5em"
-          width="12em"
-          borderRight="1px solid #EEEEEE"
-        >
-          <Text fontWeight="600" color="#BBBBBB">
-            Likes
-          </Text>
-          <Text fontSize="0.9em" color="#666666">
-            {video.likes}
-          </Text>
-        </Flex>
-        <Flex
-          direction="column"
-          justify="center"
-          gap="0.5em"
-          width="12em"
-          borderRight="1px solid #EEEEEE"
-        >
-          <Text fontWeight="600" color="#BBBBBB">
-            Uploaded On
-          </Text>
-          <Text fontSize="0.9em" color="#666666">
-            {formatDate(video.uploadDate)}
-          </Text>
-        </Flex>
-      </Flex>
+        <Text fontWeight="600" color="#BBBBBB">
+          Description
+        </Text>
+        <Text>{description}</Text>
+      </Stack>
+      {/* ------------------------------------ */}
     </Flex>
   );
 }

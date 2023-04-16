@@ -89,6 +89,7 @@ export default function UserPage() {
           {/* ------------ User data ------------ */}
           <Flex flexDirection="column">
             <Flex gap={4} align="center" color="#666666">
+              {/* ------------ User actions ------------ */}
               <Flex gap={2} align="center" fontSize="0.9em">
                 <Dropdown
                   text="User actions"
@@ -96,25 +97,38 @@ export default function UserPage() {
                   footerOptions={userActions.footer}
                 />
               </Flex>
+              {/* ------------------------------------ */}
+
               <Text color="#DDDDDD">|</Text>
+
+              {/* ----------- Videos count ------------ */}
               <Flex gap={2} align="center">
                 <Icon as={FiVideo} fontSize="1.1em" />
                 <Text fontSize="0.9em">6 videos</Text>
               </Flex>
+              {/* ------------------------------------ */}
+
               <Text color="#DDDDDD">|</Text>
+
+              {/* ---------- Registered date ---------- */}
               <Flex gap={2} align="center">
                 <Icon as={BsCalendar} fontSize="1.1em" />
                 <Text fontSize="0.9em">
                   Registered on {formatDate(registeredDate)}
                 </Text>
               </Flex>
+              {/* ------------------------------------ */}
+
               <Text color="#DDDDDD">|</Text>
+
+              {/* ---------- Last login date ---------- */}
               <Flex gap={2} align="center">
                 <Icon as={BsCalendar} fontSize="1.1em" />
                 <Text fontSize="0.9em">
                   Last active on {formatDate(lastLoginDate)}
                 </Text>
               </Flex>
+              {/* ------------------------------------ */}
             </Flex>
           </Flex>
           {/* ------------------------------------ */}

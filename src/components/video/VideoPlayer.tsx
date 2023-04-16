@@ -1,4 +1,4 @@
-import { Flex } from "@chakra-ui/react";
+import { Flex, FlexProps } from "@chakra-ui/react";
 import { PlayerAPI } from "bitmovin-player";
 import { UIFactory } from "bitmovin-player-ui";
 import { useEffect, useRef, useState } from "react";
@@ -12,10 +12,11 @@ enum VRContentType {
 export const VideoPlayer = ({
   name,
   hlsUrl,
+  ...props
 }: {
   name: string;
   hlsUrl?: string;
-}) => {
+} & FlexProps) => {
   const videoPlayer = useRef<HTMLDivElement>(null);
   const [player, setPlayer] = useState<PlayerAPI>();
 
@@ -48,5 +49,14 @@ export const VideoPlayer = ({
     }
   }, [player, hlsUrl, name]);
 
-  return <Flex ref={videoPlayer} height="100%" minWidth="100%"></Flex>;
+  return (
+    <Flex
+      ref={videoPlayer}
+      height="100%"
+      minWidth="100%"
+      rounded="5px"
+      overflow="hidden"
+      {...props}
+    ></Flex>
+  );
 };
