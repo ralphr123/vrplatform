@@ -7,7 +7,8 @@ import { BsCalendar } from "react-icons/bs";
 import { HiOutlineUserCircle } from "react-icons/hi";
 import { AiOutlineLike } from "react-icons/ai";
 import { User, Video } from "@prisma/client";
-import { VideoGrid } from "@app/components/VideoGrid";
+import { VideoGrid } from "@app/components/video/VideoGrid";
+import { formatDate } from "@app/lib/client/formatDate";
 
 export default function VideoPage() {
   const router = useRouter();
@@ -82,7 +83,7 @@ const VideoCard = ({
             )}
             <Flex gap={2} align="center" fontSize="0.9em">
               <Icon as={BsCalendar} />
-              <Text>{new Date(uploadDate).toDateString()}</Text>
+              <Text>{formatDate(uploadDate)}</Text>
             </Flex>
             <Text color="#DDDDDD">|</Text>
             <Flex gap={2} align="center">

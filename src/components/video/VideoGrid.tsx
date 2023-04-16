@@ -1,3 +1,4 @@
+import { formatDate } from "@app/lib/client/formatDate";
 import { useVideos } from "@app/lib/client/hooks/api/useVideos";
 import { Flex, Grid, GridItem, Image, Spinner, Text } from "@chakra-ui/react";
 import { useRouter } from "next/router";
@@ -19,7 +20,7 @@ export const VideoGrid = () => {
             key={name}
             name={name}
             thumbnailUrl={thumbnailUrl}
-            uploadDate={new Date(uploadDate)}
+            uploadDate={uploadDate}
             views={views}
           />
         ))
@@ -74,7 +75,7 @@ const VideoCard = ({
         >
           <Text fontWeight={700}>{name}</Text>
           <Flex align="center" color="gray.500" gap={3.5} fontSize="0.9em">
-            <Text>{uploadDate.toDateString()}</Text>
+            <Text>{formatDate(uploadDate)}</Text>
             <Text>{views} views</Text>
           </Flex>
         </Flex>

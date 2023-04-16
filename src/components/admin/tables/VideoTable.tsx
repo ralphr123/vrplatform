@@ -1,3 +1,4 @@
+import { formatDate } from "@app/lib/client/formatDate";
 import { useVideos } from "@app/lib/client/hooks/api/useVideos";
 import { useDebounce } from "@app/lib/client/hooks/useDebounce";
 import { videoTypes, videoTypeToIcon } from "@app/lib/types/prisma";
@@ -213,9 +214,8 @@ const VideoTableRow = ({
       </Td>
       <Td hidden={pendingReview}>{views}</Td>
       <Td hidden={pendingReview}>{likes}</Td>
-      <Td>{duration_seconds}</Td>
-      <Td whiteSpace="nowrap">{new Date(uploadDate).toDateString()}</Td>
-      {/* @TODO: Should be a link to user page */}
+      <Td>{duration_seconds}s</Td>
+      <Td whiteSpace="nowrap">{formatDate(uploadDate)}</Td>
       <Td hidden={!!setUserId}>{userFullName}</Td>
       <Td>
         <Icon fontSize={20} as={IoIosArrowForward} color="gray.500" />

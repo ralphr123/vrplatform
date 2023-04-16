@@ -1,3 +1,4 @@
+import { formatDate } from "@app/lib/client/formatDate";
 import { useUsers } from "@app/lib/client/hooks/api/useUsers";
 import { useDebounce } from "@app/lib/client/hooks/useDebounce";
 import {
@@ -149,8 +150,8 @@ const UserTableRow = ({
       </Td>
       <Td>{videos.length}</Td>
       <Td>{videos.reduce((acc, video) => acc + video.views, 0)}</Td>
-      <Td>{lastLoginDate ? new Date(lastLoginDate)?.toDateString() : ""}</Td>
-      <Td>{registeredDate ? new Date(registeredDate)?.toDateString() : ""}</Td>
+      <Td>{formatDate(lastLoginDate)}</Td>
+      <Td>{formatDate(registeredDate)}</Td>
       <Td>
         <Icon fontSize={20} as={IoIosArrowForward} color="gray.500" />
       </Td>

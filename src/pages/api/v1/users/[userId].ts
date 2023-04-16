@@ -33,6 +33,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
 export type GetUserResp = {
   user: User;
+  totalViews: number;
+  numVideosUploaded: number;
 };
 
 const getUser = async ({
@@ -43,16 +45,27 @@ const getUser = async ({
   try {
     const user = await prisma.user.findUnique({
       where: { id: userId },
+      include: {
+        videos: {
+          select: {
+            views: true,
+          },
+        },
+      },
     });
 
     if (!user) {
       throw Error(`User not found for id ${userId}`);
     }
 
+    const totalViews = user.videos.reduce((sum, video) => sum + video.views, 0);
+
     return {
       success: true,
       data: {
         user,
+        totalViews,
+        numVideosUploaded: user.videos.length,
       },
     };
   } catch (error) {
