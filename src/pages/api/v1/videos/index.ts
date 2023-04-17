@@ -105,7 +105,6 @@ export type GetVideosResp = {
 const getVideos = async ({
   page,
   limit,
-  pendingReview,
   searchText,
   type,
   createdAfterDate,
@@ -114,7 +113,6 @@ const getVideos = async ({
 }: {
   page: number;
   limit: number;
-  pendingReview: boolean;
   searchText?: string;
   type?: VideoType;
   createdAfterDate?: Date;

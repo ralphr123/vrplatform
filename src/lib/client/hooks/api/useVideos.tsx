@@ -6,35 +6,37 @@ import { useEffect } from "react";
 import useSWR from "swr";
 import { showToast } from "../../showToast";
 
-export const useVideos = ({
-  pendingReview = false,
-  searchText,
-  type,
-  status,
-  createdAfterDate,
-  userId,
-}: {
-  pendingReview?: boolean;
-  searchText?: string;
-  type?: VideoType;
-  status?: VideoStatus;
-  createdAfterDate?: Date;
-  userId?: string;
-} = {}) => {
+export const useVideos = (
+  {
+    searchText,
+    type,
+    status,
+    createdAfterDate,
+    userId,
+  }: {
+    searchText?: string;
+    type?: VideoType;
+    status?: VideoStatus;
+    createdAfterDate?: Date;
+    userId?: string;
+  } = {},
+  doFetch = true
+) => {
   const { data, error, isLoading } = useSWR<ApiReturnType<GetVideosResp>>(
-    route({
-      pathname: "/api/v1/videos",
-      query: {
-        pendingReview: pendingReview ? "true" : "false",
-        ...(searchText && { searchText }),
-        ...(type && { type }),
-        ...(createdAfterDate && {
-          createdAfterDate: createdAfterDate.toISOString(),
-        }),
-        ...(userId && { userId }),
-        ...(status && { status }),
-      },
-    }),
+    doFetch
+      ? route({
+          pathname: "/api/v1/videos",
+          query: {
+            ...(searchText && { searchText }),
+            ...(type && { type }),
+            ...(createdAfterDate && {
+              createdAfterDate: createdAfterDate.toISOString(),
+            }),
+            ...(userId && { userId }),
+            ...(status && { status }),
+          },
+        })
+      : false,
     async (url: string) => await (await fetch(url)).json()
   );
 

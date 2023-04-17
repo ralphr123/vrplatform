@@ -1,4 +1,5 @@
 import { formatDate } from "@app/lib/client/formatDate";
+import { useUsers } from "@app/lib/client/hooks/api/useUsers";
 import { useVideos } from "@app/lib/client/hooks/api/useVideos";
 import { useDebounce } from "@app/lib/client/hooks/useDebounce";
 import { getVideoStatus, VideoStatus } from "@app/lib/types/api";
@@ -22,9 +23,16 @@ import {
 } from "@chakra-ui/react";
 import { User, Video, VideoType } from "@prisma/client";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BsBookmark, BsBookmarkFill, BsCalendar } from "react-icons/bs";
-import { FiEye, FiEyeOff, FiFilter, FiUpload, FiX } from "react-icons/fi";
+import {
+  FiEye,
+  FiEyeOff,
+  FiFilter,
+  FiUpload,
+  FiUser,
+  FiX,
+} from "react-icons/fi";
 import { HiOutlineUserCircle } from "react-icons/hi";
 import { IoIosArrowForward } from "react-icons/io";
 import { MdOndemandVideo, MdOutlinePending } from "react-icons/md";
@@ -53,6 +61,7 @@ export const VideoTable = ({ filters = {} }: Props) => {
   const [searchText, setSearchText] = useState<string>();
   const [status, setStatus] = useState<VideoStatus>();
   const [type, setType] = useState<VideoType>();
+  const [userId, setUserId] = useState<string>();
   const [createdAfterDate, setCreatedAfterDate] = useState<Date>();
 
   const debouncedSearchText = useDebounce(searchText, 300);
@@ -63,7 +72,7 @@ export const VideoTable = ({ filters = {} }: Props) => {
     createdAfterDate: filters.createdAfterDate
       ? filters.createdAfterDate
       : createdAfterDate,
-    userId: filters.userId ? filters.userId : undefined,
+    userId: filters.userId ? filters.userId : userId,
     status: filters.status ? filters.status : status,
   });
 
@@ -77,6 +86,7 @@ export const VideoTable = ({ filters = {} }: Props) => {
         setCreatedAfterDate={
           filters.createdAfterDate !== false ? setCreatedAfterDate : undefined
         }
+        setUserId={filters.userId !== false ? setUserId : undefined}
       />
       <TableContainer width="100%" bgColor="white" rounded={8}>
         <Table variant="simple">
@@ -197,7 +207,9 @@ const VideoTableRow = ({
         <FormattedDate dateObj={createdDate} />
       </Td>
       <Td paddingRight={0} hidden={!!userId}>
-        {userFullName}
+        <Flex align="center" gap={1.5}>
+          <Icon as={HiOutlineUserCircle} /> {userFullName}
+        </Flex>
       </Td>
       <Td padding={0}>
         <Icon fontSize={20} as={IoIosArrowForward} color="gray.500" />
@@ -219,8 +231,13 @@ const VideoTableFilters = ({
   setStatus?: (value: VideoStatus) => void;
   setType?: (value: VideoType) => void;
   setCreatedAfterDate?: (value?: Date) => void;
-  setUserId?: string;
+  setUserId?: (value: string) => void;
 }) => {
+  const { data: { users } = {}, isLoading: isLoadingUsers } = useUsers(
+    { limit: 99999999, verified: true },
+    !!setUserId
+  );
+
   return (
     <Flex align="center" justify="space-between" gap={2} maxWidth="100%">
       {setSearchText && (
@@ -296,8 +313,16 @@ const VideoTableFilters = ({
       {setUserId && (
         <Stack flex={1}>
           <Select
-            options={[{ label: "All users", value: "" }]}
+            options={[
+              { label: "All users", value: "" },
+              ...(users || []).map((user) => ({
+                label: user.name,
+                value: user.id,
+                icon: HiOutlineUserCircle,
+              })),
+            ]}
             defaultIcon={HiOutlineUserCircle}
+            onChange={(value) => setUserId(value as string)}
             isSearchable
           />
         </Stack>

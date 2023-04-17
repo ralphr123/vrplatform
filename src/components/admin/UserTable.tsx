@@ -24,18 +24,14 @@ import { BsBookmark, BsBookmarkFill, BsCalendar } from "react-icons/bs";
 import { IoIosArrowForward } from "react-icons/io";
 import { Select } from "../input/Select";
 
-export const UserTable = ({
-  pendingReview = false,
-}: {
-  pendingReview?: boolean;
-}) => {
+export const UserTable = ({ verified = false }: { verified?: boolean }) => {
   const [searchText, setSearchText] = useState<string>();
   const [registeredAfterDate, setRegisteredAfterDate] = useState<Date>();
 
   const debouncedSearchText = useDebounce(searchText, 300);
 
   const { data: { users } = {}, isLoading } = useUsers({
-    pendingReview,
+    verified,
     searchText: debouncedSearchText,
     registeredAfterDate,
   });

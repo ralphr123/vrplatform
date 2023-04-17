@@ -17,6 +17,13 @@ const getQuerySchema = z.intersection(
         .safeParse(value);
       return processed.success ? processed.data : value;
     }, z.date().optional()),
+    verified: z.preprocess((value) => {
+      const processed = z
+        .string()
+        .transform((input) => (input === "true" ? true : false))
+        .safeParse(value);
+      return processed.success ? processed.data : value;
+    }, z.boolean().default(false)),
   })
 );
 
@@ -52,21 +59,21 @@ export type GetUsersResp = {
 };
 
 const getUsers = async ({
-  pendingReview,
   page,
   limit,
   searchText,
   registeredAfterDate,
+  verified,
 }: {
-  pendingReview?: boolean;
   page: number;
   limit: number;
   searchText?: string;
   registeredAfterDate?: Date;
+  verified?: boolean;
 }): Promise<ApiReturnType<GetUsersResp>> => {
   try {
     const filters: Prisma.UserWhereInput = {
-      ...(pendingReview
+      ...(verified
         ? { emailVerified: { equals: null } }
         : { emailVerified: { not: { equals: null } } }),
       ...(searchText && {

@@ -6,7 +6,7 @@ export default function PendingReview() {
   return (
     <Stack width="100%" gap="1.5em">
       <PageHeader>Verified users</PageHeader>
-      <UserTable pendingReview={false} />
+      <UserTable verified={false} />
     </Stack>
   );
 }

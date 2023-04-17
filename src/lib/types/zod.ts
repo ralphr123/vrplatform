@@ -10,11 +10,4 @@ export const basePaginationQuerySchema = z.object({
     const processed = z.string().transform(Number).safeParse(value);
     return processed.success ? processed.data : value;
   }, z.number().default(10)),
-  pendingReview: z.preprocess((value) => {
-    const processed = z
-      .string()
-      .transform((input) => (input === "true" ? true : false))
-      .safeParse(value);
-    return processed.success ? processed.data : value;
-  }, z.boolean().default(false)),
 });
