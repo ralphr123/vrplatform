@@ -72,26 +72,35 @@ enum VideoType {
   VR
 }
 
+enum VideoUploadStatus {
+  Uploading
+  Encoding
+  Generating_Streaming_Urls @map("Generating Streaming Urls")
+  Uploaded
+}
+
 model Video {
-  id                 String          @id @default(cuid())
-  userId             String
-  name               String
-  description        String?
-  blobUrl            String          @map(name: "url")
-  hlsUrl             String
-  dashUrl            String
-  smoothStreamingUrl String
-  thumbnailUrl       String
-  type               VideoType       @default(Regular)
-  views              Int             @default(0)
-  likes              Int             @default(0)
-  duration_seconds   Int
-  uploadDate         DateTime        @default(now())
-  verifiedDate       DateTime?
-  user               User            @relation(fields: [userId], references: [id])
-  VideoLike          VideoLike[]
-  VideoView          VideoView[]
-  VideoBookmark      VideoBookmark[]
+  id                     String            @id @default(cuid())
+  userId                 String
+  name                   String
+  description            String?
+  blobUrl                String?           @map(name: "url")
+  hlsUrl                 String?
+  dashUrl                String?
+  smoothStreamingUrl     String?
+  thumbnailUrl           String?
+  mediaServicesAssetName String?
+  uploadStatus           VideoUploadStatus @default(Uploading)
+  type                   VideoType         @default(Regular)
+  duration_seconds       Int
+  createdDate            DateTime          @default(now())
+  reviewedDate           DateTime?
+  isApproved             Boolean           @default(false)
+  isPrivate              Boolean           @default(false)
+  user                   User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  VideoLike              VideoLike[]
+  VideoView              VideoView[]
+  VideoBookmark          VideoBookmark[]
 }
 
 model VideoLike {

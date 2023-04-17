@@ -1,3 +1,4 @@
+import { Video, VideoUploadStatus } from "@prisma/client";
 import { Route } from "nextjs-routes";
 
 /** ------------------------------------------------ */
@@ -34,4 +35,39 @@ export type SendGridTemplateData<T extends SendGridTemplateName> = {
 
 export const sendGridTemplateNameToId: Record<SendGridTemplateName, string> = {
   "verify-email": process.env.SENDGRID_TEMPLATE_ID_VERIFY_EMAIL,
+};
+
+/** ------------------------------------------------ */
+/** -------------------- Videos -------------------- */
+/** ------------------------------------------------ */
+
+export const videoStatuses = [
+  "Private",
+  "Pending Review",
+  "Rejected",
+  "Published",
+] as const;
+
+export type VideoStatus = (typeof videoStatuses)[number] | VideoUploadStatus;
+
+export const getVideoStatus = (video: Video): VideoStatus => {
+  const { uploadStatus, reviewedDate, isApproved, isPrivate } = video;
+
+  if (uploadStatus !== "Uploaded") {
+    return uploadStatus;
+  }
+
+  if (!reviewedDate) {
+    return "Pending Review";
+  }
+
+  if (!isApproved) {
+    return "Rejected";
+  }
+
+  if (isPrivate) {
+    return "Private";
+  }
+
+  return "Published";
 };

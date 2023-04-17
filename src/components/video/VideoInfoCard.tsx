@@ -3,8 +3,9 @@ import { FlexProps, Flex, Stack, Text } from "@chakra-ui/react";
 import { Video } from "@prisma/client";
 import { VerticalDivider } from "../misc/VerticalDivider";
 
+// @TODO: Add views, and likes
 export const VideoInfoCard = ({
-  video: { verifiedDate, views, likes, uploadDate },
+  video: { reviewedDate, createdDate },
   ...props
 }: { video: Video } & FlexProps) => (
   <Flex
@@ -20,14 +21,14 @@ export const VideoInfoCard = ({
   >
     <VideoInfoCardDetail
       label="Published On"
-      value={verifiedDate ? formatDate(verifiedDate) : "-"}
+      value={reviewedDate ? formatDate(reviewedDate) : "-"}
     />
     <VerticalDivider />
-    <VideoInfoCardDetail label="Views" value={views.toLocaleString()} />
+    <VideoInfoCardDetail label="Views" value={"0"} />
     <VerticalDivider />
-    <VideoInfoCardDetail label="Likes" value={likes.toLocaleString()} />
+    <VideoInfoCardDetail label="Likes" value={"0"} />
     <VerticalDivider />
-    <VideoInfoCardDetail label="Uploaded On" value={formatDate(uploadDate)} />
+    <VideoInfoCardDetail label="Uploaded On" value={formatDate(createdDate)} />
   </Flex>
 );
 

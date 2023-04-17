@@ -19,12 +19,27 @@ export default function Video() {
     );
   }
 
-  const { name, description, hlsUrl } = data.video;
+  const {
+    name,
+    description,
+    type,
+    hlsUrl,
+    smoothStreamingUrl,
+    dashUrl,
+    blobUrl,
+  } = data.video;
 
   return (
     <Flex flexDirection="column" width="100%" gap="1.5em">
       <PageHeader>{name}</PageHeader>
-      <VideoPlayer name={name} hlsUrl={hlsUrl} />
+      <VideoPlayer
+        name={name}
+        type={type}
+        hlsUrl={hlsUrl}
+        smoothStreamingUrl={smoothStreamingUrl}
+        dashUrl={dashUrl}
+        blobUrl={blobUrl}
+      />
       {/* ---------- Video info card --------- */}
       <VideoInfoCard video={data.video} />
       {/* ------------------------------------ */}

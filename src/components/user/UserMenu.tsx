@@ -123,7 +123,7 @@ const UserMenuItem = ({
         <Icon as={icon} fontSize="1.25em" />
         <Text fontWeight={600}>{label}</Text>
       </Flex>
-      <Icon as={IoIosArrowForward} color="gray.500" />
+      {!isDanger && <Icon as={IoIosArrowForward} color="gray.500" />}
     </Flex>
   </Link>
 );

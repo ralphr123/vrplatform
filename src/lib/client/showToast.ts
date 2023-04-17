@@ -8,7 +8,7 @@ const { toast, ToastContainer } = createStandaloneToast();
 
 export { ToastContainer };
 
-interface Props {
+type Props = {
   status?: AlertStatus;
   description: string;
   title?: string;
@@ -17,7 +17,7 @@ interface Props {
   contactSupport?: boolean;
   // RenderProps type doesn't exist in chakra package
   render?: (props: any) => React.ReactNode;
-}
+};
 
 export const showToast = ({
   status = "info",

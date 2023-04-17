@@ -6,7 +6,6 @@ export default function PendingReview() {
   return (
     <Stack width="100%" gap="1.5em">
       <PageHeader>Pending Review</PageHeader>
-      <VideoTable pendingReview={true} />
     </Stack>
   );
 }

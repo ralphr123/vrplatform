@@ -149,7 +149,8 @@ const UserTableRow = ({
         </Flex>
       </Td>
       <Td>{videos.length}</Td>
-      <Td>{videos.reduce((acc, video) => acc + video.views, 0)}</Td>
+      {/* @TODO: Fix views */}
+      <Td>{videos.reduce((acc, video) => acc + 0, 0)}</Td>
       <Td>{formatDate(lastLoginDate)}</Td>
       <Td>{formatDate(registeredDate)}</Td>
       <Td>

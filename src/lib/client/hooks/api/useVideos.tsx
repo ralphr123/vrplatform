@@ -1,4 +1,4 @@
-import { ApiReturnType } from "@app/lib/types/api";
+import { ApiReturnType, VideoStatus } from "@app/lib/types/api";
 import { GetVideosResp } from "@app/pages/api/v1/videos";
 import { VideoType } from "@prisma/client";
 import { route } from "nextjs-routes";
@@ -10,13 +10,15 @@ export const useVideos = ({
   pendingReview = false,
   searchText,
   type,
-  uploadedAfterDate,
+  status,
+  createdAfterDate,
   userId,
 }: {
   pendingReview?: boolean;
   searchText?: string;
   type?: VideoType;
-  uploadedAfterDate?: Date;
+  status?: VideoStatus;
+  createdAfterDate?: Date;
   userId?: string;
 } = {}) => {
   const { data, error, isLoading } = useSWR<ApiReturnType<GetVideosResp>>(
@@ -26,10 +28,11 @@ export const useVideos = ({
         pendingReview: pendingReview ? "true" : "false",
         ...(searchText && { searchText }),
         ...(type && { type }),
-        ...(uploadedAfterDate && {
-          uploadedAfterDate: uploadedAfterDate.toISOString(),
+        ...(createdAfterDate && {
+          createdAfterDate: createdAfterDate.toISOString(),
         }),
         ...(userId && { userId }),
+        ...(status && { status }),
       },
     }),
     async (url: string) => await (await fetch(url)).json()

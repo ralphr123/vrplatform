@@ -44,7 +44,18 @@ const VideoCard = ({
     user: User;
   };
 }) => {
-  const { name, uploadDate, user, type, likes } = video;
+  const {
+    name,
+    type,
+    createdDate,
+    user,
+    hlsUrl,
+    smoothStreamingUrl,
+    dashUrl,
+    blobUrl,
+  } = video;
+
+  const likes = 0;
 
   return (
     <Flex
@@ -57,13 +68,14 @@ const VideoCard = ({
     >
       {/* ----------- Video player ----------- */}
       <Flex flex={6} width="100%" rounded="lg" overflow="hidden">
-        {/* <VideoPlayer name={video.name} hlsUrl={video.hlsUrl} /> */}
-        <Flex
-          height="450px"
-          minWidth="100%"
-          rounded="lg"
-          bgColor="#87B0F5"
-        ></Flex>
+        <VideoPlayer
+          name={name}
+          type={type}
+          hlsUrl={hlsUrl}
+          smoothStreamingUrl={smoothStreamingUrl}
+          dashUrl={dashUrl}
+          blobUrl={blobUrl}
+        />
       </Flex>
       {/* ------------------------------------ */}
 
@@ -83,7 +95,7 @@ const VideoCard = ({
             )}
             <Flex gap={2} align="center" fontSize="0.9em">
               <Icon as={BsCalendar} />
-              <Text>{formatDate(uploadDate)}</Text>
+              <Text>{formatDate(createdDate)}</Text>
             </Flex>
             <Text color="#DDDDDD">|</Text>
             <Flex gap={2} align="center">

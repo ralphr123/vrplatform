@@ -7,7 +7,9 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 
 export const VideoGrid = () => {
-  const { data: { videos } = {}, isLoading } = useVideos({});
+  const { data: { videos } = {}, isLoading } = useVideos({
+    status: "Published",
+  });
 
   if (isLoading) {
     return (
@@ -32,14 +34,14 @@ export const VideoGrid = () => {
       templateColumns="repeat(auto-fill, minmax(18em, 1fr))"
       gridGap={5}
     >
-      {videos.map(({ id, name, thumbnailUrl, uploadDate, views }) => (
+      {videos.map(({ id, name, thumbnailUrl, createdDate }) => (
         <VideoCard
           id={id}
           key={name}
           name={name}
-          thumbnailUrl={thumbnailUrl}
-          uploadDate={uploadDate}
-          views={views}
+          thumbnailUrl={thumbnailUrl!}
+          createdDate={createdDate}
+          views={0}
         />
       ))}
     </Grid>
@@ -50,13 +52,13 @@ const VideoCard = ({
   id,
   name,
   thumbnailUrl,
-  uploadDate,
+  createdDate,
   views,
 }: {
   id: string;
   name: string;
   thumbnailUrl: string;
-  uploadDate: Date;
+  createdDate: Date;
   views: number;
 }) => {
   const router = useRouter();
@@ -90,7 +92,7 @@ const VideoCard = ({
         >
           <Text fontWeight={700}>{name}</Text>
           <Flex align="center" color="gray.500" gap={3.5} fontSize="0.9em">
-            <Text>{formatDate(uploadDate)}</Text>
+            <Text>{formatDate(createdDate)}</Text>
             <Text>{views} views</Text>
           </Flex>
         </Flex>

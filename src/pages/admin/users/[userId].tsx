@@ -133,7 +133,7 @@ export default function UserPage() {
           {/* ------------------------------------ */}
         </Flex>
       </Stack>
-      <VideoTable setUserId={id} />
+      <VideoTable filters={{ userId: id }} />
     </Stack>
   );
 }

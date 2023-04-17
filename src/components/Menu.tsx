@@ -14,6 +14,7 @@ export const Menu = () => {
       justify="space-between"
       padding="0 3em"
       bgColor="white"
+      zIndex={9999}
     >
       <Logo height="3.5em" width="8em" />
       <Input type="text" placeholder="Search" width="40em" />
@@ -21,7 +22,7 @@ export const Menu = () => {
         <Button flex={1} padding="1em 0.6em" bgColor="transparent">
           Sign in
         </Button>
-        <Button flex={1} bgColor="#666666" color="white" padding="1.1em 2.5em">
+        <Button flex={1} padding="1.1em 2.5em">
           Create account
         </Button>
       </Flex>

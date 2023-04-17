@@ -18,9 +18,9 @@ import { useSession } from "next-auth/react";
 import { Pathname } from "@app/lib/types/api";
 import { Logo } from "../Logo";
 
-interface Props {
+type Props = {
   flex?: number | string;
-}
+};
 
 export const AdminMenu = ({ flex = 1 }: Props) => {
   const router = useRouter();

@@ -1,4 +1,5 @@
 import { Flex, FlexProps } from "@chakra-ui/react";
+import { VideoType } from "@prisma/client";
 import { PlayerAPI } from "bitmovin-player";
 import { UIFactory } from "bitmovin-player-ui";
 import { useEffect, useRef, useState } from "react";
@@ -9,14 +10,24 @@ enum VRContentType {
   SBS = "sbs",
 }
 
+type Props = {
+  name: string;
+  type?: VideoType;
+  hlsUrl?: string | null;
+  dashUrl?: string | null;
+  smoothStreamingUrl?: string | null;
+  blobUrl?: string | null;
+} & FlexProps;
+
 export const VideoPlayer = ({
   name,
+  type = "Regular",
   hlsUrl,
+  dashUrl,
+  smoothStreamingUrl,
+  blobUrl,
   ...props
-}: {
-  name: string;
-  hlsUrl?: string;
-} & FlexProps) => {
+}: Props) => {
   const videoPlayer = useRef<HTMLDivElement>(null);
   const [player, setPlayer] = useState<PlayerAPI>();
 
@@ -34,20 +45,27 @@ export const VideoPlayer = ({
     })();
   }, [videoPlayer]);
 
+  // Test streaming url: https://bitmovin-a.akamaihd.net/content/playhouse-vr/m3u8s/105560.m3u8"
   useEffect(() => {
     if (player) {
       player.load({
         title: name,
-        // hls: hlsUrl,
-        hls: "https://bitmovin-a.akamaihd.net/content/playhouse-vr/m3u8s/105560.m3u8",
-        vr: {
-          startPosition: 180,
-          contentType: VRContentType.Single,
-        },
+        hls: hlsUrl || undefined,
+        smooth: smoothStreamingUrl || undefined,
+        dash: dashUrl || undefined,
+        // Fallback to blob url
+        progressive: blobUrl || undefined,
+        // Player needs extra config to play VR videos
+        ...(type === "VR" && {
+          vr: {
+            startPosition: 180,
+            contentType: VRContentType.Single,
+          },
+        }),
       });
       UIFactory.buildDefaultUI(player);
     }
-  }, [player, hlsUrl, name]);
+  }, [player, hlsUrl, blobUrl, dashUrl, smoothStreamingUrl, type, name]);
 
   return (
     <Flex

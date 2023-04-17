@@ -41,17 +41,18 @@ export default function App({ Component, pageProps }: AppProps) {
         break;
       case "user":
         setPortalLayout(
-          <Flex height="100vh" width="100vw" bgColor="#FAFAFA">
+          <Flex minHeight="100vh" width="100vw" bgColor="#FAFAFA">
             <Menu />
             <Flex
               // Top padding is to leave space for Menu
               padding="12vh 3em 3em 3em"
-              height="100vh"
+              minHeight="100vh"
               width="100vw"
               gap={5}
             >
               <UserMenu flex={1} />
               <Flex
+                flexDir="column"
                 flex={3}
                 padding="1.25em 1.75em"
                 bgColor="white"

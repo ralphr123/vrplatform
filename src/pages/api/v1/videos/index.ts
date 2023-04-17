@@ -1,12 +1,18 @@
 import prisma from "../../../../lib/prismadb";
 import type { NextApiRequest, NextApiResponse } from "next/types";
 import { z } from "zod";
-import { User, Video, VideoType } from "@prisma/client";
-import { ApiReturnType } from "@app/lib/types/api";
+import { Prisma, User, Video, VideoType } from "@prisma/client";
+import {
+  ApiReturnType,
+  getVideoStatus,
+  VideoStatus,
+  videoStatuses,
+} from "@app/lib/types/api";
 import { encodeVideoOnAzureFromBlob } from "@app/lib/azure/encode";
 import { videoTypes } from "@app/lib/types/prisma";
 import { basePaginationQuerySchema } from "@app/lib/types/zod";
 import { authenticateRequest } from "@app/lib/server/authenticateRequest";
+import { deleteAzureMediaServicesAsset } from "@app/lib/azure/delete";
 
 const videoTypeSchema = z.enum(videoTypes);
 
@@ -15,7 +21,7 @@ const getQuerySchema = z.intersection(
   z.object({
     searchText: z.string().optional(),
     type: videoTypeSchema.optional(),
-    uploadedAfterDate: z.preprocess((value) => {
+    createdAfterDate: z.preprocess((value) => {
       const processed = z
         .string()
         .transform((val) => new Date(val))
@@ -23,13 +29,26 @@ const getQuerySchema = z.intersection(
       return processed.success ? processed.data : value;
     }, z.date().optional()),
     userId: z.string().optional(),
+    status: z
+      .enum([
+        ...videoStatuses,
+        "Uploading",
+        "Encoding",
+        "Generating_Streaming_Urls",
+      ])
+      .optional(),
   })
 );
 
 const postBodySchema = z.object({
   name: z.string(),
+  description: z.string().optional(),
   blobUrl: z.string(),
   type: videoTypeSchema,
+});
+
+const deleteBodySchema = z.object({
+  videoId: z.string(),
 });
 
 export type EncodeAndSaveVideoBody = z.TypeOf<typeof postBodySchema>;
@@ -46,6 +65,15 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         const result = await encodeAndSaveVideo({
           userId,
           ...postBodySchema.parse(req.body),
+        });
+        return res.status(200).json(result);
+      }
+      case "DELETE": {
+        const { id: userId } = await authenticateRequest(req);
+        const { videoId } = deleteBodySchema.parse(req.body);
+        const result = await deleteVideo({
+          userId,
+          videoId,
         });
         return res.status(200).json(result);
       }
@@ -80,26 +108,52 @@ const getVideos = async ({
   pendingReview,
   searchText,
   type,
-  uploadedAfterDate,
+  createdAfterDate,
   userId,
+  status,
 }: {
   page: number;
   limit: number;
   pendingReview: boolean;
   searchText?: string;
   type?: VideoType;
-  uploadedAfterDate?: Date;
+  createdAfterDate?: Date;
   userId?: string;
+  status?: VideoStatus;
 }): Promise<ApiReturnType<GetVideosResp>> => {
+  const statusFilters: Prisma.VideoWhereInput = {};
+
+  switch (status) {
+    case "Pending Review":
+      statusFilters.uploadStatus = { equals: "Uploaded" };
+      statusFilters.reviewedDate = { equals: null };
+      break;
+    case "Rejected":
+      statusFilters.uploadStatus = { equals: "Uploaded" };
+      statusFilters.isApproved = { equals: false };
+      break;
+    case "Published":
+      statusFilters.uploadStatus = { equals: "Uploaded" };
+      statusFilters.isApproved = { equals: true };
+      statusFilters.isPrivate = { equals: false };
+      break;
+    case "Private":
+      statusFilters.uploadStatus = { equals: "Uploaded" };
+      statusFilters.isApproved = { equals: true };
+      statusFilters.isPrivate = { equals: true };
+      break;
+    case "Uploading":
+    case "Encoding":
+    case "Generating_Streaming_Urls":
+      statusFilters.uploadStatus = { not: { equals: "Uploaded" } };
+      break;
+  }
+
   try {
-    console.log(userId);
-    const videos = await prisma.video.findMany({
+    let videos = await prisma.video.findMany({
       skip: (Number(page) - 1) * Number(limit),
       take: Number(limit),
       where: {
-        ...(pendingReview
-          ? { verifiedDate: { equals: null } }
-          : { verifiedDate: { not: { equals: null } } }),
         ...(searchText && {
           OR: [
             { name: { contains: searchText } },
@@ -108,9 +162,10 @@ const getVideos = async ({
         }),
         ...(type && { type: { equals: type } }),
         ...(userId && { userId: { equals: userId } }),
-        ...(uploadedAfterDate && {
-          uploadDate: { gte: uploadedAfterDate },
+        ...(createdAfterDate && {
+          createdDate: { gte: createdAfterDate },
         }),
+        ...statusFilters,
       },
       include: { user: true },
     });
@@ -144,21 +199,20 @@ const encodeAndSaveVideo = async ({
   userId,
   name,
   blobUrl,
+  description,
   type,
 }: {
   userId: string;
   name: string;
+  description?: string;
   blobUrl: string;
   type: VideoType;
 }): Promise<ApiReturnType<EncodeAndSaveVideoResp>> => {
   try {
     const encodeVideoResp = await encodeVideoOnAzureFromBlob(blobUrl);
 
-    if (!encodeVideoResp.success) {
-      throw Error("Error encoding video in Azure Media Services.");
-    }
-
-    const { streamingUrls, thumbnailUrl } = encodeVideoResp.data;
+    const { streamingUrls, thumbnailUrl, mediaServicesAssetName } =
+      encodeVideoResp;
 
     const video = await prisma.video.create({
       data: {
@@ -174,6 +228,7 @@ const encodeAndSaveVideo = async ({
         smoothStreamingUrl:
           streamingUrls.find((url) => url[url.length - 1] === "t") || "",
         thumbnailUrl,
+        mediaServicesAssetName,
         duration_seconds: 69,
       },
     });
@@ -184,6 +239,50 @@ const encodeAndSaveVideo = async ({
     return {
       success: false,
       error: `Failed to fetch videos: ${error}`,
+    };
+  }
+};
+
+const deleteVideo = async ({
+  userId,
+  videoId,
+}: {
+  userId: string;
+  videoId: string;
+}): Promise<ApiReturnType<{}>> => {
+  try {
+    const video = await prisma.video.findUnique({
+      where: { id: videoId },
+    });
+
+    if (!video) {
+      throw new Error("Video not found.");
+    }
+
+    if (video.userId !== userId) {
+      throw new Error("Unauthorized.");
+    }
+
+    if (video.uploadStatus !== "Uploaded") {
+      throw new Error("Please wait for the video to finish uploading.");
+    }
+
+    // Delete video from Azure Media Services (also deletes blob)
+    if (video.mediaServicesAssetName) {
+      await deleteAzureMediaServicesAsset(video.mediaServicesAssetName);
+    }
+
+    // Delete video from database
+    await prisma.video.delete({
+      where: { id: videoId },
+    });
+
+    return { success: true, data: {} };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      error: `Failed to fetch video ${videoId}: ${error}`,
     };
   }
 };

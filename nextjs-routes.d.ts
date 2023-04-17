@@ -22,7 +22,6 @@ declare module "nextjs-routes" {
     | DynamicRoute<"/api/auth/[...nextauth]", { "nextauth": string[] }>
     | StaticRoute<"/api/example">
     | StaticRoute<"/api/v1/auth/verify-email">
-    | DynamicRoute<"/api/v1/azure/encodeVideoOnAzureFromBlob/[blobUrl]", { "blobUrl": string }>
     | StaticRoute<"/api/v1/azure/generateStorageSasToken">
     | DynamicRoute<"/api/v1/users/[userId]", { "userId": string }>
     | StaticRoute<"/api/v1/users">

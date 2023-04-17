@@ -46,11 +46,7 @@ const getUser = async ({
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {
-        videos: {
-          select: {
-            views: true,
-          },
-        },
+        videos: true,
       },
     });
 
@@ -58,7 +54,8 @@ const getUser = async ({
       throw Error(`User not found for id ${userId}`);
     }
 
-    const totalViews = user.videos.reduce((sum, video) => sum + video.views, 0);
+    // @TODO: Get total views for user
+    const totalViews = 0;
 
     return {
       success: true,
