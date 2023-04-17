@@ -1,4 +1,4 @@
-import { AdminMenu } from "@app/components/admin/AdminMenu";
+import { AdminMenu } from "@app/components/admin/admin-menu/AdminMenu";
 import { Menu } from "@app/components/Menu";
 import { UserMenu } from "@app/components/user/UserMenu";
 import { ToastContainer } from "@app/lib/client/showToast";

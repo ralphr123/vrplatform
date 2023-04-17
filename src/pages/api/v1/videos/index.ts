@@ -128,15 +128,18 @@ const getVideos = async ({
       break;
     case "Rejected":
       statusFilters.uploadStatus = { equals: "Uploaded" };
+      statusFilters.reviewedDate = { not: { equals: null } };
       statusFilters.isApproved = { equals: false };
       break;
     case "Published":
       statusFilters.uploadStatus = { equals: "Uploaded" };
+      statusFilters.reviewedDate = { not: { equals: null } };
       statusFilters.isApproved = { equals: true };
       statusFilters.isPrivate = { equals: false };
       break;
     case "Private":
       statusFilters.uploadStatus = { equals: "Uploaded" };
+      statusFilters.reviewedDate = { not: { equals: null } };
       statusFilters.isApproved = { equals: true };
       statusFilters.isPrivate = { equals: true };
       break;

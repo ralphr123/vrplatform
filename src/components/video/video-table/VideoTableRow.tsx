@@ -6,17 +6,19 @@ import { useRouter } from "next/router";
 import { BsBookmark } from "react-icons/bs";
 import { HiOutlineUserCircle } from "react-icons/hi";
 import { IoIosArrowForward } from "react-icons/io";
+import { VideoTableFilters } from "./VideoTable";
 import { VideoTableStatusBadge } from "./VideoTableStatusBadge";
 
 type Props = {
   video: Video & {
     user: User;
   };
-  pendingReview?: boolean;
-  userId?: string;
+  // Hide columns if their filters are predefined (unchangeable)
+  // If this is the case, the columns would have a constant value, making them redundant
+  filters: VideoTableFilters;
 };
 
-export const VideoTableRow = ({ video, pendingReview, userId }: Props) => {
+export const VideoTableRow = ({ video, filters }: Props) => {
   const router = useRouter();
   const views = 0;
 
@@ -37,20 +39,18 @@ export const VideoTableRow = ({ video, pendingReview, userId }: Props) => {
       <Td width={2}>
         <Flex align="center" gap={3}>
           <Flex align={"center"} gap={5}>
-            {!pendingReview && (
-              <Flex
-                align="center"
-                justify="center"
-                height={10}
-                width={7}
-                rounded={3}
-                _hover={{ cursor: "pointer", bgColor: "gray.100" }}
-                transition={"all 0.1s ease-in-out"}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Icon as={BsBookmark} fontSize={"lg"} />
-              </Flex>
-            )}
+            <Flex
+              align="center"
+              justify="center"
+              height={10}
+              width={7}
+              rounded={3}
+              _hover={{ cursor: "pointer", bgColor: "gray.100" }}
+              transition={"all 0.1s ease-in-out"}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Icon as={BsBookmark} fontSize={"lg"} />
+            </Flex>
             {thumbnailUrl ? (
               <Image
                 rounded={6}
@@ -79,14 +79,14 @@ export const VideoTableRow = ({ video, pendingReview, userId }: Props) => {
           </Flex>
         </Flex>
       </Td>
-      <Td hidden={pendingReview}>{views}</Td>
-      <Td paddingRight={0}>
+      <Td>{views}</Td>
+      <Td paddingRight={0} hidden={!!filters.status}>
         <VideoTableStatusBadge video={video} />
       </Td>
       <Td whiteSpace="nowrap">
         <FormattedDate dateObj={createdDate} />
       </Td>
-      <Td paddingRight={0} hidden={!!userId}>
+      <Td paddingRight={0} hidden={!!filters.userId}>
         <Flex align="center" gap={1.5}>
           <Icon as={HiOutlineUserCircle} /> {userFullName}
         </Flex>

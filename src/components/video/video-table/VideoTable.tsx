@@ -10,11 +10,21 @@ import {
   Th,
   Tbody,
   Spinner,
+  Text,
+  Td,
 } from "@chakra-ui/react";
 import { VideoType } from "@prisma/client";
 import { useState } from "react";
 import { VideoTableFilters } from "./VideoTableFilters";
 import { VideoTableRow } from "./VideoTableRow";
+
+export type VideoTableFilters = {
+  searchText?: string | false;
+  status?: VideoStatus | false;
+  type?: VideoType | false;
+  createdAfterDate?: Date | false;
+  userId?: string | false;
+};
 
 type Props = {
   /**
@@ -25,13 +35,7 @@ type Props = {
    * * Pass predefined filters that the user, in turn, cannot change
    * * Choose to disable certain filter fields
    */
-  filters?: {
-    searchText?: string | false;
-    status?: VideoStatus | false;
-    type?: VideoType | false;
-    createdAfterDate?: Date | false;
-    userId?: string | false;
-  };
+  filters?: VideoTableFilters;
 };
 
 export const VideoTable = ({ filters = {} }: Props) => {
@@ -57,38 +61,52 @@ export const VideoTable = ({ filters = {} }: Props) => {
     <Flex flexDir="column" gap={5} padding={0}>
       <VideoTableFilters
         searchText={searchText}
-        setSearchText={filters.searchText !== false ? setSearchText : undefined}
-        setStatus={filters.status !== false ? setStatus : undefined}
-        setType={filters.type !== false ? setType : undefined}
-        setCreatedAfterDate={
-          filters.createdAfterDate !== false ? setCreatedAfterDate : undefined
+        setSearchText={
+          filters.searchText === undefined ? setSearchText : undefined
         }
-        setUserId={filters.userId !== false ? setUserId : undefined}
+        setStatus={filters.status === undefined ? setStatus : undefined}
+        setType={filters.type === undefined ? setType : undefined}
+        setCreatedAfterDate={
+          filters.createdAfterDate === undefined
+            ? setCreatedAfterDate
+            : undefined
+        }
+        setUserId={filters.userId === undefined ? setUserId : undefined}
       />
       <TableContainer width="100%" bgColor="white" rounded={8}>
-        <Table variant="simple">
-          <Thead>
-            <Tr>
-              <Th>Video Name</Th>
-              <Th>Views</Th>
-              <Th>Status</Th>
-              <Th whiteSpace="nowrap">Uploaded on</Th>
-              <Th whiteSpace="nowrap" hidden={!!filters.userId}>
-                Uploaded by
-              </Th>
-              <Th></Th>
-            </Tr>
-          </Thead>
-          <Tbody hidden={isLoading} fontSize="0.8em">
-            {videos?.map((video) => (
-              <VideoTableRow
-                key={video.id}
-                video={video}
-                userId={filters.userId ? filters.userId : undefined}
-              />
-            ))}
-          </Tbody>
-        </Table>
+        {
+          <Table variant="simple">
+            <Thead>
+              <Tr>
+                <Th>Video Name</Th>
+                <Th>Views</Th>
+                <Th hidden={!!filters.status}>Status</Th>
+                <Th whiteSpace="nowrap">Uploaded on</Th>
+                <Th whiteSpace="nowrap" hidden={!!filters.userId}>
+                  Uploaded by
+                </Th>
+                <Th></Th>
+              </Tr>
+            </Thead>
+            {videos?.length ? (
+              <Tbody hidden={isLoading} fontSize="0.8em">
+                {videos.map((video) => (
+                  <VideoTableRow
+                    key={video.id}
+                    video={video}
+                    filters={filters}
+                  />
+                ))}
+              </Tbody>
+            ) : (
+              <Tr>
+                <Td colSpan={6} textAlign="center" height="5em">
+                  <Text>No videos found.</Text>
+                </Td>
+              </Tr>
+            )}
+          </Table>
+        }
         <Flex
           hidden={!isLoading}
           width="90%"

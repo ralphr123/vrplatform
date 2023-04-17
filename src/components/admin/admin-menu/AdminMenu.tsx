@@ -1,22 +1,12 @@
-import {
-  Accordion,
-  AccordionButton,
-  AccordionIcon,
-  AccordionItem,
-  AccordionPanel,
-  Flex,
-  Icon,
-  Text,
-} from "@chakra-ui/react";
-import Link from "next/link";
-import { IconType } from "react-icons";
-
-import { FiUsers, FiVideo, FiSettings, FiUser } from "react-icons/fi";
-import { useRouter } from "next/router";
-import { useEffect, useMemo, useState } from "react";
-import { useSession } from "next-auth/react";
+import { Logo } from "@app/components/Logo";
 import { Pathname } from "@app/lib/types/api";
-import { Logo } from "../Logo";
+import { Flex, Accordion } from "@chakra-ui/react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+import { useState, useMemo, useEffect } from "react";
+import { IconType } from "react-icons";
+import { FiVideo, FiUsers, FiSettings, FiUser } from "react-icons/fi";
+import { AdminMenuItem } from "./AdminMenuItem";
 
 type Props = {
   flex?: number | string;
@@ -39,6 +29,9 @@ export const AdminMenu = ({ flex = 1 }: Props) => {
         routes: [
           { title: "Published", pathname: "/admin/videos/published" },
           { title: "Pending Review", pathname: "/admin/videos/pending-review" },
+          { title: "Rejected", pathname: "/admin/videos/rejected" },
+          { title: "Private", pathname: "/admin/videos/private" },
+          { title: "Uploading", pathname: "/admin/videos/uploading" },
         ],
       },
       {
@@ -114,72 +107,5 @@ export const AdminMenu = ({ flex = 1 }: Props) => {
         )}
       </Accordion>
     </Flex>
-  );
-};
-
-const AdminMenuItem = ({
-  icon,
-  title,
-  routes,
-  currentPath,
-  onClick,
-}: {
-  icon: IconType;
-  title: string;
-  routes: { title: string; pathname: Pathname }[];
-  currentPath: Pathname;
-  onClick?: () => void;
-}) => {
-  return (
-    <AccordionItem onClick={onClick}>
-      <AccordionButton
-        height="4.5em"
-        bgColor="white"
-        borderTop="1px solid #EEEEEE"
-        border="none"
-        justifyContent="space-between"
-        alignItems="center"
-        padding="1em 1.5em"
-      >
-        <Flex gap="1em" align="center">
-          <Icon as={icon} fontSize="1.3em" />
-          <Text fontSize="1.15em" fontWeight="700">
-            {title}
-          </Text>
-        </Flex>
-        <AccordionIcon />
-      </AccordionButton>
-      <AccordionPanel width="100%" padding="0 0 0.75em 0">
-        {routes.map(({ title, pathname }, i) => (
-          <Flex
-            _hover={{
-              bgColor: "#FAFAFA",
-              cursor: "pointer",
-              color: "#87B0F5",
-              transitionDuration: "0.15s",
-              transitionTimingFunction: "ease-in-out",
-            }}
-            height="3em"
-            align="center"
-            bgColor={currentPath === pathname ? "gray.50" : undefined}
-            color={currentPath === pathname ? "#87B0F5" : undefined}
-            key={i}
-          >
-            <Link
-              style={{ width: "100%", padding: "1em 1.5em" }}
-              // @ts-ignore
-              href={{ pathname }}
-            >
-              <Flex gap="1em">
-                <Icon fontSize="1.3em" opacity="0" />
-                <Text fontSize="0.95em" fontWeight="500">
-                  {title}
-                </Text>
-              </Flex>
-            </Link>
-          </Flex>
-        ))}
-      </AccordionPanel>
-    </AccordionItem>
   );
 };

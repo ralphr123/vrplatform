@@ -18,7 +18,10 @@ declare module "nextjs-routes" {
     | StaticRoute<"/admin/users/verified">
     | DynamicRoute<"/admin/videos/[videoId]", { "videoId": string }>
     | StaticRoute<"/admin/videos/pending-review">
+    | StaticRoute<"/admin/videos/private">
     | StaticRoute<"/admin/videos/published">
+    | StaticRoute<"/admin/videos/rejected">
+    | StaticRoute<"/admin/videos/uploading">
     | DynamicRoute<"/api/auth/[...nextauth]", { "nextauth": string[] }>
     | StaticRoute<"/api/example">
     | StaticRoute<"/api/v1/auth/verify-email">

@@ -5,7 +5,8 @@ import { Stack } from "@chakra-ui/react";
 export default function PendingReview() {
   return (
     <Stack width="100%" gap="1.5em">
-      <PageHeader>Pending Review</PageHeader>
+      <PageHeader>Videos pending Review</PageHeader>
+      <VideoTable filters={{ status: "Pending Review" }} />
     </Stack>
   );
 }
