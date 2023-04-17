@@ -18,7 +18,7 @@ import { AiOutlineInfoCircle } from "react-icons/ai";
 import { FiVideo } from "react-icons/fi";
 import { MdContentCopy } from "react-icons/md";
 import { Dropdown } from "@app/components/input/Dropdown";
-import { VideoTable } from "@app/components/video/VideoTable";
+import { VideoTable } from "@app/components/video/video-table/VideoTable";
 import { User } from "@prisma/client";
 import { useState } from "react";
 import { formatDate } from "@app/lib/client/formatDate";

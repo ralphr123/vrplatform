@@ -7,7 +7,7 @@ import { BsCalendar } from "react-icons/bs";
 import { HiOutlineUserCircle } from "react-icons/hi";
 import { AiOutlineLike } from "react-icons/ai";
 import { User, Video } from "@prisma/client";
-import { VideoGrid } from "@app/components/video/VideoGrid";
+import { VideoGrid } from "@app/components/video/video-grid/VideoGrid";
 import { formatDate } from "@app/lib/client/formatDate";
 
 export default function VideoPage() {

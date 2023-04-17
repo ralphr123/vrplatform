@@ -1,4 +1,4 @@
-import { VideoTable } from "@app/components/video/VideoTable";
+import { VideoTable } from "@app/components/video/video-table/VideoTable";
 import { Flex, Spinner, Stack } from "@chakra-ui/react";
 import { useSession } from "next-auth/react";
 

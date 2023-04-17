@@ -1,5 +1,5 @@
 import { PageHeader } from "@app/components/admin/PageHeader";
-import { VideoTable } from "@app/components/video/VideoTable";
+import { VideoTable } from "@app/components/video/video-table/VideoTable";
 import { Stack } from "@chakra-ui/react";
 
 export default function PendingReview() {

@@ -1,5 +1,5 @@
 import { PageHeader } from "@app/components/admin/PageHeader";
-import { UserTable } from "@app/components/admin/UserTable";
+import { UserTable } from "@app/components/admin/user-table/UserTable";
 import { Stack } from "@chakra-ui/react";
 
 export default function PendingReview() {
