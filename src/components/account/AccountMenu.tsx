@@ -19,7 +19,7 @@ import Link from "next/link";
 
 type Page = "videos" | "profile" | "upload";
 
-export const UserMenu = (props: StackProps) => {
+export const AccountMenu = (props: StackProps) => {
   const session = useSession();
   const router = useRouter();
   const page = router.pathname.split("/")[2] as Page;
@@ -64,19 +64,19 @@ export const UserMenu = (props: StackProps) => {
       <Stack gap={2}>
         <UserMenuItem
           label="My Account"
-          href="/user/profile"
+          href="/account/profile"
           icon={FiUser}
           isActive={page === "profile"}
         />
         <UserMenuItem
           label="My Videos"
-          href="/user/videos"
+          href="/account/videos"
           icon={FiVideo}
           isActive={page === "videos"}
         />
         <UserMenuItem
           label="Upload"
-          href="/user/upload"
+          href="/account/upload"
           icon={FiUpload}
           isActive={page === "upload"}
         />
@@ -111,7 +111,7 @@ const UserMenuItem = ({
       justify="space-between"
       width="100%"
       cursor="pointer"
-      color={isDanger ? "red.500" : isActive ? "#87B0F5" : undefined}
+      color={isDanger ? "red.500" : isActive ? "blue.500" : undefined}
       bgColor={isActive ? "gray.50" : undefined}
       _hover={{
         bgColor: isDanger ? "red.50" : "gray.50",

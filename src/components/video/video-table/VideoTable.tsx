@@ -33,7 +33,7 @@ type Props = {
    * Filter fields that are not passed will be included in the filter bar for the user
    * Essentially, the purpose is to allow the parent component to:
    * * Pass predefined filters that the user, in turn, cannot change
-   * * Choose to disable certain filter fields
+   * * Choose to disable certain filters
    */
   filters?: VideoTableFilters;
 };

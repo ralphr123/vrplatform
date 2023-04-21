@@ -14,7 +14,7 @@ export const Menu = () => {
       justify="space-between"
       padding="0 3em"
       bgColor="white"
-      zIndex={9999}
+      zIndex={2}
     >
       <Logo height="3.5em" width="8em" />
       <Input type="text" placeholder="Search" width="40em" />

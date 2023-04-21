@@ -51,14 +51,14 @@ export const AdminMenuItem = ({
             _hover={{
               bgColor: "#FAFAFA",
               cursor: "pointer",
-              color: "#87B0F5",
+              color: "blue.400",
               transitionDuration: "0.15s",
               transitionTimingFunction: "ease-in-out",
             }}
             height="3em"
             align="center"
             bgColor={currentPath === pathname ? "gray.50" : undefined}
-            color={currentPath === pathname ? "#87B0F5" : undefined}
+            color={currentPath === pathname ? "blue.400" : undefined}
             key={i}
           >
             <Link

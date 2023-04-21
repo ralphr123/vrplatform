@@ -1,6 +1,6 @@
 import { AdminMenu } from "@app/components/admin/admin-menu/AdminMenu";
 import { Menu } from "@app/components/Menu";
-import { UserMenu } from "@app/components/user/UserMenu";
+import { AccountMenu } from "@app/components/account/AccountMenu";
 import { ToastContainer } from "@app/lib/client/showToast";
 import "@app/styles/globals.css";
 import { ChakraProvider, Flex } from "@chakra-ui/react";
@@ -9,12 +9,11 @@ import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
 import { ReactNode, useEffect, useState } from "react";
 import "../styles/bitmovin.min.css";
-
-type Portal = "admin" | "auth" | "user" | undefined;
+import { getPortal } from "@app/lib/client/getPortal";
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
-  const portal = router.pathname.split("/")[1] as Portal;
+  const portal = getPortal(router.pathname);
   const [portalLayout, setPortalLayout] = useState<ReactNode>();
 
   useEffect(() => {
@@ -39,7 +38,7 @@ export default function App({ Component, pageProps }: AppProps) {
           </Flex>
         );
         break;
-      case "user":
+      case "account":
         setPortalLayout(
           <Flex minHeight="100vh" width="100vw" bgColor="#FAFAFA">
             <Menu />
@@ -50,7 +49,7 @@ export default function App({ Component, pageProps }: AppProps) {
               width="100vw"
               gap={5}
             >
-              <UserMenu flex={1} />
+              <AccountMenu flex={1} />
               <Flex
                 flexDir="column"
                 flex={3}

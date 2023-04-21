@@ -1,4 +1,4 @@
-import { Video, VideoUploadStatus } from "@prisma/client";
+import { Video } from "@prisma/client";
 import { Route } from "nextjs-routes";
 
 /** ------------------------------------------------ */
@@ -46,15 +46,27 @@ export const videoStatuses = [
   "Pending Review",
   "Rejected",
   "Published",
+  "Encoding",
+  "Failed",
 ] as const;
 
-export type VideoStatus = (typeof videoStatuses)[number] | VideoUploadStatus;
+export type VideoStatus = (typeof videoStatuses)[number];
 
 export const getVideoStatus = (video: Video): VideoStatus => {
-  const { uploadStatus, reviewedDate, isApproved, isPrivate } = video;
+  const {
+    mediaServicesAssetName,
+    encodingError,
+    reviewedDate,
+    isApproved,
+    isPrivate,
+  } = video;
 
-  if (uploadStatus !== "Uploaded") {
-    return uploadStatus;
+  if (encodingError) {
+    return "Failed";
+  }
+
+  if (!mediaServicesAssetName) {
+    return "Encoding";
   }
 
   if (!reviewedDate) {

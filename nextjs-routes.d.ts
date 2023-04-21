@@ -12,6 +12,9 @@ declare module "nextjs-routes" {
 
   export type Route =
     | StaticRoute<"/404">
+    | StaticRoute<"/account/profile">
+    | StaticRoute<"/account/upload">
+    | StaticRoute<"/account/videos">
     | StaticRoute<"/admin">
     | DynamicRoute<"/admin/users/[userId]", { "userId": string }>
     | StaticRoute<"/admin/users/pending-verification">
@@ -35,9 +38,6 @@ declare module "nextjs-routes" {
     | DynamicRoute<"/auth/verify/[token]", { "token": string }>
     | StaticRoute<"/auth/verify">
     | StaticRoute<"/">
-    | StaticRoute<"/user/profile">
-    | StaticRoute<"/user/upload">
-    | StaticRoute<"/user/videos">
     | DynamicRoute<"/videos/[videoId]", { "videoId": string }>;
 
   interface StaticRoute<Pathname> {

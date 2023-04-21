@@ -1,5 +1,6 @@
 import { FormattedDate } from "@app/components/misc/FormattedDate";
-import { Tr, Td, Flex, Icon, Image, Text } from "@chakra-ui/react";
+import { getPortal } from "@app/lib/client/getPortal";
+import { Tr, Td, Flex, Icon, Image, Text, Spinner } from "@chakra-ui/react";
 import { Video } from "@prisma/client";
 import { User } from "next-auth";
 import { useRouter } from "next/router";
@@ -13,7 +14,7 @@ type Props = {
   video: Video & {
     user: User;
   };
-  // Hide columns if their filters are predefined (unchangeable)
+  // Hide columns if their filters are predefined (unmodifiable)
   // If this is the case, the columns would have a constant value, making them redundant
   filters: VideoTableFilters;
 };
@@ -21,6 +22,7 @@ type Props = {
 export const VideoTableRow = ({ video, filters }: Props) => {
   const router = useRouter();
   const views = 0;
+  const showBookmarks = getPortal(router.pathname) === "admin";
 
   const {
     id,
@@ -37,20 +39,22 @@ export const VideoTableRow = ({ video, filters }: Props) => {
       onClick={() => router.push(`/admin/videos/${id}`)}
     >
       <Td width={2}>
-        <Flex align="center" gap={3}>
+        <Flex align="center" gap={3.5}>
           <Flex align={"center"} gap={5}>
-            <Flex
-              align="center"
-              justify="center"
-              height={10}
-              width={7}
-              rounded={3}
-              _hover={{ cursor: "pointer", bgColor: "gray.100" }}
-              transition={"all 0.1s ease-in-out"}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Icon as={BsBookmark} fontSize={"lg"} />
-            </Flex>
+            {showBookmarks && (
+              <Flex
+                align="center"
+                justify="center"
+                height={10}
+                width={7}
+                rounded={3}
+                _hover={{ cursor: "pointer", bgColor: "gray.100" }}
+                transition={"all 0.1s ease-in-out"}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Icon as={BsBookmark} fontSize={"lg"} />
+              </Flex>
+            )}
             {thumbnailUrl ? (
               <Image
                 rounded={6}
@@ -65,10 +69,13 @@ export const VideoTableRow = ({ video, filters }: Props) => {
             ) : (
               <Flex
                 rounded={6}
-                minWidth={32}
-                maxWidth={32}
-                bgColor="#87b0f5"
-              ></Flex>
+                width={"9em"}
+                height={"5.5em"}
+                align="center"
+                justify="center"
+              >
+                <Spinner size="xs" />
+              </Flex>
             )}
           </Flex>
           <Flex flexDir={"column"}>

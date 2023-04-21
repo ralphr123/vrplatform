@@ -9,6 +9,9 @@ export const VideoTableStatusBadge = ({ video }: Props) => {
 
   let colorScheme;
   switch (status) {
+    case "Failed":
+      colorScheme = "red";
+      break;
     case "Pending Review":
       colorScheme = "yellow";
       break;
@@ -22,7 +25,7 @@ export const VideoTableStatusBadge = ({ video }: Props) => {
       colorScheme = "green";
       break;
     // Still uploading
-    default:
+    case "Encoding":
       colorScheme = "blue";
       break;
   }

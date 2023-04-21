@@ -6,10 +6,8 @@ import { Flex, Spinner, Stack, Text } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 
 export default function Video() {
-  const router = useRouter();
-  const { data, isLoading } = useVideo(
-    router.query["videoId"] as string | undefined
-  );
+  const router = useRouter<"/admin/videos/[videoId]">();
+  const { data, isLoading } = useVideo(router.query.videoId);
 
   if (isLoading || !data?.video) {
     return (

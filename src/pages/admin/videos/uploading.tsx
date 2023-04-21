@@ -6,7 +6,7 @@ export default function Published() {
   return (
     <Stack width="100%" gap="1.5em">
       <PageHeader>Uploading videos</PageHeader>
-      <VideoTable filters={{ status: "Uploading" }} />
+      <VideoTable filters={{ status: "Encoding" }} />
     </Stack>
   );
 }

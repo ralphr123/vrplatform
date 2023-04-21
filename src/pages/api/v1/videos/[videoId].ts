@@ -3,6 +3,8 @@ import type { NextApiRequest, NextApiResponse } from "next/types";
 import { z } from "zod";
 import { User, Video } from "@prisma/client";
 import { ApiReturnType } from "@app/lib/types/api";
+import { deleteAzureMediaServicesAsset } from "@app/lib/azure/delete";
+import { authenticateRequest } from "@app/lib/server/authenticateRequest";
 
 const querySchema = z.object({
   videoId: z.string(),
@@ -15,6 +17,15 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         const { videoId } = querySchema.parse(req.query);
         const result = await getVideo({ videoId });
         return res.status(result.success ? 200 : 500).json(result);
+      }
+      case "DELETE": {
+        const { id: userId } = await authenticateRequest(req);
+        const { videoId } = querySchema.parse(req.body);
+        const result = await deleteVideo({
+          userId,
+          videoId,
+        });
+        return res.status(200).json(result);
       }
       default:
         return res.status(405).json({
@@ -66,6 +77,50 @@ const getVideo = async ({
     return {
       success: false,
       error: `Failed to fetch video: ${error}`,
+    };
+  }
+};
+
+const deleteVideo = async ({
+  userId,
+  videoId,
+}: {
+  userId: string;
+  videoId: string;
+}): Promise<ApiReturnType<{}>> => {
+  try {
+    const video = await prisma.video.findUnique({
+      where: { id: videoId },
+    });
+
+    if (!video) {
+      throw new Error("Video not found.");
+    }
+
+    if (video.userId !== userId) {
+      throw new Error("Unauthorized.");
+    }
+
+    if (!video.mediaServicesAssetName && !video.encodingError) {
+      throw new Error("Please wait for the video to finish encoding.");
+    }
+
+    // Delete video from Azure Media Services (also deletes blob)
+    if (video.mediaServicesAssetName) {
+      await deleteAzureMediaServicesAsset(video.mediaServicesAssetName);
+    }
+
+    // Delete video from database
+    await prisma.video.delete({
+      where: { id: videoId },
+    });
+
+    return { success: true, data: {} };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      error: `Failed to delete video ${videoId}: ${error}`,
     };
   }
 };
