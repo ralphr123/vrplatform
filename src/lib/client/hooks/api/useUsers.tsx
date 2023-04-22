@@ -1,4 +1,4 @@
-import { ApiReturnType } from "@app/lib/types/api";
+import { ApiReturnType, FailReturnType } from "@app/lib/types/api";
 import { GetUsersResp } from "@app/pages/api/v1/users";
 import { route } from "nextjs-routes";
 import { useEffect } from "react";
@@ -21,7 +21,11 @@ export const useUsers = (
   } = {},
   doFetch = true
 ) => {
-  const { data, error, isLoading } = useSWR<ApiReturnType<GetUsersResp>>(
+  const {
+    data,
+    error: fetchError,
+    isLoading,
+  } = useSWR<ApiReturnType<GetUsersResp>>(
     doFetch
       ? route({
           pathname: "/api/v1/users",
@@ -39,16 +43,17 @@ export const useUsers = (
     async (url: string) => await (await fetch(url)).json()
   );
 
+  const error = fetchError || (!data?.success ? data?.error : undefined);
+
   useEffect(() => {
-    if (error || (!data?.success && data?.error)) {
-      console.error(error || (!data?.success ? data?.error : undefined));
+    if (error) {
+      console.error(error);
       showToast({
         status: "error",
-        description:
-          "There was an error loading users. If this persists, contact support.",
+        description: "There was an error loading users.",
       });
     }
-  }, [error, isLoading, data]);
+  }, [error]);
 
   return {
     data: data?.success ? data.data : undefined,

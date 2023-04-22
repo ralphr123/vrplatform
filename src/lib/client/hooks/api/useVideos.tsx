@@ -1,4 +1,4 @@
-import { ApiReturnType, VideoStatus } from "@app/lib/types/api";
+import { ApiReturnType, FailReturnType, VideoStatus } from "@app/lib/types/api";
 import { GetVideosResp } from "@app/pages/api/v1/videos";
 import { VideoType } from "@prisma/client";
 import { route } from "nextjs-routes";
@@ -22,7 +22,11 @@ export const useVideos = (
   } = {},
   doFetch = true
 ) => {
-  const { data, error, isLoading } = useSWR<ApiReturnType<GetVideosResp>>(
+  const {
+    data,
+    error: fetchError,
+    isLoading,
+  } = useSWR<ApiReturnType<GetVideosResp>>(
     doFetch
       ? route({
           pathname: "/api/v1/videos",
@@ -40,16 +44,18 @@ export const useVideos = (
     async (url: string) => await (await fetch(url)).json()
   );
 
+  const error = fetchError || (!data?.success ? data?.error : undefined);
+
   useEffect(() => {
-    if (error || (!data?.success && data?.error)) {
-      console.error(error || (!data?.success ? data?.error : undefined));
+    if (error) {
+      console.error(error);
       showToast({
         status: "error",
-        description:
-          "There was an error loading videos. If this persists, contact support.",
+        contactSupport: true,
+        description: "There was an error loading videos.",
       });
     }
-  }, [error, isLoading, data]);
+  }, [error]);
 
   return {
     data: data?.success ? data.data : undefined,

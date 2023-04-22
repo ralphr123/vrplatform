@@ -18,6 +18,7 @@ export default function Video() {
   }
 
   const {
+    id,
     name,
     description,
     type,
@@ -31,6 +32,7 @@ export default function Video() {
     <Flex flexDirection="column" width="100%" gap="1.5em">
       <PageHeader>{name}</PageHeader>
       <VideoPlayer
+        id={id}
         name={name}
         type={type}
         hlsUrl={hlsUrl}

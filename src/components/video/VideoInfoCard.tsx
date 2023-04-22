@@ -1,13 +1,14 @@
 import { formatDate } from "@app/lib/client/formatDate";
+import { VideoData } from "@app/pages/api/v1/videos";
 import { FlexProps, Flex, Stack, Text } from "@chakra-ui/react";
 import { Video } from "@prisma/client";
 import { VerticalDivider } from "../misc/VerticalDivider";
 
 // @TODO: Add views, and likes
 export const VideoInfoCard = ({
-  video: { reviewedDate, createdDate },
+  video: { reviewedDate, createdDate, views },
   ...props
-}: { video: Video } & FlexProps) => (
+}: { video: VideoData } & FlexProps) => (
   <Flex
     width="100%"
     height="5em"
@@ -24,7 +25,7 @@ export const VideoInfoCard = ({
       value={reviewedDate ? formatDate(reviewedDate) : "-"}
     />
     <VerticalDivider />
-    <VideoInfoCardDetail label="Views" value={"0"} />
+    <VideoInfoCardDetail label="Views" value={views.toLocaleString()} />
     <VerticalDivider />
     <VideoInfoCardDetail label="Likes" value={"0"} />
     <VerticalDivider />

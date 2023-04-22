@@ -45,6 +45,7 @@ const VideoCard = ({
   };
 }) => {
   const {
+    id,
     name,
     type,
     createdDate,
@@ -69,6 +70,7 @@ const VideoCard = ({
       {/* ----------- Video player ----------- */}
       <Flex flex={6} width="100%" rounded="lg" overflow="hidden">
         <VideoPlayer
+          id={id}
           name={name}
           type={type}
           hlsUrl={hlsUrl}

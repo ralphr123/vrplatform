@@ -1,10 +1,11 @@
 import prisma from "../../../../lib/prismadb";
 import type { NextApiRequest, NextApiResponse } from "next/types";
 import { z } from "zod";
-import { User, Video } from "@prisma/client";
 import { ApiReturnType } from "@app/lib/types/api";
 import { deleteAzureMediaServicesAsset } from "@app/lib/azure/delete";
 import { authenticateRequest } from "@app/lib/server/authenticateRequest";
+import { VideoData } from ".";
+import { getViews } from "../views/[videoId]";
 
 const querySchema = z.object({
   videoId: z.string(),
@@ -45,10 +46,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 };
 
 export type GetVideoResp = {
-  video:
-    | Video & {
-        user: User;
-      };
+  video: VideoData;
 };
 
 const getVideo = async ({
@@ -66,10 +64,18 @@ const getVideo = async ({
       throw Error(`Video not found for id ${videoId}`);
     }
 
+    const viewsResp = await getViews({ videoId });
+
+    if (!viewsResp.success) {
+      throw Error(`Failed to get views for video ${videoId}`);
+    }
+
+    const videoWithViews = { ...video, views: viewsResp.data.views };
+
     return {
       success: true,
       data: {
-        video,
+        video: videoWithViews,
       },
     };
   } catch (error) {

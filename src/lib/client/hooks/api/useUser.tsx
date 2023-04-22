@@ -21,7 +21,7 @@ export const useUser = (userId?: string) => {
       console.error(error);
       showToast({
         status: "error",
-        description: "Failed to fetch video.",
+        description: "Failed to fetch user.",
       });
     }
   }, [error]);

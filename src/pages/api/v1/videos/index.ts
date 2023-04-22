@@ -70,10 +70,13 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 };
 
+export type VideoData = Video & {
+  user: User;
+  views: number;
+};
+
 export type GetVideosResp = {
-  videos: (Video & {
-    user: User;
-  })[];
+  videos: VideoData[];
   totalVideoCount: number;
   page: number;
   limit: number;
@@ -127,7 +130,7 @@ const getVideos = async ({
   }
 
   try {
-    let videos = await prisma.video.findMany({
+    const videos = await prisma.video.findMany({
       skip: (Number(page) - 1) * Number(limit),
       take: Number(limit),
       where: {
@@ -147,12 +150,26 @@ const getVideos = async ({
       include: { user: true },
     });
 
+    const views = await prisma.videoView.findMany();
+
+    // append view count to each video
+    const videoViews: Record<string, number> = {};
+    for (const view of views) {
+      videoViews[view.videoId] = (videoViews[view.videoId] || 0) + 1;
+    }
+
+    const videosWithViews: VideoData[] = [];
+
+    for (const video of videos) {
+      videosWithViews.push({ ...video, views: videoViews[video.id] || 0 });
+    }
+
     const totalVideos = await prisma.video.count();
 
     return {
       success: true,
       data: {
-        videos,
+        videos: videosWithViews,
         totalVideoCount: totalVideos,
         page: Number(page),
         limit: Number(limit),

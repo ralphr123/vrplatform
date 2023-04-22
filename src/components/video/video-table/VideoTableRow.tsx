@@ -1,8 +1,7 @@
 import { FormattedDate } from "@app/components/misc/FormattedDate";
 import { getPortal } from "@app/lib/client/getPortal";
+import { VideoData } from "@app/pages/api/v1/videos";
 import { Tr, Td, Flex, Icon, Image, Text, Spinner } from "@chakra-ui/react";
-import { Video } from "@prisma/client";
-import { User } from "next-auth";
 import { useRouter } from "next/router";
 import { BsBookmark } from "react-icons/bs";
 import { HiOutlineUserCircle } from "react-icons/hi";
@@ -11,9 +10,7 @@ import { VideoTableFilters } from "./VideoTable";
 import { VideoTableStatusBadge } from "./VideoTableStatusBadge";
 
 type Props = {
-  video: Video & {
-    user: User;
-  };
+  video: VideoData;
   // Hide columns if their filters are predefined (unmodifiable)
   // If this is the case, the columns would have a constant value, making them redundant
   filters: VideoTableFilters;
@@ -21,7 +18,6 @@ type Props = {
 
 export const VideoTableRow = ({ video, filters }: Props) => {
   const router = useRouter();
-  const views = 0;
   const showBookmarks = getPortal(router.pathname) === "admin";
 
   const {
@@ -29,6 +25,7 @@ export const VideoTableRow = ({ video, filters }: Props) => {
     name,
     thumbnailUrl,
     createdDate,
+    views,
     user: { name: userFullName },
   } = video;
 
@@ -58,7 +55,6 @@ export const VideoTableRow = ({ video, filters }: Props) => {
             {thumbnailUrl ? (
               <Image
                 rounded={6}
-                // width="18em"
                 minWidth={"6em"}
                 maxWidth={"9em"}
                 height={"5.5em"}

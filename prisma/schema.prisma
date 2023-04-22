@@ -107,11 +107,11 @@ model VideoLike {
 }
 
 model VideoView {
-  id      String @id @default(cuid())
+  id      String  @id @default(cuid())
   videoId String
-  userId  String
-  video   Video  @relation(fields: [videoId], references: [id], onDelete: Cascade)
-  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId  String?
+  video   Video   @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  user    User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([videoId, userId])
 }

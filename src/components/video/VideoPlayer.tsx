@@ -1,7 +1,10 @@
+import { fetchJson } from "@app/lib/client/fetchJson";
+import { getLocalStorage, setLocalStorage } from "@app/lib/client/storage";
 import { Flex, FlexProps } from "@chakra-ui/react";
 import { VideoType } from "@prisma/client";
 import { PlayerAPI } from "bitmovin-player";
 import { UIFactory } from "bitmovin-player-ui";
+import { route } from "nextjs-routes";
 import { useEffect, useRef, useState } from "react";
 
 enum VRContentType {
@@ -10,7 +13,12 @@ enum VRContentType {
   SBS = "sbs",
 }
 
+const LOCAL_STORAGE_VIEW_KEY = "viewedVideos";
+
+type ViewedVideos = Record<string, boolean>;
+
 type Props = {
+  id: string;
   name: string;
   type?: VideoType;
   hlsUrl?: string | null;
@@ -20,6 +28,7 @@ type Props = {
 } & FlexProps;
 
 export const VideoPlayer = ({
+  id,
   name,
   type = "Regular",
   hlsUrl,
@@ -31,6 +40,32 @@ export const VideoPlayer = ({
   const videoPlayer = useRef<HTMLDivElement>(null);
   const [player, setPlayer] = useState<PlayerAPI>();
 
+  // Video views
+  useEffect(() => {
+    (async () => {
+      let viewedVideos = getLocalStorage<ViewedVideos>(LOCAL_STORAGE_VIEW_KEY);
+
+      if (!viewedVideos?.[id]) {
+        // Add view to video in DB if not exists
+        await fetchJson<{}>({
+          method: "POST",
+          url: route({
+            pathname: "/api/v1/views/[videoId]",
+            query: { videoId: id },
+          }),
+        });
+
+        // Update local storage
+        setLocalStorage(LOCAL_STORAGE_VIEW_KEY, {
+          ...viewedVideos,
+          [id]: true,
+        });
+      }
+    })();
+  }, [id]);
+
+  // Import video player
+  // Bitmovin does not have a native React SDK
   useEffect(() => {
     (async () => {
       if (videoPlayer.current) {
@@ -45,7 +80,7 @@ export const VideoPlayer = ({
     })();
   }, [videoPlayer]);
 
-  // Test streaming url: https://bitmovin-a.akamaihd.net/content/playhouse-vr/m3u8s/105560.m3u8"
+  // Initialize video player
   useEffect(() => {
     if (player) {
       player.load({

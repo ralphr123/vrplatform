@@ -33,6 +33,7 @@ declare module "nextjs-routes" {
     | StaticRoute<"/api/v1/users">
     | DynamicRoute<"/api/v1/videos/[videoId]", { "videoId": string }>
     | StaticRoute<"/api/v1/videos">
+    | DynamicRoute<"/api/v1/views/[videoId]", { "videoId": string }>
     | StaticRoute<"/auth/signin">
     | StaticRoute<"/auth/signout">
     | DynamicRoute<"/auth/verify/[token]", { "token": string }>
