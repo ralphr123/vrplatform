@@ -23,6 +23,8 @@ declare global {
       AZURE_ARM_ENDPOINT: string;
       SENDGRID_API_KEY: string;
       SENDGRID_TEMPLATE_ID_VERIFY_EMAIL: string;
+      SENDGRID_TEMPLATE_ID_VIDEO_APPROVED: string;
+      SENDGRID_TEMPLATE_ID_VIDEO_REJECTED: string;
     }
   }
 }

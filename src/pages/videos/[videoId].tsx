@@ -47,6 +47,7 @@ const VideoCard = ({
   const {
     id,
     name,
+    description,
     type,
     createdDate,
     user,
@@ -109,18 +110,12 @@ const VideoCard = ({
         {/* ------------------------------------ */}
 
         {/* ------------ Video desc ------------ */}
-        <Text>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
-          consectetur, nisl nec ultricies lacinia, nunc nisl aliquet nunc, vel
-          tincidunt nunc nisl eget nunc. Donec euismod, nisl ut aliquam
-          consectetur, nunc nisl aliquet nunc, vel tincidunt nunc nisl eget
-          nunc.
-        </Text>
+        <Text>{description}</Text>
         {/* ------------------------------------ */}
 
         {/* ------------ Video likes ----------- */}
         <Flex gap={4} align="center" color="#999999">
-          <Button bgColor="#f3f3f3">
+          <Button>
             <Flex gap={2} align="center" color="black">
               <Icon as={AiOutlineLike} fontSize={"1.1em"} />
               <Text fontWeight={400}>Like</Text>

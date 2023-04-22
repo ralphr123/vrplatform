@@ -30,7 +30,7 @@ export const sendEmail = async <T extends SendGridTemplateName>({
   };
 
   try {
-    const sendResp = await sgMail.send(msg);
+    await sgMail.send(msg);
   } catch (error) {
     console.error(JSON.stringify(error));
   }

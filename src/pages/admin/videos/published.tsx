@@ -5,7 +5,7 @@ import { Stack } from "@chakra-ui/react";
 export default function Published() {
   return (
     <Stack width="100%" gap="1.5em">
-      <PageHeader>Published videos</PageHeader>
+      <PageHeader>Published</PageHeader>
       <VideoTable filters={{ status: "Published" }} />
     </Stack>
   );

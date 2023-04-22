@@ -110,18 +110,18 @@ const getVideos = async ({
     case "Rejected":
       statusFilters.mediaServicesAssetName = { not: { equals: null } };
       statusFilters.reviewedDate = { not: { equals: null } };
-      statusFilters.isApproved = { equals: false };
+      statusFilters.rejectReason = { not: { equals: null } };
       break;
     case "Published":
       statusFilters.mediaServicesAssetName = { not: { equals: null } };
       statusFilters.reviewedDate = { not: { equals: null } };
-      statusFilters.isApproved = { equals: true };
+      statusFilters.rejectReason = { equals: null };
       statusFilters.isPrivate = { equals: false };
       break;
     case "Private":
       statusFilters.mediaServicesAssetName = { not: { equals: null } };
       statusFilters.reviewedDate = { not: { equals: null } };
-      statusFilters.isApproved = { equals: true };
+      statusFilters.rejectReason = { equals: null };
       statusFilters.isPrivate = { equals: true };
       break;
     case "Encoding":

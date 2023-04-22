@@ -23,6 +23,7 @@ import { User } from "@prisma/client";
 import { useState } from "react";
 import { formatDate } from "@app/lib/client/formatDate";
 import { copyToClipboard } from "@app/lib/client/copyToClipboard";
+import { PageInfo } from "@app/components/admin/PageInfo";
 
 export default function UserPage() {
   const router = useRouter();
@@ -32,10 +33,18 @@ export default function UserPage() {
 
   const [isOpenUserDetailsModal, setIsOpenUserDetailsModal] = useState(false);
 
-  if (isLoading || !data?.user) {
+  if (isLoading) {
     return (
       <Flex width="100%" height="100%">
         <Spinner />
+      </Flex>
+    );
+  }
+
+  if (!data?.user) {
+    return (
+      <Flex width="100%" height="100%">
+        <Text>User not found</Text>
       </Flex>
     );
   }
@@ -85,50 +94,39 @@ export default function UserPage() {
       <Stack>
         <PageHeader>{name}</PageHeader>
         <Flex>
-          {/* ------------ User data ------------ */}
+          {/* ------ User data / actions ------- */}
           <Flex flexDirection="column">
-            <Flex gap={4} align="center" color="#666666">
-              {/* ------------ User actions ------------ */}
-              <Flex gap={2} align="center" fontSize="0.9em">
-                <Dropdown
-                  text="User actions"
-                  options={userActions.main}
-                  footerOptions={userActions.footer}
-                />
-              </Flex>
-              {/* ------------------------------------ */}
-
-              <Text color="#DDDDDD">|</Text>
-
-              {/* ----------- Videos count ------------ */}
-              <Flex gap={2} align="center">
-                <Icon as={FiVideo} fontSize="1.1em" />
-                <Text fontSize="0.9em">6 videos</Text>
-              </Flex>
-              {/* ------------------------------------ */}
-
-              <Text color="#DDDDDD">|</Text>
-
-              {/* ---------- Registered date ---------- */}
-              <Flex gap={2} align="center">
-                <Icon as={BsCalendar} fontSize="1.1em" />
-                <Text fontSize="0.9em">
-                  Registered on {formatDate(registeredDate)}
-                </Text>
-              </Flex>
-              {/* ------------------------------------ */}
-
-              <Text color="#DDDDDD">|</Text>
-
-              {/* ---------- Last login date ---------- */}
-              <Flex gap={2} align="center">
-                <Icon as={BsCalendar} fontSize="1.1em" />
-                <Text fontSize="0.9em">
-                  Last active on {formatDate(lastLoginDate)}
-                </Text>
-              </Flex>
-              {/* ------------------------------------ */}
-            </Flex>
+            <PageInfo
+              items={[
+                /* ------------ User actions ------------ */
+                <Flex key={0} gap={2} align="center" fontSize="0.9em">
+                  <Dropdown
+                    text="User actions"
+                    options={userActions.main}
+                    footerOptions={userActions.footer}
+                  />
+                </Flex>,
+                /* ------------ Videos count ------------ */
+                <Flex key={1} gap={2} align="center">
+                  <Icon as={FiVideo} fontSize="1.1em" />
+                  <Text fontSize="0.9em">6 videos</Text>
+                </Flex>,
+                /* ---------- Registered date ----------- */
+                <Flex key={2} gap={2} align="center">
+                  <Icon as={BsCalendar} fontSize="1.1em" />
+                  <Text fontSize="0.9em">
+                    Registered on {formatDate(registeredDate)}
+                  </Text>
+                </Flex>,
+                /* ---------- Last login date ----------- */
+                <Flex key={3} gap={2} align="center">
+                  <Icon as={BsCalendar} fontSize="1.1em" />
+                  <Text fontSize="0.9em">
+                    Last active on {formatDate(lastLoginDate)}
+                  </Text>
+                </Flex>,
+              ]}
+            />
           </Flex>
           {/* ------------------------------------ */}
         </Flex>

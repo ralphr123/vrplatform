@@ -5,7 +5,7 @@ import { Stack } from "@chakra-ui/react";
 export default function Published() {
   return (
     <Stack width="100%" gap="1.5em">
-      <PageHeader>Rejected videos</PageHeader>
+      <PageHeader>Rejected</PageHeader>
       <VideoTable filters={{ status: "Rejected" }} />
     </Stack>
   );

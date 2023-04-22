@@ -53,7 +53,7 @@ export const authOptions = {
             email: user.email,
             templateName: "verify-email",
             dynamicTemplateData: {
-              Verify_Url: route({
+              Redirect_Url: route({
                 pathname: "/auth/verify/[token]",
                 query: { token },
               }),

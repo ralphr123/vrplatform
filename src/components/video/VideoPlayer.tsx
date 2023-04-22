@@ -15,8 +15,6 @@ enum VRContentType {
 
 const LOCAL_STORAGE_VIEW_KEY = "viewedVideos";
 
-type ViewedVideos = Record<string, boolean>;
-
 type Props = {
   id: string;
   name: string;
@@ -43,7 +41,9 @@ export const VideoPlayer = ({
   // Video views
   useEffect(() => {
     (async () => {
-      let viewedVideos = getLocalStorage<ViewedVideos>(LOCAL_STORAGE_VIEW_KEY);
+      let viewedVideos = getLocalStorage<Record<string, boolean>>(
+        LOCAL_STORAGE_VIEW_KEY
+      );
 
       if (!viewedVideos?.[id]) {
         // Add view to video in DB if not exists

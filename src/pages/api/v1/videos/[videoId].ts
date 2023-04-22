@@ -1,27 +1,45 @@
 import prisma from "../../../../lib/prismadb";
 import type { NextApiRequest, NextApiResponse } from "next/types";
 import { z } from "zod";
-import { ApiReturnType } from "@app/lib/types/api";
+import { ApiReturnType, VideoStatus, videoStatuses } from "@app/lib/types/api";
 import { deleteAzureMediaServicesAsset } from "@app/lib/azure/delete";
 import { authenticateRequest } from "@app/lib/server/authenticateRequest";
 import { VideoData } from ".";
 import { getViews } from "../views/[videoId]";
+import { Prisma, Video } from "@prisma/client";
+import { sendEmail } from "@app/lib/server/sendEmail";
 
 const querySchema = z.object({
   videoId: z.string(),
 });
 
+const putBodySchema = z.object({
+  data: z.record(z.any()),
+  status: z.enum(videoStatuses).optional(),
+  rejectReason: z.string().optional(),
+});
+
+export type UpdateVideoBody = {
+  data: Prisma.VideoUpdateInput;
+  status?: VideoStatus;
+  rejectReason?: string;
+};
+
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
+    const { videoId } = querySchema.parse(req.query);
     switch (req.method) {
       case "GET": {
-        const { videoId } = querySchema.parse(req.query);
         const result = await getVideo({ videoId });
+        return res.status(result.success ? 200 : 500).json(result);
+      }
+      case "PUT": {
+        const { data, status } = putBodySchema.parse(req.body);
+        const result = await updateVideo({ videoId, data, status });
         return res.status(result.success ? 200 : 500).json(result);
       }
       case "DELETE": {
         const { id: userId } = await authenticateRequest(req);
-        const { videoId } = querySchema.parse(req.body);
         const result = await deleteVideo({
           userId,
           videoId,
@@ -77,6 +95,89 @@ const getVideo = async ({
       data: {
         video: videoWithViews,
       },
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      error: `Failed to fetch video: ${error}`,
+    };
+  }
+};
+
+export type UpdateVideoResp = {
+  video: Video;
+};
+
+const updateVideo = async ({
+  videoId,
+  data,
+  status,
+  rejectReason,
+}: {
+  videoId: string;
+  data: Prisma.VideoUpdateInput;
+  status?: VideoStatus;
+  rejectReason?: string;
+}): Promise<ApiReturnType<UpdateVideoResp>> => {
+  try {
+    const dataWithStatus: Prisma.VideoUpdateInput = { ...data };
+
+    switch (status) {
+      case "Published":
+        dataWithStatus.rejectReason = null;
+        dataWithStatus.reviewedDate = new Date();
+        break;
+      case "Rejected":
+        dataWithStatus.rejectReason =
+          rejectReason || "Breaks community guidelines.";
+        dataWithStatus.reviewedDate = new Date();
+        break;
+      case "Pending Review":
+        dataWithStatus.rejectReason = null;
+        dataWithStatus.reviewedDate = null;
+        break;
+    }
+
+    const video = await prisma.video.update({
+      where: { id: videoId },
+      data: dataWithStatus,
+      include: { user: true },
+    });
+
+    if (!video) {
+      throw Error(`Video not found for id ${videoId}`);
+    }
+
+    switch (status) {
+      case "Published":
+        sendEmail({
+          email: video.user.email,
+          templateName: "video-approved",
+          dynamicTemplateData: {
+            Video_Name: video.name,
+            Upload_Date: new Date(video.createdDate).toDateString(),
+            Redirect_Url: "/account/videos",
+          },
+        });
+        break;
+      case "Rejected":
+        sendEmail({
+          email: video.user.email,
+          templateName: "video-rejected",
+          dynamicTemplateData: {
+            Video_Name: video.name,
+            Upload_Date: new Date(video.createdDate).toDateString(),
+            Redirect_Url: "/account/videos",
+            Reject_Reason: "",
+          },
+        });
+        break;
+    }
+
+    return {
+      success: true,
+      data: { video },
     };
   } catch (error) {
     console.error(error);

@@ -23,18 +23,35 @@ export type ApiReturnType<T> = SuccessReturnType<T> | FailReturnType;
 /** ------------------- SendGrid ------------------- */
 /** ------------------------------------------------ */
 
-const sendGridTemplateNames = ["verify-email"] as const;
+const sendGridTemplateNames = [
+  "verify-email",
+  "video-approved",
+  "video-rejected",
+] as const;
 
 export type SendGridTemplateName = (typeof sendGridTemplateNames)[number];
 
 export type SendGridTemplateData<T extends SendGridTemplateName> = {
   "verify-email": {
-    Verify_Url: Pathname;
+    Redirect_Url: Pathname;
+  };
+  "video-approved": {
+    Video_Name: string;
+    Upload_Date: string;
+    Redirect_Url: Pathname;
+  };
+  "video-rejected": {
+    Video_Name: string;
+    Upload_Date: string;
+    Reject_Reason: string;
+    Redirect_Url: Pathname;
   };
 }[T];
 
 export const sendGridTemplateNameToId: Record<SendGridTemplateName, string> = {
   "verify-email": process.env.SENDGRID_TEMPLATE_ID_VERIFY_EMAIL,
+  "video-approved": process.env.SENDGRID_TEMPLATE_ID_VIDEO_APPROVED,
+  "video-rejected": process.env.SENDGRID_TEMPLATE_ID_VIDEO_REJECTED,
 };
 
 /** ------------------------------------------------ */
@@ -57,7 +74,7 @@ export const getVideoStatus = (video: Video): VideoStatus => {
     mediaServicesAssetName,
     encodingError,
     reviewedDate,
-    isApproved,
+    rejectReason,
     isPrivate,
   } = video;
 
@@ -73,7 +90,7 @@ export const getVideoStatus = (video: Video): VideoStatus => {
     return "Pending Review";
   }
 
-  if (!isApproved) {
+  if (!!rejectReason) {
     return "Rejected";
   }
 

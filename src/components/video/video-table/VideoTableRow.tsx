@@ -7,7 +7,7 @@ import { BsBookmark } from "react-icons/bs";
 import { HiOutlineUserCircle } from "react-icons/hi";
 import { IoIosArrowForward } from "react-icons/io";
 import { VideoTableFilters } from "./VideoTable";
-import { VideoTableStatusBadge } from "./VideoTableStatusBadge";
+import { VideoStatusBadge } from "../VideoStatusBadge";
 
 type Props = {
   video: VideoData;
@@ -84,7 +84,7 @@ export const VideoTableRow = ({ video, filters }: Props) => {
       </Td>
       <Td>{views}</Td>
       <Td paddingRight={0} hidden={!!filters.status}>
-        <VideoTableStatusBadge video={video} />
+        <VideoStatusBadge video={video} />
       </Td>
       <Td whiteSpace="nowrap">
         <FormattedDate dateObj={createdDate} />

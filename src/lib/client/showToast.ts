@@ -15,6 +15,7 @@ type Props = {
   duration?: number;
   position?: ToastPosition;
   contactSupport?: boolean;
+  contactDeveloper?: boolean;
   // RenderProps type doesn't exist in chakra package
   render?: (props: any) => React.ReactNode;
 };
@@ -27,6 +28,7 @@ export const showToast = ({
   position,
   render,
   contactSupport,
+  contactDeveloper,
 }: Props) => {
   const id = description;
   // Disallow duplicate toasts with the same description.
@@ -34,15 +36,22 @@ export const showToast = ({
     return;
   }
 
-  const fullDescription = contactSupport
-    ? `${description} If this error persists, contact support at support@vrplatform.com.`
-    : description;
+  let descriptionSuffix = "";
+
+  if (contactSupport) {
+    descriptionSuffix =
+      "If this error persists, contact support at support@vrplatform.com.";
+  }
+
+  if (contactDeveloper) {
+    descriptionSuffix = "If this error persists, contact a developer.";
+  }
 
   toast({
     id,
     status,
     title,
-    description: render ? "" : fullDescription,
+    description: render ? "" : `${description} ${descriptionSuffix}`,
     duration,
     position: position || "top",
     isClosable: true,

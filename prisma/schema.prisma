@@ -88,7 +88,7 @@ model Video {
   duration_seconds       Int
   createdDate            DateTime        @default(now())
   reviewedDate           DateTime?
-  isApproved             Boolean         @default(false)
+  rejectReason           String?
   isPrivate              Boolean         @default(false)
   user                   User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   VideoLike              VideoLike[]
