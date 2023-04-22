@@ -2,17 +2,17 @@ import { getVideoStatus } from "@app/lib/types/api";
 import { Badge, Spinner } from "@chakra-ui/react";
 import { Video } from "@prisma/client";
 
-type Props = { video?: Video; status?: string; isLoading?: boolean };
+type Props = { video?: Video; isLoading?: boolean };
 
-export const VideoStatusBadge = ({ video, status, isLoading }: Props) => {
-  if (!video && !status) {
+export const VideoStatusBadge = ({ video, isLoading }: Props) => {
+  if (!video) {
     return null;
   }
 
-  const _status = status || getVideoStatus(video!);
+  const status = getVideoStatus(video!);
 
   let colorScheme;
-  switch (_status) {
+  switch (status) {
     case "Failed":
       colorScheme = "red";
       break;
@@ -36,7 +36,7 @@ export const VideoStatusBadge = ({ video, status, isLoading }: Props) => {
 
   return !isLoading ? (
     <Badge colorScheme={colorScheme} mr={2}>
-      {_status}
+      {status}
     </Badge>
   ) : (
     <Spinner size="xs" />

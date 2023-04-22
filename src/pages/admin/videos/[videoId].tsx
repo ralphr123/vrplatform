@@ -6,39 +6,29 @@ import { VideoInfoCard } from "@app/components/video/VideoInfoCard";
 import { VideoPlayer } from "@app/components/video/VideoPlayer";
 import { formatDate } from "@app/lib/client/formatDate";
 import { useVideo } from "@app/lib/client/hooks/api/useVideo";
-import {
-  Flex,
-  Icon,
-  Spinner,
-  Stack,
-  Text,
-  Link as ChakraLink,
-} from "@chakra-ui/react";
+import { Flex, Icon, Spinner, Stack, Text } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { AiOutlinePlayCircle } from "react-icons/ai";
 import { BsBookmark, BsCalendar, BsTrash } from "react-icons/bs";
-import { FiVideo } from "react-icons/fi";
 import { MdContentCopy } from "react-icons/md";
 import { getVideoStatus, VideoStatus } from "@app/lib/types/api";
-import {
-  HiOutlineDocumentAdd,
-  HiOutlineDocumentRemove,
-  HiOutlineUserCircle,
-} from "react-icons/hi";
+import { HiOutlineDocumentRemove, HiOutlineUserCircle } from "react-icons/hi";
 import { GrDocumentMissing, GrDocumentVerified } from "react-icons/gr";
 import Link from "next/link";
 import { copyToClipboard } from "@app/lib/client/copyToClipboard";
 import { route } from "nextjs-routes";
 import { updateVideoStatus } from "@app/lib/client/api/updateVideoStatus";
-import { showToast } from "@app/lib/client/showToast";
 import { useState } from "react";
 
 export default function Video() {
   const router = useRouter<"/admin/videos/[videoId]">();
-  const { data, isLoading } = useVideo(router.query.videoId);
+  const {
+    data,
+    isLoading,
+    refetch: refetchVideo,
+  } = useVideo(router.query.videoId);
 
   const [isLoadingNewStatus, setIsLoadingNewStatus] = useState<boolean>(false);
-  const [newStatus, setNewStatus] = useState<VideoStatus>();
 
   if (isLoading || !data?.video) {
     return (
@@ -58,7 +48,7 @@ export default function Video() {
       videoId: id,
       status,
       onUpdate: () => {
-        setNewStatus(status);
+        refetchVideo();
         setIsLoadingNewStatus(false);
       },
     });
@@ -81,7 +71,7 @@ export default function Video() {
     reviewedDate,
   } = video;
 
-  const videoStatus = newStatus || getVideoStatus(video);
+  const videoStatus = getVideoStatus(video);
 
   const videoUrl = route({
     pathname: "/videos/[videoId]",
@@ -169,11 +159,7 @@ export default function Video() {
         <PageInfo
           items={[
             <Flex key={1} gap={2} align="center">
-              <VideoStatusBadge
-                video={video}
-                status={newStatus}
-                isLoading={isLoadingNewStatus}
-              />
+              <VideoStatusBadge video={video} isLoading={isLoadingNewStatus} />
             </Flex>,
             /* ------------ User actions ------------ */
             <Flex key={0} gap={2} align="center" fontSize="0.9em">

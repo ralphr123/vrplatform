@@ -10,6 +10,7 @@ export const useVideo = (videoId?: string) => {
     data,
     error: fetchError,
     isLoading,
+    mutate: refetch,
   } = useSWR<ApiReturnType<GetVideoResp>>(
     videoId ? `/api/v1/videos/${videoId}` : null,
     async (url: string) => await (await fetch(url)).json()
@@ -31,5 +32,6 @@ export const useVideo = (videoId?: string) => {
     data: data?.success ? data.data : undefined,
     error,
     isLoading,
+    refetch,
   };
 };
