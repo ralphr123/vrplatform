@@ -17,6 +17,7 @@ declare module "nextjs-routes" {
     | StaticRoute<"/account/videos">
     | StaticRoute<"/admin">
     | DynamicRoute<"/admin/users/[userId]", { "userId": string }>
+    | StaticRoute<"/admin/users/bookmarked">
     | StaticRoute<"/admin/users/pending-verification">
     | StaticRoute<"/admin/users/verified">
     | DynamicRoute<"/admin/videos/[videoId]", { "videoId": string }>
@@ -30,7 +31,8 @@ declare module "nextjs-routes" {
     | StaticRoute<"/api/example">
     | StaticRoute<"/api/v1/auth/verify-email">
     | StaticRoute<"/api/v1/azure/generateStorageSasToken">
-    | DynamicRoute<"/api/v1/bookmarks/[videoId]", { "videoId": string }>
+    | DynamicRoute<"/api/v1/bookmark/user/[userId]", { "userId": string }>
+    | DynamicRoute<"/api/v1/bookmark/video/[videoId]", { "videoId": string }>
     | DynamicRoute<"/api/v1/likes/[videoId]", { "videoId": string }>
     | DynamicRoute<"/api/v1/users/[userId]", { "userId": string }>
     | StaticRoute<"/api/v1/users">

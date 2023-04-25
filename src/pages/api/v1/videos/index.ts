@@ -1,14 +1,7 @@
 import prisma from "../../../../lib/prismadb";
 import type { NextApiRequest, NextApiResponse } from "next/types";
 import { z } from "zod";
-import {
-  Prisma,
-  User,
-  Video,
-  VideoLike,
-  VideoType,
-  VideoView,
-} from "@prisma/client";
+import { Prisma, VideoType } from "@prisma/client";
 import {
   ApiReturnType,
   VideoData,

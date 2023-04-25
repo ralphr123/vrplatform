@@ -12,12 +12,14 @@ export const useUsers = (
     searchText,
     registeredAfterDate,
     verified,
+    onlyBookmarked,
   }: {
     page?: number;
     limit?: number;
     searchText?: string;
     registeredAfterDate?: Date;
     verified?: boolean;
+    onlyBookmarked?: boolean;
   } = {},
   doFetch = true
 ) => {
@@ -37,6 +39,7 @@ export const useUsers = (
             ...(registeredAfterDate && {
               registeredAfterDate: registeredAfterDate.toISOString(),
             }),
+            ...(onlyBookmarked && { onlyBookmarked: "true" }),
           },
         })
       : null,

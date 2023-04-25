@@ -66,6 +66,11 @@ export type VideoData = Video & {
   isBookmarkedByUser?: boolean;
 };
 
+export type UserData = User & {
+  videos: Video[];
+  isBookmarkedByUser?: boolean;
+};
+
 export const videoStatuses = [
   "Private",
   "Pending Review",

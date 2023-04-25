@@ -11,9 +11,10 @@ import { VideoData } from "@app/lib/types/api";
 import {
   deleteVideoBookmark,
   postVideoBookmark,
-} from "@app/lib/client/api/videoBookmark";
+} from "@app/lib/client/api/bookmark";
 import { showToast } from "@app/lib/client/showToast";
 import { MouseEventHandler, useState } from "react";
+import { toastMessages } from "@app/lib/types/toast";
 
 type Props = {
   video: VideoData;
@@ -50,14 +51,14 @@ export const VideoTableRow = ({ video, filters }: Props) => {
           setIsBookmarked(false);
           showToast({
             status: "success",
-            description: "Bookmark removed.",
+            description: toastMessages.bookmarkDeleted,
           });
         } else {
           await postVideoBookmark(id);
           setIsBookmarked(true);
           showToast({
             status: "success",
-            description: "Bookmark added.",
+            description: toastMessages.bookmarkAdded,
           });
         }
       } catch (e) {

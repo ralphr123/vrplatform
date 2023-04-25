@@ -2,9 +2,10 @@ import prisma from "../../../../lib/prismadb";
 import type { NextApiRequest, NextApiResponse } from "next/types";
 import { z } from "zod";
 import { Prisma, User, Video } from "@prisma/client";
-import { ApiReturnType } from "@app/lib/types/api";
+import { ApiReturnType, UserData } from "@app/lib/types/api";
 import { authenticateRequest } from "@app/lib/server/authenticateRequest";
 import { basePaginationQuerySchema } from "@app/lib/types/zod";
+import { getSession } from "next-auth/react";
 
 const getQuerySchema = z.intersection(
   basePaginationQuerySchema,
@@ -24,6 +25,13 @@ const getQuerySchema = z.intersection(
         .safeParse(value);
       return processed.success ? processed.data : value;
     }, z.boolean().default(false)),
+    onlyBookmarked: z.preprocess((value) => {
+      const processed = z
+        .string()
+        .transform((val) => val === "true")
+        .safeParse(value);
+      return processed.success ? processed.data : value;
+    }, z.boolean().optional()),
   })
 );
 
@@ -32,7 +40,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     switch (req.method) {
       case "GET": {
         await authenticateRequest(req);
-        const result = await getUsers(getQuerySchema.parse(req.query));
+        const session = await getSession({ req });
+        const adminId = session?.user?.id;
+        const filters = getQuerySchema.parse(req.query);
+        const result = await getUsers({ filters, adminId });
         return res.status(result.success ? 200 : 500).json(result);
       }
       default:
@@ -51,7 +62,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 };
 
 export type GetUsersResp = {
-  users: (User & { videos: Video[] })[];
+  users: UserData[];
   totalUsersCount: number;
   page: number;
   limit: number;
@@ -59,17 +70,25 @@ export type GetUsersResp = {
 };
 
 const getUsers = async ({
-  page,
-  limit,
-  searchText,
-  registeredAfterDate,
-  verified,
+  filters: {
+    page,
+    limit,
+    searchText,
+    registeredAfterDate,
+    verified,
+    onlyBookmarked,
+  },
+  adminId,
 }: {
-  page: number;
-  limit: number;
-  searchText?: string;
-  registeredAfterDate?: Date;
-  verified?: boolean;
+  filters: {
+    page: number;
+    limit: number;
+    searchText?: string;
+    registeredAfterDate?: Date;
+    verified?: boolean;
+    onlyBookmarked?: boolean;
+  };
+  adminId?: string;
 }): Promise<ApiReturnType<GetUsersResp>> => {
   try {
     const filters: Prisma.UserWhereInput = {
@@ -88,19 +107,37 @@ const getUsers = async ({
       }),
     };
 
-    const users = await prisma.user.findMany({
-      skip: (Number(page) - 1) * Number(limit),
-      take: Number(limit),
-      where: filters,
-      include: { videos: true },
-    });
+    const users: (UserData & { userBookmarkedBy: any[] })[] =
+      await prisma.user.findMany({
+        skip: (Number(page) - 1) * Number(limit),
+        take: Number(limit),
+        where: filters,
+        include: {
+          videos: true,
+          userBookmarkedBy: {
+            where: {
+              adminId: adminId,
+            },
+          },
+        },
+      });
 
     const totalUsers = await prisma.user.count({ where: filters });
+
+    for (const user of users) {
+      if (!!user.userBookmarkedBy.length) {
+        user.isBookmarkedByUser = true;
+      }
+    }
+
+    console.log(onlyBookmarked);
 
     return {
       success: true,
       data: {
-        users,
+        users: onlyBookmarked
+          ? users.filter(({ isBookmarkedByUser }) => !!isBookmarkedByUser)
+          : users,
         totalUsersCount: totalUsers,
         page: Number(page),
         limit: Number(limit),

@@ -1,18 +1,64 @@
+import {
+  deleteUserBookmark,
+  postUserBookmark,
+} from "@app/lib/client/api/bookmark";
 import { formatDate } from "@app/lib/client/formatDate";
+import { showToast } from "@app/lib/client/showToast";
+import { UserData } from "@app/lib/types/api";
+import { toastMessages } from "@app/lib/types/toast";
 import { Tr, Td, Flex, Icon, Avatar, Text } from "@chakra-ui/react";
-import { User, Video } from "@prisma/client";
 import { useRouter } from "next/router";
-import { BsBookmark } from "react-icons/bs";
+import { MouseEventHandler, useState } from "react";
+import { BsBookmark, BsBookmarkFill } from "react-icons/bs";
 import { IoIosArrowForward } from "react-icons/io";
 
 type Props = {
-  user: User & { videos: Video[] };
+  user: UserData;
 };
 
 export const UserTableRow = ({
-  user: { id, name, image, registeredDate, lastLoginDate, videos },
+  user: {
+    id,
+    name,
+    image,
+    registeredDate,
+    lastLoginDate,
+    videos,
+    isBookmarkedByUser,
+  },
 }: Props) => {
   const router = useRouter();
+
+  const [isBookmarked, setIsBookmarked] = useState<boolean>(
+    !!isBookmarkedByUser
+  );
+
+  const handleOnClickBookmark: MouseEventHandler<HTMLDivElement> = (e) => {
+    e.stopPropagation();
+
+    (async () => {
+      try {
+        if (isBookmarkedByUser) {
+          await deleteUserBookmark(id);
+          setIsBookmarked(false);
+          showToast({
+            status: "success",
+            description: toastMessages.bookmarkDeleted,
+          });
+        } else {
+          await postUserBookmark(id);
+          setIsBookmarked(true);
+          showToast({
+            status: "success",
+            description: toastMessages.bookmarkAdded,
+          });
+        }
+      } catch (e) {
+        console.error(e);
+        showToast({ status: "error", description: "Something went wrong." });
+      }
+    })();
+  };
 
   return (
     <Tr
@@ -31,9 +77,12 @@ export const UserTableRow = ({
               rounded={3}
               _hover={{ cursor: "pointer", bgColor: "gray.100" }}
               transition={"all 0.1s ease-in-out"}
-              onClick={(e) => e.stopPropagation()}
+              onClick={handleOnClickBookmark}
             >
-              <Icon as={BsBookmark} fontSize={"lg"} />
+              <Icon
+                as={isBookmarked ? BsBookmarkFill : BsBookmark}
+                fontSize={"lg"}
+              />
             </Flex>
             <Avatar name={name} src={image ?? undefined} />
           </Flex>

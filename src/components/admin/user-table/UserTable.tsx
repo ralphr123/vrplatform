@@ -12,12 +12,20 @@ import {
   Th,
   Tbody,
   Spinner,
+  Td,
+  Text,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { BsCalendar } from "react-icons/bs";
 import { UserTableRow } from "./UserTableRow";
 
-export const UserTable = ({ verified = false }: { verified?: boolean }) => {
+export const UserTable = ({
+  verified = false,
+  onlyBookmarked,
+}: {
+  verified?: boolean;
+  onlyBookmarked?: boolean;
+}) => {
   const [searchText, setSearchText] = useState<string>();
   const [registeredAfterDate, setRegisteredAfterDate] = useState<Date>();
 
@@ -27,6 +35,7 @@ export const UserTable = ({ verified = false }: { verified?: boolean }) => {
     verified,
     searchText: debouncedSearchText,
     registeredAfterDate,
+    onlyBookmarked,
   });
 
   return (
@@ -79,11 +88,19 @@ export const UserTable = ({ verified = false }: { verified?: boolean }) => {
               <Th></Th>
             </Tr>
           </Thead>
-          <Tbody hidden={isLoading} fontSize="0.8em">
-            {users?.map((user) => (
-              <UserTableRow key={user.id} user={user} />
-            ))}
-          </Tbody>
+          {users?.length ? (
+            <Tbody hidden={isLoading} fontSize="0.8em">
+              {users?.map((user) => (
+                <UserTableRow key={user.id} user={user} />
+              ))}
+            </Tbody>
+          ) : (
+            <Tr>
+              <Td colSpan={5} textAlign="center" height="5em">
+                <Text>No users found.</Text>
+              </Td>
+            </Tr>
+          )}
         </Table>
         <Flex
           hidden={!isLoading}

@@ -47,6 +47,10 @@ export const AdminMenu = ({ flex = 1 }: Props) => {
             title: "Pending Verification",
             pathname: "/admin/users/pending-verification",
           },
+          {
+            title: "Bookmarked",
+            pathname: "/admin/users/bookmarked",
+          },
         ],
       },
       {
