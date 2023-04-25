@@ -11,11 +11,6 @@ const querySchema = z.object({
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     switch (req.method) {
-      case "GET":
-        const session = await getSession({ req });
-        const { videoId } = querySchema.parse(req.query);
-        const result = await postView({ videoId, userId: session?.user?.id });
-        return res.status(result.success ? 200 : 500).json(result);
       case "POST": {
         const session = await getSession({ req });
         const { videoId } = querySchema.parse(req.query);
@@ -39,35 +34,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 };
 
-export type GetViewsResp = {
-  views: number;
-};
-
-export const getViews = async ({
-  videoId,
-}: {
-  videoId: string;
-}): Promise<ApiReturnType<GetViewsResp>> => {
-  try {
-    const views = await prisma.videoView.count({
-      where: {
-        videoId,
-      },
-    });
-
-    return {
-      success: true,
-      data: { views },
-    };
-  } catch (error) {
-    console.error(error);
-    return {
-      success: false,
-      error: `Failed to fetch views from video ${videoId}: ${error}`,
-    };
-  }
-};
-
 export const postView = async ({
   videoId,
   userId,
@@ -77,7 +43,6 @@ export const postView = async ({
 }): Promise<ApiReturnType<{}>> => {
   try {
     if (userId) {
-      console.log("YOYO");
       await prisma.videoView.upsert({
         where: { videoId_userId: { videoId, userId } },
         update: {},

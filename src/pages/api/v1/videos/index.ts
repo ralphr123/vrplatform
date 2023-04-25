@@ -1,12 +1,25 @@
 import prisma from "../../../../lib/prismadb";
 import type { NextApiRequest, NextApiResponse } from "next/types";
 import { z } from "zod";
-import { Prisma, User, Video, VideoType } from "@prisma/client";
-import { ApiReturnType, VideoStatus, videoStatuses } from "@app/lib/types/api";
+import {
+  Prisma,
+  User,
+  Video,
+  VideoLike,
+  VideoType,
+  VideoView,
+} from "@prisma/client";
+import {
+  ApiReturnType,
+  VideoData,
+  VideoStatus,
+  videoStatuses,
+} from "@app/lib/types/api";
 import { encodeVideoOnAzureFromBlob } from "@app/lib/azure/encode";
 import { videoTypes } from "@app/lib/types/prisma";
 import { basePaginationQuerySchema } from "@app/lib/types/zod";
 import { authenticateRequest } from "@app/lib/server/authenticateRequest";
+import { getSession } from "next-auth/react";
 
 const videoTypeSchema = z.enum(videoTypes);
 
@@ -24,6 +37,13 @@ const getQuerySchema = z.intersection(
     }, z.date().optional()),
     userId: z.string().optional(),
     status: z.enum(videoStatuses).optional(),
+    onlyBookmarked: z.preprocess((value) => {
+      const processed = z
+        .string()
+        .transform((val) => val === "true")
+        .safeParse(value);
+      return processed.success ? processed.data : value;
+    }, z.boolean().optional()),
   })
 );
 
@@ -44,7 +64,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     switch (req.method) {
       case "GET": {
-        const result = await getVideos(getQuerySchema.parse(req.query));
+        const session = await getSession({ req });
+        const filters = getQuerySchema.parse(req.query);
+        const result = await getVideos({
+          filters,
+          authedUserId: session?.user?.id,
+        });
         return res.status(result.success ? 200 : 500).json(result);
       }
       case "POST": {
@@ -70,11 +95,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 };
 
-export type VideoData = Video & {
-  user: User;
-  views: number;
-};
-
 export type GetVideosResp = {
   videos: VideoData[];
   totalVideoCount: number;
@@ -84,21 +104,29 @@ export type GetVideosResp = {
 };
 
 const getVideos = async ({
-  page,
-  limit,
-  searchText,
-  type,
-  createdAfterDate,
-  userId,
-  status,
+  filters: {
+    page,
+    limit,
+    searchText,
+    type,
+    createdAfterDate,
+    userId,
+    status,
+    onlyBookmarked,
+  },
+  authedUserId,
 }: {
-  page: number;
-  limit: number;
-  searchText?: string;
-  type?: VideoType;
-  createdAfterDate?: Date;
-  userId?: string;
-  status?: VideoStatus;
+  filters: {
+    page: number;
+    limit: number;
+    searchText?: string;
+    type?: VideoType;
+    createdAfterDate?: Date;
+    userId?: string;
+    status?: VideoStatus;
+    onlyBookmarked?: boolean;
+  };
+  authedUserId?: string;
 }): Promise<ApiReturnType<GetVideosResp>> => {
   const statusFilters: Prisma.VideoWhereInput = {};
 
@@ -130,7 +158,7 @@ const getVideos = async ({
   }
 
   try {
-    const videos = await prisma.video.findMany({
+    const videos: VideoData[] | null = await prisma.video.findMany({
       skip: (Number(page) - 1) * Number(limit),
       take: Number(limit),
       where: {
@@ -147,29 +175,42 @@ const getVideos = async ({
         }),
         ...statusFilters,
       },
-      include: { user: true },
+      include: { user: true, views: true, likes: true, bookmarks: true },
     });
 
-    const views = await prisma.videoView.findMany();
-
-    // append view count to each video
-    const videoViews: Record<string, number> = {};
-    for (const view of views) {
-      videoViews[view.videoId] = (videoViews[view.videoId] || 0) + 1;
-    }
-
-    const videosWithViews: VideoData[] = [];
-
-    for (const video of videos) {
-      videosWithViews.push({ ...video, views: videoViews[video.id] || 0 });
-    }
-
     const totalVideos = await prisma.video.count();
+
+    // Get whether the user has liked/bookmarked the videos
+    const bookmarkedVideos: VideoData[] = [];
+    if (authedUserId) {
+      const authedUser = await prisma.user.findUnique({
+        where: { id: authedUserId },
+        include: { videoLikes: true, videoBookmarks: true },
+      });
+
+      if (authedUser) {
+        const likedVideoIds = new Set(
+          authedUser.videoLikes.map((like) => like.videoId)
+        );
+        const bookmarkedVideoIds = new Set(
+          authedUser.videoBookmarks.map((bookmark) => bookmark.videoId)
+        );
+
+        for (const video of videos) {
+          video.isLikedByUser = likedVideoIds.has(video.id);
+          video.isBookmarkedByUser = bookmarkedVideoIds.has(video.id);
+
+          if (video.isBookmarkedByUser) {
+            bookmarkedVideos.push(video);
+          }
+        }
+      }
+    }
 
     return {
       success: true,
       data: {
-        videos: videosWithViews,
+        videos: onlyBookmarked ? bookmarkedVideos : videos,
         totalVideoCount: totalVideos,
         page: Number(page),
         limit: Number(limit),

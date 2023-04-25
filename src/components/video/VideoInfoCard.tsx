@@ -1,7 +1,6 @@
 import { formatDate } from "@app/lib/client/formatDate";
-import { VideoData } from "@app/pages/api/v1/videos";
+import { VideoData } from "@app/lib/types/api";
 import { FlexProps, Flex, Stack, Text } from "@chakra-ui/react";
-import { Video } from "@prisma/client";
 import { VerticalDivider } from "../misc/VerticalDivider";
 
 // @TODO: Add views, and likes

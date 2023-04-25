@@ -13,12 +13,14 @@ export const useVideos = (
     status,
     createdAfterDate,
     userId,
+    onlyBookmarked,
   }: {
     searchText?: string;
     type?: VideoType;
     status?: VideoStatus;
     createdAfterDate?: Date;
     userId?: string;
+    onlyBookmarked?: boolean;
   } = {},
   doFetch = true
 ) => {
@@ -38,6 +40,7 @@ export const useVideos = (
             }),
             ...(userId && { userId }),
             ...(status && { status }),
+            ...(onlyBookmarked && { onlyBookmarked: "true" }),
           },
         })
       : false,

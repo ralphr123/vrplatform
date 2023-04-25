@@ -1,13 +1,17 @@
 import prisma from "../../../../lib/prismadb";
 import type { NextApiRequest, NextApiResponse } from "next/types";
 import { z } from "zod";
-import { ApiReturnType, VideoStatus, videoStatuses } from "@app/lib/types/api";
+import {
+  ApiReturnType,
+  VideoData,
+  VideoStatus,
+  videoStatuses,
+} from "@app/lib/types/api";
 import { deleteAzureMediaServicesAsset } from "@app/lib/azure/delete";
 import { authenticateRequest } from "@app/lib/server/authenticateRequest";
-import { VideoData } from ".";
-import { getViews } from "../views/[videoId]";
 import { Prisma, Video } from "@prisma/client";
 import { sendEmail } from "@app/lib/server/sendEmail";
+import { getSession } from "next-auth/react";
 
 const querySchema = z.object({
   videoId: z.string(),
@@ -30,7 +34,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const { videoId } = querySchema.parse(req.query);
     switch (req.method) {
       case "GET": {
-        const result = await getVideo({ videoId });
+        const session = await getSession({ req });
+        const result = await getVideo({ videoId, userId: session?.user?.id });
         return res.status(result.success ? 200 : 500).json(result);
       }
       case "PUT": {
@@ -69,31 +74,29 @@ export type GetVideoResp = {
 
 const getVideo = async ({
   videoId,
+  userId,
 }: {
   videoId: string;
+  userId?: string;
 }): Promise<ApiReturnType<GetVideoResp>> => {
   try {
-    const video = await prisma.video.findUnique({
+    const video: VideoData | null = await prisma.video.findUnique({
       where: { id: videoId },
-      include: { user: true },
+      include: { user: true, views: true, likes: true },
     });
 
     if (!video) {
       throw Error(`Video not found for id ${videoId}`);
     }
 
-    const viewsResp = await getViews({ videoId });
-
-    if (!viewsResp.success) {
-      throw Error(`Failed to get views for video ${videoId}`);
-    }
-
-    const videoWithViews = { ...video, views: viewsResp.data.views };
+    video.isLikedByUser = userId
+      ? video.likes.some((like) => like.userId === userId)
+      : undefined;
 
     return {
       success: true,
       data: {
-        video: videoWithViews,
+        video,
       },
     };
   } catch (error) {

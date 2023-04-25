@@ -1,10 +1,9 @@
-import { fetchJson } from "@app/lib/client/fetchJson";
+import { postVideoView } from "@app/lib/client/api/videoView";
 import { getLocalStorage, setLocalStorage } from "@app/lib/client/storage";
 import { Flex, FlexProps } from "@chakra-ui/react";
 import { VideoType } from "@prisma/client";
 import { PlayerAPI } from "bitmovin-player";
 import { UIFactory } from "bitmovin-player-ui";
-import { route } from "nextjs-routes";
 import { useEffect, useRef, useState } from "react";
 
 enum VRContentType {
@@ -45,15 +44,11 @@ export const VideoPlayer = ({
         LOCAL_STORAGE_VIEW_KEY
       );
 
+      // If viewed video is not in local storage, post a view
+      // This will not necessarily update the view count for authenticated viewers
       if (!viewedVideos?.[id]) {
         // Add view to video in DB if not exists
-        await fetchJson<{}>({
-          method: "POST",
-          url: route({
-            pathname: "/api/v1/views/[videoId]",
-            query: { videoId: id },
-          }),
-        });
+        await postVideoView(id);
 
         // Update local storage
         setLocalStorage(LOCAL_STORAGE_VIEW_KEY, {

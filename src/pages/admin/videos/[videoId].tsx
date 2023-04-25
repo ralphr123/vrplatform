@@ -17,7 +17,7 @@ import { GrDocumentMissing, GrDocumentVerified } from "react-icons/gr";
 import Link from "next/link";
 import { copyToClipboard } from "@app/lib/client/copyToClipboard";
 import { route } from "nextjs-routes";
-import { updateVideoStatus } from "@app/lib/client/api/updateVideoStatus";
+import { updateVideoStatus } from "@app/lib/client/api/videoStatus";
 import { useState } from "react";
 
 export default function Video() {
@@ -153,7 +153,7 @@ export default function Video() {
 
   return (
     <Flex flexDirection="column" width="100%" gap="1.5em">
-      <div>
+      <Stack>
         <PageHeader>{name}</PageHeader>
         {/* ---------- Page info / actions --------- */}
         <PageInfo
@@ -199,7 +199,7 @@ export default function Video() {
           ]}
         />
         {/* ------------------------------------ */}
-      </div>
+      </Stack>
 
       <VideoPlayer
         id={id}

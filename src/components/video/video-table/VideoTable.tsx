@@ -24,6 +24,7 @@ export type VideoTableFilters = {
   type?: VideoType | false;
   createdAfterDate?: Date | false;
   userId?: string | false;
+  onlyBookmarked?: boolean;
 };
 
 type Props = {
@@ -31,8 +32,8 @@ type Props = {
    * If filter fields are passed as false, exlude from filter bar
    * If filter fields are passed as values, filter by these values and exclude from filter bar
    * Filter fields that are not passed will be included in the filter bar for the user
-   * Essentially, the purpose is to allow the parent component to:
-   * * Pass predefined filters that the user, in turn, cannot change
+   * Essentially, the purpose is to allow the parent to:
+   * * Pass predefined filters that the user, in turn, cannot touch
    * * Choose to disable certain filters
    */
   filters?: VideoTableFilters;
@@ -55,6 +56,7 @@ export const VideoTable = ({ filters = {} }: Props) => {
       : createdAfterDate,
     userId: filters.userId ? filters.userId : userId,
     status: filters.status ? filters.status : status,
+    onlyBookmarked: filters.onlyBookmarked,
   });
 
   return (

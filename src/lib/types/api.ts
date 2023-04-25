@@ -1,4 +1,4 @@
-import { Video } from "@prisma/client";
+import { User, Video, VideoLike, VideoView } from "@prisma/client";
 import { Route } from "nextjs-routes";
 
 /** ------------------------------------------------ */
@@ -57,6 +57,14 @@ export const sendGridTemplateNameToId: Record<SendGridTemplateName, string> = {
 /** ------------------------------------------------ */
 /** -------------------- Videos -------------------- */
 /** ------------------------------------------------ */
+
+export type VideoData = Video & {
+  user: User;
+  views: VideoView[];
+  likes: VideoLike[];
+  isLikedByUser?: boolean;
+  isBookmarkedByUser?: boolean;
+};
 
 export const videoStatuses = [
   "Private",

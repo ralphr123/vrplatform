@@ -1,13 +1,19 @@
 import { FormattedDate } from "@app/components/misc/FormattedDate";
 import { getPortal } from "@app/lib/client/getPortal";
-import { VideoData } from "@app/pages/api/v1/videos";
 import { Tr, Td, Flex, Icon, Image, Text, Spinner } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { BsBookmark } from "react-icons/bs";
+import { BsBookmark, BsBookmarkFill } from "react-icons/bs";
 import { HiOutlineUserCircle } from "react-icons/hi";
 import { IoIosArrowForward } from "react-icons/io";
 import { VideoTableFilters } from "./VideoTable";
 import { VideoStatusBadge } from "../VideoStatusBadge";
+import { VideoData } from "@app/lib/types/api";
+import {
+  deleteVideoBookmark,
+  postVideoBookmark,
+} from "@app/lib/client/api/videoBookmark";
+import { showToast } from "@app/lib/client/showToast";
+import { MouseEventHandler, useState } from "react";
 
 type Props = {
   video: VideoData;
@@ -27,12 +33,45 @@ export const VideoTableRow = ({ video, filters }: Props) => {
     createdDate,
     views,
     user: { name: userFullName },
+    isBookmarkedByUser,
   } = video;
+
+  const [isBookmarked, setIsBookmarked] = useState<boolean>(
+    !!isBookmarkedByUser
+  );
+
+  const handleOnClickBookmark: MouseEventHandler<HTMLDivElement> = (e) => {
+    e.stopPropagation();
+
+    (async () => {
+      try {
+        if (isBookmarkedByUser) {
+          await deleteVideoBookmark(id);
+          setIsBookmarked(false);
+          showToast({
+            status: "success",
+            description: "Bookmark removed.",
+          });
+        } else {
+          await postVideoBookmark(id);
+          setIsBookmarked(true);
+          showToast({
+            status: "success",
+            description: "Bookmark added.",
+          });
+        }
+      } catch (e) {
+        console.error(e);
+        showToast({ status: "error", description: "Something went wrong." });
+      }
+    })();
+  };
 
   return (
     <Tr
       key={id}
       _hover={{ bgColor: "gray.50", cursor: "pointer" }}
+      transition={"background-color 0.05s ease-in-out"}
       onClick={() => router.push(`/admin/videos/${id}`)}
     >
       <Td width={2}>
@@ -47,9 +86,12 @@ export const VideoTableRow = ({ video, filters }: Props) => {
                 rounded={3}
                 _hover={{ cursor: "pointer", bgColor: "gray.100" }}
                 transition={"all 0.1s ease-in-out"}
-                onClick={(e) => e.stopPropagation()}
+                onClick={handleOnClickBookmark}
               >
-                <Icon as={BsBookmark} fontSize={"lg"} />
+                <Icon
+                  as={isBookmarked ? BsBookmarkFill : BsBookmark}
+                  fontSize={"lg"}
+                />
               </Flex>
             )}
             {thumbnailUrl ? (
@@ -82,7 +124,7 @@ export const VideoTableRow = ({ video, filters }: Props) => {
           </Flex>
         </Flex>
       </Td>
-      <Td>{views}</Td>
+      <Td>{views.length}</Td>
       <Td paddingRight={0} hidden={!!filters.status}>
         <VideoStatusBadge video={video} />
       </Td>

@@ -35,7 +35,7 @@ export const VideoStatusBadge = ({ video, isLoading }: Props) => {
   }
 
   return !isLoading ? (
-    <Badge colorScheme={colorScheme} mr={2}>
+    <Badge colorScheme={colorScheme} mr={2} p="0.25em 0.6em" rounded="sm">
       {status}
     </Badge>
   ) : (

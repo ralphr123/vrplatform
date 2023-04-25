@@ -32,6 +32,7 @@ export const AdminMenu = ({ flex = 1 }: Props) => {
           { title: "Rejected", pathname: "/admin/videos/rejected" },
           { title: "Private", pathname: "/admin/videos/private" },
           { title: "Uploading", pathname: "/admin/videos/uploading" },
+          { title: "Bookmarked", pathname: "/admin/videos/bookmarked" },
         ],
       },
       {

@@ -52,11 +52,11 @@ model User {
   accounts               Account[]
   sessions               Session[]
   videos                 Video[]
-  VideoLike              VideoLike[]
-  VideoView              VideoView[]
-  VideoBookmark          VideoBookmark[]
-  BookmarkedUsers        UserBookmark[]  @relation("AdminUser")
-  BookmarkedBy           UserBookmark[]  @relation("UserBookmarked")
+  videoLikes             VideoLike[]
+  videoViews             VideoView[]
+  videoBookmarks         VideoBookmark[]
+  userBookmarks          UserBookmark[]  @relation("AdminUser")
+  userBookmarkedBy       UserBookmark[]  @relation("UserBookmarked")
 }
 
 model VerificationToken {
@@ -91,9 +91,9 @@ model Video {
   rejectReason           String?
   isPrivate              Boolean         @default(false)
   user                   User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  VideoLike              VideoLike[]
-  VideoView              VideoView[]
-  VideoBookmark          VideoBookmark[]
+  likes                  VideoLike[]
+  views                  VideoView[]
+  bookmarks              VideoBookmark[]
 }
 
 model VideoLike {

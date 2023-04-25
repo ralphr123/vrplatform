@@ -1,6 +1,8 @@
-import { Avatar, Button, Flex, Input } from "@chakra-ui/react";
+import { Avatar, Button, Flex, Icon, Input } from "@chakra-ui/react";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 import { useRouter } from "next/router";
+import { FiLogOut } from "react-icons/fi";
 import { Logo } from "./Logo";
 
 export const Menu = () => {
@@ -24,31 +26,39 @@ export const Menu = () => {
     >
       <Logo height="3.5em" width="8em" />
       <Input type="text" placeholder="Search" width="40em" />
-      <Flex gap={4}>
+      <Flex gap={4} align="center">
         {user ? (
-          <Button
-            padding="2em 0.25em"
-            rounded="3xl"
-            onClick={() => router.push("/account/profile")}
-          >
+          <>
+            <Link href="/auth/signout">
+              <Flex
+                align="center"
+                justify="center"
+                transition="0.15s ease-in-out"
+                _hover={{ bgColor: "gray.100" }}
+                padding="0.75em"
+                rounded="md"
+              >
+                <Icon as={FiLogOut} fontSize="1.5em" color="black" />
+              </Flex>
+            </Link>
             <Flex
+              rounded="50%"
+              height="3.75em"
+              width="3.75em"
               align="center"
               justify="center"
-              gap={4}
-              padding="2em 1.5em"
-              borderColor="inherit"
-              h="65%"
-              rounded="lg"
-              fontWeight={500}
+              onClick={() => router.push("/account/profile")}
+              cursor="pointer"
+              _hover={{ bgColor: "gray.100" }}
+              transition="0.15s ease-in-out"
             >
               <Avatar
                 name={user.name}
                 src={user.image ?? undefined}
-                size="sm"
+                size="md"
               />
-              My account
             </Flex>
-          </Button>
+          </>
         ) : (
           <>
             <Button flex={1} padding="1em 0.6em" bgColor="transparent">
