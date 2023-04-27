@@ -1,8 +1,11 @@
+import { rolePriority } from "@app/lib/types/api";
 import { Avatar, Button, Flex, Icon, Input } from "@chakra-ui/react";
+import { UserRole } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FiLogOut } from "react-icons/fi";
+import { RiAdminLine } from "react-icons/ri";
 import { Logo } from "./Logo";
 
 export const Menu = () => {
@@ -41,6 +44,20 @@ export const Menu = () => {
                 <Icon as={FiLogOut} fontSize="1.5em" color="black" />
               </Flex>
             </Link>
+            {rolePriority[user.role] >= rolePriority[UserRole.Admin] && (
+              <Link href="/admin">
+                <Flex
+                  align="center"
+                  justify="center"
+                  transition="0.15s ease-in-out"
+                  _hover={{ bgColor: "gray.100" }}
+                  padding="0.75em"
+                  rounded="md"
+                >
+                  <Icon as={RiAdminLine} fontSize="1.5em" color="black" />
+                </Flex>
+              </Link>
+            )}
             <Flex
               rounded="50%"
               height="3.75em"

@@ -1,6 +1,6 @@
 import { Logo } from "@app/components/Logo";
 import { Pathname } from "@app/lib/types/api";
-import { Flex, Accordion } from "@chakra-ui/react";
+import { Flex, Accordion, Center, Spinner } from "@chakra-ui/react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState, useMemo, useEffect } from "react";
@@ -66,7 +66,10 @@ export const AdminMenu = ({ flex = 1 }: Props) => {
       {
         title: "My Account",
         icon: FiUser,
-        routes: [{ title: "Sign out", pathname: "/auth/signout" }],
+        routes: [
+          { title: "Profile", pathname: "/account/profile" },
+          { title: "Sign out", pathname: "/auth/signout" },
+        ],
       },
     ],
     []
@@ -84,6 +87,18 @@ export const AdminMenu = ({ flex = 1 }: Props) => {
       }
     }
   }, [session, router, navbarItems]);
+
+  if (session.status === "loading") {
+    return (
+      <Center height="100%" width="100%">
+        <Spinner />
+      </Center>
+    );
+  }
+
+  if (session.status === "unauthenticated") {
+    router.push("/404");
+  }
 
   return (
     <Flex
