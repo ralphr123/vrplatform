@@ -19,13 +19,17 @@ import { useState } from "react";
 import { BsCalendar } from "react-icons/bs";
 import { UserTableRow } from "./UserTableRow";
 
+type Props = {
+  verified?: boolean;
+  excludeMembers?: boolean;
+  onlyBookmarked?: boolean;
+};
+
 export const UserTable = ({
   verified = false,
+  excludeMembers,
   onlyBookmarked,
-}: {
-  verified?: boolean;
-  onlyBookmarked?: boolean;
-}) => {
+}: Props) => {
   const [searchText, setSearchText] = useState<string>();
   const [registeredAfterDate, setRegisteredAfterDate] = useState<Date>();
 
@@ -36,6 +40,7 @@ export const UserTable = ({
     searchText: debouncedSearchText,
     registeredAfterDate,
     onlyBookmarked,
+    excludeMembers,
   });
 
   return (
@@ -80,8 +85,9 @@ export const UserTable = ({
           <Thead>
             <Tr>
               <Th>User</Th>
-              <Th>Videos</Th>
-              <Th>Total views</Th>
+              {!excludeMembers && <Th>Videos</Th>}
+              {!excludeMembers && <Th>Total views</Th>}
+              {excludeMembers && <Th>Role</Th>}
               <Th>Last login</Th>
               <Th>Registered on</Th>
               {/* Right arrow */}
@@ -91,7 +97,11 @@ export const UserTable = ({
           {users?.length ? (
             <Tbody hidden={isLoading} fontSize="0.8em">
               {users?.map((user) => (
-                <UserTableRow key={user.id} user={user} />
+                <UserTableRow
+                  key={user.id}
+                  user={user}
+                  excludeMembers={excludeMembers}
+                />
               ))}
             </Tbody>
           ) : (

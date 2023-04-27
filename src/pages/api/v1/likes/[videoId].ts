@@ -12,13 +12,13 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     switch (req.method) {
       case "POST": {
-        const user = await authenticateRequest(req);
+        const user = await authenticateRequest({ req });
         const { videoId } = querySchema.parse(req.query);
         const result = await postLike({ videoId, userId: user.id });
         return res.status(result.success ? 200 : 500).json(result);
       }
       case "DELETE": {
-        const user = await authenticateRequest(req);
+        const user = await authenticateRequest({ req });
         const { videoId } = querySchema.parse(req.query);
         const result = await deleteLike({ videoId, userId: user.id });
         return res.status(result.success ? 200 : 500).json(result);

@@ -1,5 +1,15 @@
-import { User, Video, VideoLike, VideoView } from "@prisma/client";
+import { User, UserRole, Video, VideoLike, VideoView } from "@prisma/client";
 import { Route } from "nextjs-routes";
+
+/** ------------------------------------------------ */
+/** --------------------- Auth --------------------- */
+/** ------------------------------------------------ */
+
+export const rolePriority: Record<UserRole, number> = {
+  [UserRole.Member]: 0,
+  [UserRole.Admin]: 1,
+  [UserRole.SuperAdmin]: Infinity,
+};
 
 /** ------------------------------------------------ */
 /** ------------------ pages/api ------------------- */

@@ -1,44 +1,63 @@
 import { PageHeader } from "@app/components/admin/PageHeader";
 import { useUser } from "@app/lib/client/hooks/api/useUser";
-import {
-  Divider,
-  Flex,
-  Icon,
-  Modal,
-  ModalCloseButton,
-  ModalContent,
-  ModalOverlay,
-  Spinner,
-  Stack,
-  Text,
-} from "@chakra-ui/react";
+import { Flex, Icon, Spinner, Stack, Text } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { BsBookmark, BsTrash, BsCalendar } from "react-icons/bs";
+import {
+  BsBookmark,
+  BsTrash,
+  BsCalendar,
+  BsGear,
+  BsBookmarkFill,
+} from "react-icons/bs";
 import { AiOutlineInfoCircle } from "react-icons/ai";
 import { FiVideo } from "react-icons/fi";
 import { MdContentCopy } from "react-icons/md";
 import { Dropdown } from "@app/components/input/Dropdown";
 import { VideoTable } from "@app/components/video/video-table/VideoTable";
-import { User } from "@prisma/client";
-import { useState } from "react";
+import { UserRole } from "@prisma/client";
+import { MouseEventHandler, useState } from "react";
 import { formatDate } from "@app/lib/client/formatDate";
 import { copyToClipboard } from "@app/lib/client/copyToClipboard";
 import { PageInfo } from "@app/components/admin/PageInfo";
+import { useSession } from "next-auth/react";
+import { rolePriority } from "@app/lib/types/api";
+import {
+  deleteUserBookmark,
+  postUserBookmark,
+} from "@app/lib/client/api/bookmark";
+import { showToast } from "@app/lib/client/showToast";
+import { toastMessages } from "@app/lib/types/toast";
+import { UserDetailsModal } from "@app/components/admin/user/UserDetailsModal";
+import { UserUpdateModal } from "@app/components/admin/user/UserUpdateModal";
 
 export default function UserPage() {
   const router = useRouter();
-  const { data, isLoading } = useUser(
+  const session = useSession();
+  const { data, isLoading, refetchUser } = useUser(
     router.query["userId"] as string | undefined
   );
 
   const [isOpenUserDetailsModal, setIsOpenUserDetailsModal] = useState(false);
+  const [isOpenUserUpdateModal, setIsOpenUserUpdateModal] = useState(false);
 
-  if (isLoading) {
+  if (isLoading || session.status === "loading") {
     return (
       <Flex width="100%" height="100%">
         <Spinner />
       </Flex>
     );
+  }
+
+  const currentUserRole = session.data?.user?.role;
+
+  // Must be an admin user to access this page
+  if (
+    session.status === "unauthenticated" ||
+    !currentUserRole ||
+    rolePriority[currentUserRole] < rolePriority[UserRole.Admin]
+  ) {
+    router.push("/auth/signin");
+    return null;
   }
 
   if (!data?.user) {
@@ -50,10 +69,45 @@ export default function UserPage() {
   }
 
   const {
-    user: { id, email, name, registeredDate, lastLoginDate },
+    user: {
+      id,
+      role,
+      email,
+      name,
+      registeredDate,
+      lastLoginDate,
+      isBookmarkedByUser,
+    },
     totalViews,
     numVideosUploaded,
   } = data;
+
+  const handleOnClickBookmark: MouseEventHandler<HTMLDivElement> = (e) => {
+    e.stopPropagation();
+
+    (async () => {
+      try {
+        if (isBookmarkedByUser) {
+          await deleteUserBookmark(id);
+          refetchUser();
+          showToast({
+            status: "success",
+            description: toastMessages.bookmarkDeleted,
+          });
+        } else {
+          await postUserBookmark(id);
+          refetchUser();
+          showToast({
+            status: "success",
+            description: toastMessages.bookmarkAdded,
+          });
+        }
+      } catch (e) {
+        console.error(e);
+        showToast({ status: "error", description: "Something went wrong." });
+      }
+    })();
+  };
 
   const userActions = {
     main: [
@@ -68,10 +122,19 @@ export default function UserPage() {
         onClick: () => copyToClipboard(email),
       },
       {
-        label: "Add to bookmarks",
-        icon: BsBookmark,
-        onClick: () => {},
+        label: isBookmarkedByUser ? "Remove bookmark" : "Add to bookmarks",
+        icon: isBookmarkedByUser ? BsBookmarkFill : BsBookmark,
+        onClick: (e: any) => handleOnClickBookmark(e),
       },
+      ...(rolePriority[currentUserRole] > rolePriority[role]
+        ? [
+            {
+              label: "Modify user",
+              icon: BsGear,
+              onClick: () => setIsOpenUserUpdateModal(true),
+            },
+          ]
+        : []),
     ],
     footer: [
       {
@@ -82,6 +145,15 @@ export default function UserPage() {
     ],
   };
 
+  const onCloseUserDetailsModal = () => {
+    setIsOpenUserDetailsModal(false);
+  };
+
+  const onCloseUserUpdateModal = () => {
+    setIsOpenUserUpdateModal(false);
+    refetchUser();
+  };
+
   return (
     <Stack width="100%" gap={5}>
       <UserDetailsModal
@@ -89,7 +161,12 @@ export default function UserPage() {
         totalViews={totalViews}
         numVideosUploaded={numVideosUploaded}
         isOpen={isOpenUserDetailsModal}
-        onClose={() => setIsOpenUserDetailsModal(false)}
+        onClose={onCloseUserDetailsModal}
+      />
+      <UserUpdateModal
+        user={data.user}
+        isOpen={isOpenUserUpdateModal}
+        onClose={onCloseUserUpdateModal}
       />
       <Stack>
         <PageHeader>{name}</PageHeader>
@@ -135,59 +212,3 @@ export default function UserPage() {
     </Stack>
   );
 }
-
-const UserDetailsModal = ({
-  user: { id, name, email, registeredDate, lastLoginDate },
-  totalViews,
-  numVideosUploaded,
-  isOpen,
-  onClose,
-}: {
-  user: User;
-  totalViews: number;
-  numVideosUploaded: number;
-  isOpen: boolean;
-  onClose: () => void;
-}) => (
-  <Modal isOpen={isOpen} onClose={onClose}>
-    <ModalOverlay />
-    <ModalContent>
-      <ModalCloseButton />
-      <Stack padding={10} gap={5}>
-        <div>
-          <Text fontSize="2xl" fontWeight={600}>
-            {name}
-          </Text>
-          <Text color="#999999" fontSize="sm">
-            {id}
-          </Text>
-        </div>
-        <Stack gap={4}>
-          <UserDetail label="Email address" value={email} />
-          <Divider />
-          <UserDetail
-            label="Videos uploaded"
-            value={numVideosUploaded.toLocaleString()}
-          />
-          <Divider />
-          <UserDetail label="Total views" value={totalViews.toLocaleString()} />
-          <Divider />
-          <UserDetail
-            label="Registered on"
-            value={formatDate(registeredDate)}
-          />
-          <Divider />
-          <UserDetail label="Last login on" value={formatDate(lastLoginDate)} />
-          <Divider />
-        </Stack>
-      </Stack>
-    </ModalContent>
-  </Modal>
-);
-
-const UserDetail = ({ label, value }: { label: string; value: string }) => (
-  <div>
-    <Text color="#999999">{label}</Text>
-    <Text fontWeight={600}>{value}</Text>
-  </div>
-);

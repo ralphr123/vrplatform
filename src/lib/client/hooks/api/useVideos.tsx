@@ -1,4 +1,4 @@
-import { ApiReturnType, FailReturnType, VideoStatus } from "@app/lib/types/api";
+import { ApiReturnType, VideoStatus } from "@app/lib/types/api";
 import { GetVideosResp } from "@app/pages/api/v1/videos";
 import { VideoType } from "@prisma/client";
 import { route } from "nextjs-routes";
@@ -8,6 +8,8 @@ import { showToast } from "../../showToast";
 
 export const useVideos = (
   {
+    page,
+    limit,
     searchText,
     type,
     status,
@@ -15,6 +17,8 @@ export const useVideos = (
     userId,
     onlyBookmarked,
   }: {
+    page?: number;
+    limit?: number;
     searchText?: string;
     type?: VideoType;
     status?: VideoStatus;
@@ -33,6 +37,8 @@ export const useVideos = (
       ? route({
           pathname: "/api/v1/videos",
           query: {
+            ...(page && { page: page.toString() }),
+            ...(limit && { limit: limit.toString() }),
             ...(searchText && { searchText }),
             ...(type && { type }),
             ...(createdAfterDate && {

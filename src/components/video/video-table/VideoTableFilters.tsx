@@ -10,6 +10,7 @@ import { HiOutlineUserCircle } from "react-icons/hi";
 import { MdOndemandVideo, MdOutlinePending } from "react-icons/md";
 
 type Props = {
+  // On change handlers that are passed in will indicate that the filter is enabled
   searchText?: string;
   setSearchText?: (value: string) => void;
   setStatus?: (value: VideoStatus) => void;
@@ -116,6 +117,7 @@ export const VideoTableFilters = ({
             ]}
             defaultIcon={HiOutlineUserCircle}
             onChange={(value) => setUserId(value as string)}
+            isLoading={isLoadingUsers}
             isSearchable
           />
         </Stack>

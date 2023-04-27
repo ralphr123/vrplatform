@@ -9,6 +9,7 @@ export const useUser = (userId?: string) => {
     data,
     error: fetchError,
     isLoading,
+    mutate: refetchUser,
   } = useSWR<ApiReturnType<GetUserResp>>(
     userId ? `/api/v1/users/${userId}` : null,
     async (url: string) => await (await fetch(url)).json()
@@ -30,5 +31,6 @@ export const useUser = (userId?: string) => {
     data: data?.success ? data.data : undefined,
     error,
     isLoading,
+    refetchUser,
   };
 };

@@ -1,37 +1,24 @@
 import prisma from "../../../../lib/prismadb";
 import type { NextApiRequest, NextApiResponse } from "next/types";
 import { z } from "zod";
-import { Prisma, User, Video } from "@prisma/client";
+import { Prisma, UserRole } from "@prisma/client";
 import { ApiReturnType, UserData } from "@app/lib/types/api";
 import { authenticateRequest } from "@app/lib/server/authenticateRequest";
 import { basePaginationQuerySchema } from "@app/lib/types/zod";
 import { getSession } from "next-auth/react";
+import {
+  zodPreprocessBoolean,
+  zodPreprocessDate,
+} from "@app/lib/server/zodHelpers";
 
 const getQuerySchema = z.intersection(
   basePaginationQuerySchema,
   z.object({
     searchText: z.string().optional(),
-    registeredAfterDate: z.preprocess((value) => {
-      const processed = z
-        .string()
-        .transform((val) => new Date(val))
-        .safeParse(value);
-      return processed.success ? processed.data : value;
-    }, z.date().optional()),
-    verified: z.preprocess((value) => {
-      const processed = z
-        .string()
-        .transform((input) => (input === "true" ? true : false))
-        .safeParse(value);
-      return processed.success ? processed.data : value;
-    }, z.boolean().default(false)),
-    onlyBookmarked: z.preprocess((value) => {
-      const processed = z
-        .string()
-        .transform((val) => val === "true")
-        .safeParse(value);
-      return processed.success ? processed.data : value;
-    }, z.boolean().optional()),
+    registeredAfterDate: zodPreprocessDate().optional(),
+    verified: zodPreprocessBoolean().optional(),
+    onlyBookmarked: zodPreprocessBoolean().optional(),
+    excludeMembers: zodPreprocessBoolean().optional(),
   })
 );
 
@@ -39,7 +26,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     switch (req.method) {
       case "GET": {
-        await authenticateRequest(req);
+        await authenticateRequest({ req, role: UserRole.Admin });
         const session = await getSession({ req });
         const adminId = session?.user?.id;
         const filters = getQuerySchema.parse(req.query);
@@ -77,6 +64,7 @@ const getUsers = async ({
     registeredAfterDate,
     verified,
     onlyBookmarked,
+    excludeMembers,
   },
   adminId,
 }: {
@@ -87,14 +75,17 @@ const getUsers = async ({
     registeredAfterDate?: Date;
     verified?: boolean;
     onlyBookmarked?: boolean;
+    excludeMembers?: boolean;
   };
   adminId?: string;
 }): Promise<ApiReturnType<GetUsersResp>> => {
   try {
     const filters: Prisma.UserWhereInput = {
-      ...(verified
-        ? { emailVerified: { equals: null } }
-        : { emailVerified: { not: { equals: null } } }),
+      ...(typeof verified === "boolean"
+        ? verified
+          ? { emailVerified: { not: { equals: null } } }
+          : { emailVerified: { equals: null } }
+        : {}),
       ...(searchText && {
         OR: [
           { name: { contains: searchText } },
@@ -105,6 +96,7 @@ const getUsers = async ({
       ...(registeredAfterDate && {
         registeredDate: { gte: registeredAfterDate },
       }),
+      ...(excludeMembers && { role: { not: { equals: UserRole.Member } } }),
     };
 
     const users: (UserData & { userBookmarkedBy: any[] })[] =
@@ -129,8 +121,6 @@ const getUsers = async ({
         user.isBookmarkedByUser = true;
       }
     }
-
-    console.log(onlyBookmarked);
 
     return {
       success: true,

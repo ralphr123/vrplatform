@@ -56,7 +56,12 @@ export const AdminMenu = ({ flex = 1 }: Props) => {
       {
         title: "Administration",
         icon: FiSettings,
-        routes: [],
+        routes: [
+          {
+            title: "Admin Users",
+            pathname: "/admin/administration/admin-users",
+          },
+        ],
       },
       {
         title: "My Account",

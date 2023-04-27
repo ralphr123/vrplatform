@@ -11,11 +11,12 @@ import {
 } from "@chakra-ui/react";
 import { IconType } from "react-icons";
 import { BsChevronDown } from "react-icons/bs";
+import { MouseEvent } from "react";
 
 type DropdownOptionType = {
   label: string;
   icon: IconType;
-  onClick: () => void;
+  onClick: (e: any) => void;
 };
 
 export const Dropdown = ({

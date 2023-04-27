@@ -13,6 +13,10 @@ import { videoTypes } from "@app/lib/types/prisma";
 import { basePaginationQuerySchema } from "@app/lib/types/zod";
 import { authenticateRequest } from "@app/lib/server/authenticateRequest";
 import { getSession } from "next-auth/react";
+import {
+  zodPreprocessBoolean,
+  zodPreprocessDate,
+} from "@app/lib/server/zodHelpers";
 
 const videoTypeSchema = z.enum(videoTypes);
 
@@ -21,22 +25,10 @@ const getQuerySchema = z.intersection(
   z.object({
     searchText: z.string().optional(),
     type: videoTypeSchema.optional(),
-    createdAfterDate: z.preprocess((value) => {
-      const processed = z
-        .string()
-        .transform((val) => new Date(val))
-        .safeParse(value);
-      return processed.success ? processed.data : value;
-    }, z.date().optional()),
-    userId: z.string().optional(),
+    createdAfterDate: zodPreprocessDate().optional(),
     status: z.enum(videoStatuses).optional(),
-    onlyBookmarked: z.preprocess((value) => {
-      const processed = z
-        .string()
-        .transform((val) => val === "true")
-        .safeParse(value);
-      return processed.success ? processed.data : value;
-    }, z.boolean().optional()),
+    onlyBookmarked: zodPreprocessBoolean().optional(),
+    userId: z.string().optional(),
   })
 );
 
@@ -66,7 +58,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         return res.status(result.success ? 200 : 500).json(result);
       }
       case "POST": {
-        const { id: userId } = await authenticateRequest(req);
+        const { id: userId } = await authenticateRequest({ req });
         const result = await encodeAndSaveVideo({
           userId,
           ...postBodySchema.parse(req.body),

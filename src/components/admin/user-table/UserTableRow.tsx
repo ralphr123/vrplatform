@@ -14,18 +14,21 @@ import { IoIosArrowForward } from "react-icons/io";
 
 type Props = {
   user: UserData;
+  excludeMembers?: boolean;
 };
 
 export const UserTableRow = ({
   user: {
     id,
     name,
+    role,
     image,
     registeredDate,
     lastLoginDate,
     videos,
     isBookmarkedByUser,
   },
+  excludeMembers,
 }: Props) => {
   const router = useRouter();
 
@@ -94,9 +97,10 @@ export const UserTableRow = ({
           </Flex>
         </Flex>
       </Td>
-      <Td>{videos.length}</Td>
+      {!excludeMembers && <Td>{videos.length}</Td>}
+      {excludeMembers && <Td>{role}</Td>}
       {/* @TODO: Fix views */}
-      <Td>{videos.reduce((acc, video) => acc + 0, 0)}</Td>
+      {!excludeMembers && <Td>{videos.reduce((acc, video) => acc + 0, 0)}</Td>}
       <Td>{formatDate(lastLoginDate)}</Td>
       <Td>{formatDate(registeredDate)}</Td>
       <Td>

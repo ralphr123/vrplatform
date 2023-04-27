@@ -1,4 +1,4 @@
-import { ApiReturnType, FailReturnType } from "@app/lib/types/api";
+import { ApiReturnType } from "@app/lib/types/api";
 import { GetUsersResp } from "@app/pages/api/v1/users";
 import { route } from "nextjs-routes";
 import { useEffect } from "react";
@@ -13,6 +13,7 @@ export const useUsers = (
     registeredAfterDate,
     verified,
     onlyBookmarked,
+    excludeMembers,
   }: {
     page?: number;
     limit?: number;
@@ -20,6 +21,7 @@ export const useUsers = (
     registeredAfterDate?: Date;
     verified?: boolean;
     onlyBookmarked?: boolean;
+    excludeMembers?: boolean;
   } = {},
   doFetch = true
 ) => {
@@ -32,14 +34,15 @@ export const useUsers = (
       ? route({
           pathname: "/api/v1/users",
           query: {
-            ...(verified && { verified: String(verified) }),
             ...(page && { page: page.toString() }),
             ...(limit && { limit: limit.toString() }),
+            ...(verified && { verified: String(verified) }),
             ...(searchText && { searchText }),
             ...(registeredAfterDate && {
               registeredAfterDate: registeredAfterDate.toISOString(),
             }),
             ...(onlyBookmarked && { onlyBookmarked: "true" }),
+            ...(excludeMembers && { excludeMembers: "true" }),
           },
         })
       : null,

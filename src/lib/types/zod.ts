@@ -1,13 +1,8 @@
 import { z } from "zod";
+import { zodPreprocessNumber } from "../server/zodHelpers";
 
 // Process string query params into the correct type
 export const basePaginationQuerySchema = z.object({
-  page: z.preprocess((value) => {
-    const processed = z.string().transform(Number).safeParse(value);
-    return processed.success ? processed.data : value;
-  }, z.number().default(1)),
-  limit: z.preprocess((value) => {
-    const processed = z.string().transform(Number).safeParse(value);
-    return processed.success ? processed.data : value;
-  }, z.number().default(10)),
+  page: zodPreprocessNumber().optional().default(1),
+  limit: zodPreprocessNumber().optional().default(10),
 });

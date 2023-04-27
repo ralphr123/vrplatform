@@ -44,7 +44,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         return res.status(result.success ? 200 : 500).json(result);
       }
       case "DELETE": {
-        const { id: userId } = await authenticateRequest(req);
+        const { id: userId } = await authenticateRequest({ req });
         const result = await deleteVideo({
           userId,
           videoId,

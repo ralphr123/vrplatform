@@ -15,6 +15,7 @@ declare module "nextjs-routes" {
     | StaticRoute<"/account/profile">
     | StaticRoute<"/account/upload">
     | StaticRoute<"/account/videos">
+    | StaticRoute<"/admin/administration/admin-users">
     | StaticRoute<"/admin">
     | DynamicRoute<"/admin/users/[userId]", { "userId": string }>
     | StaticRoute<"/admin/users/bookmarked">
