@@ -10,6 +10,10 @@ import {
   zodPreprocessBoolean,
   zodPreprocessDate,
 } from "@app/lib/server/zodHelpers";
+import {
+  getVideoInclude,
+  processVideoData,
+} from "@app/lib/server/processVideoData";
 
 const getQuerySchema = z.intersection(
   basePaginationQuerySchema,
@@ -99,35 +103,40 @@ const getUsers = async ({
       ...(excludeMembers && { role: { not: { equals: UserRole.Member } } }),
     };
 
-    const users: (UserData & { userBookmarkedBy: any[] })[] =
-      await prisma.user.findMany({
-        skip: (Number(page) - 1) * Number(limit),
-        take: Number(limit),
-        where: filters,
-        include: {
-          videos: true,
-          userBookmarkedBy: {
-            where: {
-              adminId: adminId,
-            },
+    const users = await prisma.user.findMany({
+      skip: (Number(page) - 1) * Number(limit),
+      take: Number(limit),
+      where: filters,
+      include: {
+        videos: {
+          include: getVideoInclude(adminId),
+        },
+        userBookmarkedBy: {
+          where: {
+            adminId: adminId,
           },
         },
-      });
+      },
+    });
 
     const totalUsers = await prisma.user.count({ where: filters });
 
+    const usersData: UserData[] = [];
+
     for (const user of users) {
-      if (!!user.userBookmarkedBy.length) {
-        user.isBookmarkedByUser = true;
-      }
+      usersData.push({
+        ...user,
+        videos: processVideoData(user.videos),
+        isBookmarkedByUser: !!user.userBookmarkedBy.length,
+      });
     }
 
     return {
       success: true,
       data: {
         users: onlyBookmarked
-          ? users.filter(({ isBookmarkedByUser }) => !!isBookmarkedByUser)
-          : users,
+          ? usersData.filter(({ isBookmarkedByUser }) => !!isBookmarkedByUser)
+          : usersData,
         totalUsersCount: totalUsers,
         page: Number(page),
         limit: Number(limit),

@@ -3,9 +3,8 @@ import { VideoData } from "@app/lib/types/api";
 import { FlexProps, Flex, Stack, Text } from "@chakra-ui/react";
 import { VerticalDivider } from "../misc/VerticalDivider";
 
-// @TODO: Add views, and likes
 export const VideoInfoCard = ({
-  video: { reviewedDate, createdDate, views },
+  video: { reviewedDate, createdDate, views, likes },
   ...props
 }: { video: VideoData } & FlexProps) => (
   <Flex
@@ -26,7 +25,7 @@ export const VideoInfoCard = ({
     <VerticalDivider />
     <VideoInfoCardDetail label="Views" value={views.toLocaleString()} />
     <VerticalDivider />
-    <VideoInfoCardDetail label="Likes" value={"0"} />
+    <VideoInfoCardDetail label="Likes" value={likes.toLocaleString()} />
     <VerticalDivider />
     <VideoInfoCardDetail label="Uploaded On" value={formatDate(createdDate)} />
   </Flex>

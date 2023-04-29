@@ -17,6 +17,10 @@ import {
   zodPreprocessBoolean,
   zodPreprocessDate,
 } from "@app/lib/server/zodHelpers";
+import {
+  getVideoInclude,
+  processVideoData,
+} from "@app/lib/server/processVideoData";
 
 const videoTypeSchema = z.enum(videoTypes);
 
@@ -143,7 +147,7 @@ const getVideos = async ({
   }
 
   try {
-    const videos: VideoData[] | null = await prisma.video.findMany({
+    const videos = await prisma.video.findMany({
       skip: (Number(page) - 1) * Number(limit),
       take: Number(limit),
       where: {
@@ -160,42 +164,18 @@ const getVideos = async ({
         }),
         ...statusFilters,
       },
-      include: { user: true, views: true, likes: true, bookmarks: true },
+      include: getVideoInclude(userId),
     });
 
     const totalVideos = await prisma.video.count();
-
-    // Get whether the user has liked/bookmarked the videos
-    const bookmarkedVideos: VideoData[] = [];
-    if (authedUserId) {
-      const authedUser = await prisma.user.findUnique({
-        where: { id: authedUserId },
-        include: { videoLikes: true, videoBookmarks: true },
-      });
-
-      if (authedUser) {
-        const likedVideoIds = new Set(
-          authedUser.videoLikes.map((like) => like.videoId)
-        );
-        const bookmarkedVideoIds = new Set(
-          authedUser.videoBookmarks.map((bookmark) => bookmark.videoId)
-        );
-
-        for (const video of videos) {
-          video.isLikedByUser = likedVideoIds.has(video.id);
-          video.isBookmarkedByUser = bookmarkedVideoIds.has(video.id);
-
-          if (video.isBookmarkedByUser) {
-            bookmarkedVideos.push(video);
-          }
-        }
-      }
-    }
+    const videosData: VideoData[] = processVideoData(videos);
 
     return {
       success: true,
       data: {
-        videos: onlyBookmarked ? bookmarkedVideos : videos,
+        videos: onlyBookmarked
+          ? videosData.filter(({ isBookmarkedByUser }) => isBookmarkedByUser)
+          : videosData,
         totalVideoCount: totalVideos,
         page: Number(page),
         limit: Number(limit),

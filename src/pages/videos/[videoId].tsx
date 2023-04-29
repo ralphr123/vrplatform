@@ -8,9 +8,8 @@ import { HiOutlineUserCircle } from "react-icons/hi";
 import { AiFillLike, AiOutlineLike } from "react-icons/ai";
 import { VideoGrid } from "@app/components/video/video-grid/VideoGrid";
 import { formatDate } from "@app/lib/client/formatDate";
-import { deleteVideoLike, postVideoLike } from "@app/lib/client/api/videoLike";
+import { deleteVideoLike, postVideoLike } from "@app/lib/client/api/videoData";
 import { VideoData } from "@app/lib/types/api";
-import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { showToast } from "@app/lib/client/showToast";
 
@@ -60,7 +59,7 @@ const VideoCard = ({ video }: { video: VideoData }) => {
   } = video;
 
   const [isLiked, setIsLiked] = useState<boolean>(!!isLikedByUser);
-  const [numLikes, setNumLikes] = useState<number>(likes.length);
+  const [numLikes, setNumLikes] = useState<number>(likes);
 
   const handleOnClickLiked = () => {
     (async () => {

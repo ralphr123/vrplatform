@@ -125,7 +125,7 @@ export const VideoTableRow = ({ video, filters }: Props) => {
           </Flex>
         </Flex>
       </Td>
-      <Td>{views.length}</Td>
+      <Td>{views}</Td>
       <Td paddingRight={0} hidden={!!filters.status}>
         <VideoStatusBadge video={video} />
       </Td>

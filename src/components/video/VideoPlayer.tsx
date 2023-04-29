@@ -1,4 +1,4 @@
-import { postVideoView } from "@app/lib/client/api/videoView";
+import { postVideoView } from "@app/lib/client/api/videoData";
 import { getLocalStorage, setLocalStorage } from "@app/lib/client/storage";
 import { Flex, FlexProps } from "@chakra-ui/react";
 import { VideoType } from "@prisma/client";

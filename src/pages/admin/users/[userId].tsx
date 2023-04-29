@@ -69,18 +69,15 @@ export default function UserPage() {
   }
 
   const {
-    user: {
-      id,
-      role,
-      email,
-      name,
-      registeredDate,
-      lastLoginDate,
-      isBookmarkedByUser,
-    },
-    totalViews,
-    numVideosUploaded,
-  } = data;
+    id,
+    role,
+    email,
+    name,
+    registeredDate,
+    lastLoginDate,
+    isBookmarkedByUser,
+    videos,
+  } = data.user;
 
   const handleOnClickBookmark: MouseEventHandler<HTMLDivElement> = (e) => {
     e.stopPropagation();
@@ -158,8 +155,6 @@ export default function UserPage() {
     <Stack width="100%" gap={5}>
       <UserDetailsModal
         user={data.user}
-        totalViews={totalViews}
-        numVideosUploaded={numVideosUploaded}
         isOpen={isOpenUserDetailsModal}
         onClose={onCloseUserDetailsModal}
       />
@@ -186,7 +181,7 @@ export default function UserPage() {
                 /* ------------ Videos count ------------ */
                 <Flex key={1} gap={2} align="center">
                   <Icon as={FiVideo} fontSize="1.1em" />
-                  <Text fontSize="0.9em">6 videos</Text>
+                  <Text fontSize="0.9em">{videos.length} videos</Text>
                 </Flex>,
                 /* ---------- Registered date ----------- */
                 <Flex key={2} gap={2} align="center">

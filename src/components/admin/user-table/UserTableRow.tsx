@@ -2,6 +2,7 @@ import {
   deleteUserBookmark,
   postUserBookmark,
 } from "@app/lib/client/api/bookmark";
+import { getVideosStats } from "@app/lib/client/api/videoData";
 import { formatDate } from "@app/lib/client/formatDate";
 import { showToast } from "@app/lib/client/showToast";
 import { UserData } from "@app/lib/types/api";
@@ -99,8 +100,7 @@ export const UserTableRow = ({
       </Td>
       {!excludeMembers && <Td>{videos.length}</Td>}
       {excludeMembers && <Td>{role}</Td>}
-      {/* @TODO: Fix views */}
-      {!excludeMembers && <Td>{videos.reduce((acc, video) => acc + 0, 0)}</Td>}
+      {!excludeMembers && <Td>{getVideosStats(videos).views}</Td>}
       <Td>{formatDate(lastLoginDate)}</Td>
       <Td>{formatDate(registeredDate)}</Td>
       <Td>

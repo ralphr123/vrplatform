@@ -1,4 +1,6 @@
+import { getVideosStats } from "@app/lib/client/api/videoData";
 import { formatDate } from "@app/lib/client/formatDate";
+import { UserData } from "@app/lib/types/api";
 import {
   Modal,
   ModalOverlay,
@@ -8,20 +10,15 @@ import {
   Divider,
   Text,
 } from "@chakra-ui/react";
-import { User } from "@prisma/client";
 
 type Props = {
-  user: User;
-  totalViews: number;
-  numVideosUploaded: number;
+  user: UserData;
   isOpen: boolean;
   onClose: () => void;
 };
 
 export const UserDetailsModal = ({
-  user: { id, name, email, registeredDate, lastLoginDate },
-  totalViews,
-  numVideosUploaded,
+  user: { id, name, email, registeredDate, lastLoginDate, videos },
   isOpen,
   onClose,
 }: Props) => (
@@ -43,10 +40,13 @@ export const UserDetailsModal = ({
           <Divider />
           <UserDetail
             label="Videos uploaded"
-            value={numVideosUploaded.toLocaleString()}
+            value={videos.length.toLocaleString()}
           />
           <Divider />
-          <UserDetail label="Total views" value={totalViews.toLocaleString()} />
+          <UserDetail
+            label="Total views"
+            value={getVideosStats(videos).views.toLocaleString()}
+          />
           <Divider />
           <UserDetail
             label="Registered on"

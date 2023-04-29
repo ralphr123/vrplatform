@@ -80,23 +80,38 @@ const getVideo = async ({
   userId?: string;
 }): Promise<ApiReturnType<GetVideoResp>> => {
   try {
-    const video: VideoData | null = await prisma.video.findUnique({
+    const video = await prisma.video.findUnique({
       where: { id: videoId },
-      include: { user: true, views: true, likes: true },
+      include: {
+        user: true,
+        views: true,
+        likes: true,
+        bookmarks: {
+          where: {
+            userId: { equals: userId },
+          },
+        },
+      },
     });
 
     if (!video) {
       throw Error(`Video not found for id ${videoId}`);
     }
 
-    video.isLikedByUser = userId
-      ? video.likes.some((like) => like.userId === userId)
-      : undefined;
+    const videoData: VideoData = {
+      ...video,
+      views: video.views.length,
+      likes: video.likes.length,
+      isLikedByUser: userId
+        ? video.likes.some((like) => like.userId === userId)
+        : undefined,
+      isBookmarkedByUser: !!video.bookmarks.length,
+    };
 
     return {
       success: true,
       data: {
-        video,
+        video: videoData,
       },
     };
   } catch (error) {

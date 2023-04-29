@@ -4,6 +4,11 @@ import { z } from "zod";
 import { User, UserRole, Video } from "@prisma/client";
 import { ApiReturnType, rolePriority, UserData } from "@app/lib/types/api";
 import { authenticateRequest } from "@app/lib/server/authenticateRequest";
+import {
+  getVideoInclude,
+  processVideoData,
+  UnprocessedVideoData,
+} from "@app/lib/server/processVideoData";
 
 const userUpdateDataSchema = z.object({
   name: z.string().optional(),
@@ -60,8 +65,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
 export type GetUserResp = {
   user: UserData;
-  totalViews: number;
-  numVideosUploaded: number;
 };
 
 const getUser = async ({
@@ -75,7 +78,9 @@ const getUser = async ({
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {
-        videos: true,
+        videos: {
+          include: getVideoInclude(userId),
+        },
         userBookmarkedBy: {
           where: {
             adminId,
@@ -88,21 +93,15 @@ const getUser = async ({
       throw Error("User not found.");
     }
 
-    // @TODO: Get total views for user
-    const totalViews = 0;
-
     const userData: UserData = {
       ...user,
+      videos: processVideoData(user.videos),
       isBookmarkedByUser: !!user.userBookmarkedBy.length,
     };
 
     return {
       success: true,
-      data: {
-        user: userData,
-        totalViews,
-        numVideosUploaded: user.videos.length,
-      },
+      data: { user: userData },
     };
   } catch (error) {
     console.error(error);

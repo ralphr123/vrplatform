@@ -70,14 +70,14 @@ export const sendGridTemplateNameToId: Record<SendGridTemplateName, string> = {
 
 export type VideoData = Video & {
   user: User;
-  views: VideoView[];
-  likes: VideoLike[];
+  views: number;
+  likes: number;
   isLikedByUser?: boolean;
   isBookmarkedByUser?: boolean;
 };
 
 export type UserData = User & {
-  videos: Video[];
+  videos: VideoData[];
   isBookmarkedByUser?: boolean;
 };
 
