@@ -1,6 +1,3 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-
 import { DefaultAzureCredential } from "@azure/identity";
 import {
   AzureMediaServices,
@@ -108,16 +105,17 @@ export const encodeVideoOnAzureFromBlob = async (
     );
 
     const locator = await createStreamingLocator(outputAsset.name, locatorName);
-    if (locator.name !== undefined) {
-      const streamingUrls = await getStreamingUrls(locator.name);
-      return {
-        streamingUrls,
-        thumbnailUrl: `${blobClient.url}?${sasQueryParams}`,
-        mediaServicesAssetName: outputAsset.name,
-      };
-    } else {
+
+    if (!locator.name) {
       throw new Error("Locator was not created or Locator.name is undefined");
     }
+
+    const streamingUrls = await getStreamingUrls(locator.name);
+    return {
+      streamingUrls,
+      thumbnailUrl: `${blobClient.url}?${sasQueryParams}`,
+      mediaServicesAssetName: outputAsset.name,
+    };
   } else {
     throw new Error("Output asset was unable to be created.");
   }
@@ -134,7 +132,9 @@ const waitForJobToFinish = async (transformName: string, jobName: string) => {
       transformName,
       jobName
     );
+
     console.log(job.state);
+
     if (
       job.state == "Finished" ||
       job.state == "Error" ||
