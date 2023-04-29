@@ -91,35 +91,3 @@ export const videoStatuses = [
 ] as const;
 
 export type VideoStatus = (typeof videoStatuses)[number];
-
-export const getVideoStatus = (video: Video): VideoStatus => {
-  const {
-    mediaServicesAssetName,
-    encodingError,
-    reviewedDate,
-    rejectReason,
-    isPrivate,
-  } = video;
-
-  if (encodingError) {
-    return "Failed";
-  }
-
-  if (!mediaServicesAssetName) {
-    return "Encoding";
-  }
-
-  if (!reviewedDate) {
-    return "Pending Review";
-  }
-
-  if (!!rejectReason) {
-    return "Rejected";
-  }
-
-  if (isPrivate) {
-    return "Private";
-  }
-
-  return "Published";
-};

@@ -1,11 +1,8 @@
 import prisma from "@app/lib/prismadb";
-import { sendEmail } from "@app/lib/server/sendEmail";
-import { Pathname } from "@app/lib/types/api";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { Account } from "@prisma/client";
-import NextAuth, { Profile, Session, User } from "next-auth";
+import NextAuth, { Session, User } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import { route } from "nextjs-routes";
+import EmailProvider from "next-auth/providers/email";
 
 export const authOptions = {
   adapter: PrismaAdapter(prisma),
@@ -14,84 +11,25 @@ export const authOptions = {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
+    EmailProvider({
+      server: {
+        host: process.env.SENDGRID_SMTP_HOST,
+        port: process.env.SENDGRID_SMTP_PORT,
+        auth: {
+          user: process.env.SENDGRID_SMTP_USER,
+          pass: process.env.SENDGRID_SMTP_KEY,
+        },
+      },
+      from: process.env.SENDGRID_FROM_EMAIL,
+    }),
   ],
   callbacks: {
     session: async ({ session, user }: { session: Session; user: User }) => {
       return {
         ...session,
-        user: user,
+        user,
       };
     },
-    /**
-     * Returns a boolean to indicate success, or false to throw a default error.
-     * Can also return a string to redirect user.
-     * */
-    // async signIn({
-    //   user,
-    //   account,
-    //   profile,
-    // }: {
-    //   user: User;
-    //   account: Account;
-    //   profile: Profile;
-    // }): Promise<boolean | Pathname> {
-    //   console.log(user);
-
-    //   let dbUser = await prisma.user.findUnique({
-    //     where: {
-    //       email: user.email || undefined,
-    //     },
-    //   });
-
-    //   if (!dbUser) {
-    //     dbUser = await prisma.user.create({
-    //       data: {
-    //         email: user.email!,
-    //         name: user.name!,
-    //         image: user.image,
-    //       },
-    //     });
-    //   }
-
-    //   // Send email to user to verify email
-    //   if (!dbUser.emailVerified && !dbUser.emailVerificationToken) {
-    //     try {
-    // const token = Math.random().toString(36).substring(2, 15);
-
-    // await prisma.user.update({
-    //   where: {
-    //     id: dbUser.id,
-    //   },
-    //   data: {
-    //     emailVerificationToken: token,
-    //   },
-    // });
-
-    // await sendEmail({
-    //   email: dbUser.email,
-    //   templateName: "verify-email",
-    //   dynamicTemplateData: {
-    //     Redirect_Url: route({
-    //       pathname: "/auth/verify/[token]",
-    //       query: { token },
-    //     }),
-    //   },
-    // });
-
-    //       return route({ pathname: "/auth/verify" });
-    //     } catch (error) {
-    //       console.error(`Error sending email verification token: ${error}`);
-    //     }
-    //   }
-
-    //   if (!dbUser.emailVerified) {
-    //     return route({
-    //       pathname: "/auth/verify",
-    //     });
-    //   }
-
-    //   return true;
-    // },
   },
 };
 

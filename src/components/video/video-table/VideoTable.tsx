@@ -28,6 +28,8 @@ export type VideoTableFilters = {
 };
 
 type Props = {
+  onClickRow?: (videoId: string) => void;
+
   /**
    * If filter fields are passed as false, exlude from filter bar
    * If filter fields are passed as values, filter by these values and exclude from filter bar
@@ -39,7 +41,7 @@ type Props = {
   filters?: VideoTableFilters;
 };
 
-export const VideoTable = ({ filters = {} }: Props) => {
+export const VideoTable = ({ filters = {}, onClickRow }: Props) => {
   const [searchText, setSearchText] = useState<string>();
   const [status, setStatus] = useState<VideoStatus>();
   const [type, setType] = useState<VideoType>();
@@ -97,6 +99,7 @@ export const VideoTable = ({ filters = {} }: Props) => {
                     key={video.id}
                     video={video}
                     filters={filters}
+                    onClick={onClickRow}
                   />
                 ))}
               </Tbody>

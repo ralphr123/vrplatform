@@ -6,19 +6,27 @@ import { VideoInfoCard } from "@app/components/video/VideoInfoCard";
 import { VideoPlayer } from "@app/components/video/VideoPlayer";
 import { formatDate } from "@app/lib/client/formatDate";
 import { useVideo } from "@app/lib/client/hooks/api/useVideo";
-import { Flex, Icon, Spinner, Stack, Text } from "@chakra-ui/react";
+import {
+  Button,
+  Center,
+  Flex,
+  Icon,
+  Spinner,
+  Stack,
+  Text,
+  Textarea,
+} from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { AiOutlinePlayCircle } from "react-icons/ai";
 import { BsBookmark, BsCalendar, BsTrash } from "react-icons/bs";
 import { MdContentCopy } from "react-icons/md";
-import { VideoStatus } from "@app/lib/types/api";
-import { HiOutlineDocumentRemove, HiOutlineUserCircle } from "react-icons/hi";
-import { GrDocumentMissing, GrDocumentVerified } from "react-icons/gr";
+import { HiOutlineUserCircle } from "react-icons/hi";
 import Link from "next/link";
 import { copyToClipboard } from "@app/lib/client/copyToClipboard";
 import { route } from "nextjs-routes";
 import { updateVideo } from "@app/lib/client/api/updateVideo";
 import { useState } from "react";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 import { getVideoStatus } from "@app/lib/client/api/getVideoStatus";
 
 export default function Video() {
@@ -30,6 +38,9 @@ export default function Video() {
   } = useVideo(router.query.videoId);
 
   const [isLoadingNewStatus, setIsLoadingNewStatus] = useState<boolean>(false);
+  const [isLoadingNewDescription, setIsLoadingNewDescription] =
+    useState<boolean>(false);
+  const [videoDescription, setVideoDescription] = useState<string>();
 
   if (isLoading || !data?.video) {
     return (
@@ -43,14 +54,30 @@ export default function Video() {
   /** --------------- Helpers  ---------------  */
   /** -----------------------------------------  */
 
-  const onChangeStatus = (status: VideoStatus) => {
+  const onChangeStatus = (isPrivate: boolean) => {
     setIsLoadingNewStatus(true);
     updateVideo({
       videoId: id,
-      status,
+      data: {
+        isPrivate,
+      },
       onUpdate: () => {
         refetchVideo();
         setIsLoadingNewStatus(false);
+      },
+    });
+  };
+
+  const onSubmitDescription = () => {
+    setIsLoadingNewDescription(true);
+    updateVideo({
+      videoId: id,
+      data: {
+        description: videoDescription,
+      },
+      onUpdate: () => {
+        refetchVideo();
+        setIsLoadingNewDescription(false);
       },
     });
   };
@@ -98,52 +125,21 @@ export default function Video() {
       },
     ],
     footer: [
-      ...(videoStatus === "Pending Review"
+      ...(videoStatus === "Private"
         ? [
             {
-              label: "Publish video",
-              icon: GrDocumentVerified,
-              onClick: () => onChangeStatus("Published"),
+              label: "Make public",
+              icon: FiEye,
+              onClick: () => onChangeStatus(false),
             },
           ]
-        : []),
-      ...(videoStatus === "Pending Review"
-        ? [
+        : [
             {
-              label: "Reject video",
-              icon: GrDocumentMissing,
-              onClick: () => onChangeStatus("Rejected"),
+              label: "Make private",
+              icon: FiEyeOff,
+              onClick: () => onChangeStatus(true),
             },
-          ]
-        : []),
-      ...(videoStatus === "Rejected"
-        ? [
-            {
-              label: "Unreject video",
-              icon: HiOutlineDocumentRemove,
-              onClick: () =>
-                updateVideo({
-                  videoId: id,
-                  status: "Pending Review",
-                  onUpdate: () => onChangeStatus("Pending Review"),
-                }),
-            },
-          ]
-        : []),
-      ...(videoStatus === "Published"
-        ? [
-            {
-              label: "Unpublish video",
-              icon: HiOutlineDocumentRemove,
-              onClick: () =>
-                updateVideo({
-                  videoId: id,
-                  status: "Pending Review",
-                  onUpdate: () => onChangeStatus("Pending Review"),
-                }),
-            },
-          ]
-        : []),
+          ]),
       {
         label: "Permanently delete video",
         icon: BsTrash,
@@ -225,7 +221,24 @@ export default function Video() {
         <Text fontWeight="600" color="#BBBBBB">
           Description
         </Text>
-        <Text>{description}</Text>
+        {!isLoadingNewDescription ? (
+          <Textarea
+            value={videoDescription || description || ""}
+            onChange={(e) => setVideoDescription(e.target.value)}
+          />
+        ) : (
+          <Center w="100%" pt={4}>
+            <Spinner />
+          </Center>
+        )}
+        <Flex w="100%" justify="end" pt={1}>
+          <Button
+            onClick={onSubmitDescription}
+            isLoading={isLoadingNewDescription}
+          >
+            Submit
+          </Button>
+        </Flex>
       </Stack>
       {/* ------------------------------------ */}
     </Flex>

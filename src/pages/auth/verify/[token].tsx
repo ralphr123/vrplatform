@@ -1,6 +1,7 @@
 import { useVerify } from "@app/lib/client/hooks/api/useVerify";
 import { Flex, Spinner, Text } from "@chakra-ui/react";
 import { useRouter } from "next/router";
+import { route } from "nextjs-routes";
 
 /**
  * Users are sent here when they click on the
@@ -30,7 +31,10 @@ export default function Verify() {
       </Flex>
     );
   } else {
-    router.push("/auth/signin");
+    router.push({
+      pathname: "/auth/signin",
+      query: { successfullyVerified: "true" },
+    });
   }
 
   return (

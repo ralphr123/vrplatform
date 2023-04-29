@@ -18,7 +18,7 @@ export const sendEmail = async <T extends SendGridTemplateName>({
 
   const msg = {
     to: email,
-    from: "ralph.rouhana@gmail.com",
+    from: process.env.SENDGRID_FROM_EMAIL,
     templateId: sendGridTemplateNameToId[templateName],
     dynamicTemplateData: {
       ...dynamicTemplateData,

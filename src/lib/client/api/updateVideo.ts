@@ -8,14 +8,16 @@ import { route } from "nextjs-routes";
 import { fetchJson } from "../fetchJson";
 import { showToast } from "../showToast";
 
-export const updateVideoStatus = ({
+export const updateVideo = ({
   videoId,
+  data = {},
   status,
   rejectReason,
   onUpdate,
 }: {
   videoId: string;
-  status: VideoStatus;
+  data?: Prisma.VideoUpdateInput;
+  status?: VideoStatus;
   rejectReason?: string;
   onUpdate?: () => void;
 }) => {
@@ -28,7 +30,7 @@ export const updateVideoStatus = ({
         }),
         method: "PUT",
         body: {
-          data: {},
+          data,
           status,
           rejectReason,
         },
@@ -39,11 +41,16 @@ export const updateVideoStatus = ({
       }
 
       onUpdate?.();
+
+      showToast({
+        status: "success",
+        description: "Updated successfully.",
+      });
     } catch (e) {
       console.error(e);
       showToast({
-        description: "There was an error updating video status.",
-        contactDeveloper: true,
+        description: "There was an error.",
+        contactSupport: true,
       });
     }
   })();

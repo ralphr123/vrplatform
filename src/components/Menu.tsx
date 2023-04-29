@@ -36,6 +36,7 @@ export const Menu = () => {
   const session = useSession();
   const router = useRouter();
   const { successfullyVerified } = router.query as QueryParams;
+
   const user = session?.data?.user;
 
   const isUnverifiedUser = !!user && !user.emailVerified;
@@ -144,7 +145,12 @@ export const Menu = () => {
             </>
           ) : (
             <>
-              <Button flex={1} padding="1em 0.6em" bgColor="transparent">
+              <Button
+                flex={1}
+                padding="1em 0.6em"
+                bgColor="transparent"
+                onClick={() => router.push("/auth/signin")}
+              >
                 Sign in
               </Button>
               <Button flex={1} padding="1.1em 2.5em">

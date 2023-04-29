@@ -18,12 +18,13 @@ import { toastMessages } from "@app/lib/types/toast";
 
 type Props = {
   video: VideoData;
+  onClick?: (videoId: string) => void;
   // Hide columns if their filters are predefined (unmodifiable)
   // If this is the case, the columns would have a constant value, making them redundant
   filters: VideoTableFilters;
 };
 
-export const VideoTableRow = ({ video, filters }: Props) => {
+export const VideoTableRow = ({ video, filters, onClick }: Props) => {
   const router = useRouter();
   const showBookmarks = getPortal(router.pathname) === "admin";
 
@@ -73,7 +74,9 @@ export const VideoTableRow = ({ video, filters }: Props) => {
       key={id}
       _hover={{ bgColor: "gray.50", cursor: "pointer" }}
       transition={"background-color 0.05s ease-in-out"}
-      onClick={() => router.push(`/admin/videos/${id}`)}
+      onClick={() =>
+        onClick ? onClick(id) : router.push(`/admin/videos/${id}`)
+      }
     >
       <Td width={2}>
         <Flex align="center" gap={3.5}>

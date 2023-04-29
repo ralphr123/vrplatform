@@ -25,6 +25,11 @@ declare global {
       SENDGRID_TEMPLATE_ID_VERIFY_EMAIL: string;
       SENDGRID_TEMPLATE_ID_VIDEO_APPROVED: string;
       SENDGRID_TEMPLATE_ID_VIDEO_REJECTED: string;
+      SENDGRID_FROM_EMAIL: string;
+      SENDGRID_SMTP_USER: string;
+      SENDGRID_SMTP_KEY: string;
+      SENDGRID_SMTP_HOST: string;
+      SENDGRID_SMTP_PORT: string;
     }
   }
 }

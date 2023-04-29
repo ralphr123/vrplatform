@@ -40,7 +40,15 @@ export default function VideosPage() {
 
   return (
     <Stack>
-      <VideoTable filters={{ userId, type: false, createdAfterDate: false }} />
+      <VideoTable
+        filters={{ userId, type: false, createdAfterDate: false }}
+        onClickRow={(videoId) =>
+          router.push({
+            pathname: "/account/videos/[videoId]",
+            query: { videoId },
+          })
+        }
+      />
     </Stack>
   );
 }

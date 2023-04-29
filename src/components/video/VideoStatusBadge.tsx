@@ -1,4 +1,4 @@
-import { getVideoStatus } from "@app/lib/types/api";
+import { getVideoStatus } from "@app/lib/client/api/getVideoStatus";
 import { Badge, Spinner } from "@chakra-ui/react";
 import { Video } from "@prisma/client";
 

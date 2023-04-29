@@ -14,6 +14,7 @@ declare module "nextjs-routes" {
     | StaticRoute<"/404">
     | StaticRoute<"/account/profile">
     | StaticRoute<"/account/upload">
+    | DynamicRoute<"/account/videos/[videoId]", { "videoId": string }>
     | StaticRoute<"/account/videos">
     | StaticRoute<"/admin/administration/admin-users">
     | StaticRoute<"/admin">
@@ -24,7 +25,6 @@ declare module "nextjs-routes" {
     | DynamicRoute<"/admin/videos/[videoId]", { "videoId": string }>
     | StaticRoute<"/admin/videos/bookmarked">
     | StaticRoute<"/admin/videos/pending-review">
-    | StaticRoute<"/admin/videos/private">
     | StaticRoute<"/admin/videos/published">
     | StaticRoute<"/admin/videos/rejected">
     | StaticRoute<"/admin/videos/uploading">

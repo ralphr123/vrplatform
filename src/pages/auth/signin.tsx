@@ -1,4 +1,5 @@
 import { Logo } from "@app/components/Logo";
+import { showToast } from "@app/lib/client/showToast";
 import {
   Button,
   Flex,
@@ -12,21 +13,38 @@ import {
 } from "@chakra-ui/react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
+import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 
+type QueryParams = {
+  successfullyVerified?: string;
+};
+
 export default function SignIn() {
-  const router = useRouter();
   const session = useSession();
+  const router = useRouter();
+
+  const { successfullyVerified } = router.query as QueryParams;
+
+  const [email, setEmail] = useState<string>("");
 
   if (session?.status === "authenticated") {
     router.push({
       pathname: "/",
-      query: { successfullyVerified: "true" },
+      query: successfullyVerified ? { successfullyVerified } : {},
     });
     return <Text>Redirecting...</Text>;
   } else if (session?.status === "loading") {
     return <Spinner />;
   }
+
+  const handleSubmit = async () => {
+    await signIn("email", { email, redirect: false });
+    showToast({
+      description:
+        "A magic link has been sent to your email if it has been registered.",
+    });
+  };
 
   return (
     <Flex
@@ -54,16 +72,22 @@ export default function SignIn() {
           <Flex flexDirection="column" gap={4}>
             <div>
               <FormLabel>Email</FormLabel>
-              <Input width="100%" type="text" />
-            </div>
-            <div>
-              <FormLabel>Password</FormLabel>
-              <Input width="100%" type="password" />
+              <Input
+                width="100%"
+                type="text"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
           </Flex>
         </FormControl>
         <Flex flexDirection="column" gap={5}>
-          <Button bgColor="gray.500" color="white" padding={6}>
+          <Button
+            bgColor="gray.500"
+            color="white"
+            padding={6}
+            onClick={handleSubmit}
+          >
             Sign in
           </Button>
           <Button

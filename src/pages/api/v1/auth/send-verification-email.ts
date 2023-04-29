@@ -36,6 +36,7 @@ const sendVerificationEmail = async ({
 }): Promise<ApiReturnType<{}>> => {
   try {
     const token = Math.random().toString(36).substring(2, 15);
+
     await sendEmail({
       email,
       templateName: "verify-email",
