@@ -1,6 +1,7 @@
 import { Logo } from "@app/components/Logo";
-import { Pathname } from "@app/lib/types/api";
+import { Pathname, rolePriority } from "@app/lib/types/api";
 import { Flex, Accordion, Center, Spinner } from "@chakra-ui/react";
+import { UserRole } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState, useMemo, useEffect } from "react";
@@ -15,7 +16,7 @@ type Props = {
 export const AdminMenu = ({ flex = 1 }: Props) => {
   const router = useRouter();
   const session = useSession();
-  const [activeNavbarItemIndex, setActiveNavbarItemIndex] = useState<number>();
+  const [activeMenuItemIndex, setActiveMenuItemIndex] = useState<number>();
 
   const navbarItems: {
     title: string;
@@ -75,12 +76,13 @@ export const AdminMenu = ({ flex = 1 }: Props) => {
     []
   );
 
+  // Highlight correct menu item
   useEffect(() => {
     if (session.status !== "loading") {
       if (session.status === "authenticated") {
         for (const [i, { routes }] of Object.entries(navbarItems)) {
           if (routes.find(({ pathname }) => pathname === router.pathname)) {
-            setActiveNavbarItemIndex(Number(i));
+            setActiveMenuItemIndex(Number(i));
             return;
           }
         }
@@ -96,8 +98,13 @@ export const AdminMenu = ({ flex = 1 }: Props) => {
     );
   }
 
-  if (session.status === "unauthenticated") {
+  if (
+    session.status === "unauthenticated" ||
+    !session.data?.user ||
+    rolePriority[session.data.user.role] < rolePriority[UserRole.Admin]
+  ) {
     router.push("/404");
+    return null;
   }
 
   return (
@@ -110,12 +117,7 @@ export const AdminMenu = ({ flex = 1 }: Props) => {
       flexDirection="column"
     >
       <Logo height="5em" width="9em" margin={5} />
-      <Accordion
-        allowToggle
-        width="100%"
-        flex={6}
-        index={activeNavbarItemIndex}
-      >
+      <Accordion allowToggle width="100%" flex={6} index={activeMenuItemIndex}>
         {session.status === "authenticated" ? (
           Object.entries(navbarItems).map(([i, { title, icon, routes }]) => (
             <AdminMenuItem
@@ -124,7 +126,7 @@ export const AdminMenu = ({ flex = 1 }: Props) => {
               title={title}
               routes={routes}
               currentPath={router.pathname}
-              onClick={() => setActiveNavbarItemIndex(Number(i))}
+              onClick={() => setActiveMenuItemIndex(Number(i))}
             />
           ))
         ) : (

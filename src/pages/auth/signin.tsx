@@ -1,5 +1,4 @@
 import { Logo } from "@app/components/Logo";
-import { showToast } from "@app/lib/client/showToast";
 import {
   Button,
   Flex,
@@ -13,31 +12,17 @@ import {
 } from "@chakra-ui/react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
 import { FcGoogle } from "react-icons/fc";
-
-type QueryParams = {
-  hasJustVerifiedEmail?: string;
-};
 
 export default function SignIn() {
   const router = useRouter();
   const session = useSession();
-  const { hasJustVerifiedEmail } = router.query as QueryParams;
-
-  useEffect(() => {
-    if (hasJustVerifiedEmail === "true") {
-      showToast({
-        status: "success",
-        title: "Your email has been verified!",
-        description: "You can now access the dashboard.",
-      });
-      router.replace("/auth/signin", undefined, { shallow: true });
-    }
-  }, [hasJustVerifiedEmail, router]);
 
   if (session?.status === "authenticated") {
-    router.push("/admin/videos/published");
+    router.push({
+      pathname: "/",
+      query: { successfullyVerified: "true" },
+    });
     return <Text>Redirecting...</Text>;
   } else if (session?.status === "loading") {
     return <Spinner />;
@@ -63,12 +48,12 @@ export default function SignIn() {
         <Logo height="5em" width="9em" />
         <Flex flexDirection="column" gap={2}>
           <Heading size={"lg"}>Sign In</Heading>
-          <Text>Please fill in your account credentials.</Text>
+          {/* <Text></Text> */}
         </Flex>
         <FormControl width="100%">
           <Flex flexDirection="column" gap={4}>
             <div>
-              <FormLabel>Email address</FormLabel>
+              <FormLabel>Email</FormLabel>
               <Input width="100%" type="text" />
             </div>
             <div>

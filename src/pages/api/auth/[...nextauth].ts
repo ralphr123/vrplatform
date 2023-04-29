@@ -2,8 +2,8 @@ import prisma from "@app/lib/prismadb";
 import { sendEmail } from "@app/lib/server/sendEmail";
 import { Pathname } from "@app/lib/types/api";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { Account, User } from "@prisma/client";
-import NextAuth, { Profile, Session } from "next-auth";
+import { Account } from "@prisma/client";
+import NextAuth, { Profile, Session, User } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { route } from "nextjs-routes";
 
@@ -26,54 +26,72 @@ export const authOptions = {
      * Returns a boolean to indicate success, or false to throw a default error.
      * Can also return a string to redirect user.
      * */
-    async signIn({
-      user,
-      account,
-      profile,
-    }: {
-      user: User;
-      account: Account;
-      profile: Profile;
-    }): Promise<boolean | Pathname> {
-      // Send email to user to verify email
-      if (!user.emailVerified && !user.emailVerificationToken) {
-        try {
-          const token = Math.random().toString(36).substring(2, 15);
+    // async signIn({
+    //   user,
+    //   account,
+    //   profile,
+    // }: {
+    //   user: User;
+    //   account: Account;
+    //   profile: Profile;
+    // }): Promise<boolean | Pathname> {
+    //   console.log(user);
 
-          await prisma.user.update({
-            where: {
-              id: user.id,
-            },
-            data: {
-              emailVerificationToken: token,
-            },
-          });
+    //   let dbUser = await prisma.user.findUnique({
+    //     where: {
+    //       email: user.email || undefined,
+    //     },
+    //   });
 
-          await sendEmail({
-            email: user.email,
-            templateName: "verify-email",
-            dynamicTemplateData: {
-              Redirect_Url: route({
-                pathname: "/auth/verify/[token]",
-                query: { token },
-              }),
-            },
-          });
+    //   if (!dbUser) {
+    //     dbUser = await prisma.user.create({
+    //       data: {
+    //         email: user.email!,
+    //         name: user.name!,
+    //         image: user.image,
+    //       },
+    //     });
+    //   }
 
-          return route({ pathname: "/auth/verify" });
-        } catch (error) {
-          console.error(`Error sending email verification token: ${error}`);
-        }
-      }
+    //   // Send email to user to verify email
+    //   if (!dbUser.emailVerified && !dbUser.emailVerificationToken) {
+    //     try {
+    // const token = Math.random().toString(36).substring(2, 15);
 
-      if (!user.emailVerified) {
-        return route({
-          pathname: "/auth/verify",
-        });
-      }
+    // await prisma.user.update({
+    //   where: {
+    //     id: dbUser.id,
+    //   },
+    //   data: {
+    //     emailVerificationToken: token,
+    //   },
+    // });
 
-      return true;
-    },
+    // await sendEmail({
+    //   email: dbUser.email,
+    //   templateName: "verify-email",
+    //   dynamicTemplateData: {
+    //     Redirect_Url: route({
+    //       pathname: "/auth/verify/[token]",
+    //       query: { token },
+    //     }),
+    //   },
+    // });
+
+    //       return route({ pathname: "/auth/verify" });
+    //     } catch (error) {
+    //       console.error(`Error sending email verification token: ${error}`);
+    //     }
+    //   }
+
+    //   if (!dbUser.emailVerified) {
+    //     return route({
+    //       pathname: "/auth/verify",
+    //     });
+    //   }
+
+    //   return true;
+    // },
   },
 };
 

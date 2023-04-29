@@ -30,10 +30,7 @@ export default function Verify() {
       </Flex>
     );
   } else {
-    router.push({
-      pathname: "/auth/signin",
-      query: { hasJustVerifiedEmail: "true" },
-    });
+    router.push("/auth/signin");
   }
 
   return (

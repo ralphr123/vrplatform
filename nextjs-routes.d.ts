@@ -30,6 +30,7 @@ declare module "nextjs-routes" {
     | StaticRoute<"/admin/videos/uploading">
     | DynamicRoute<"/api/auth/[...nextauth]", { "nextauth": string[] }>
     | StaticRoute<"/api/example">
+    | StaticRoute<"/api/v1/auth/send-verification-email">
     | StaticRoute<"/api/v1/auth/verify-email">
     | StaticRoute<"/api/v1/azure/generateStorageSasToken">
     | DynamicRoute<"/api/v1/bookmark/user/[userId]", { "userId": string }>
@@ -43,7 +44,6 @@ declare module "nextjs-routes" {
     | StaticRoute<"/auth/signin">
     | StaticRoute<"/auth/signout">
     | DynamicRoute<"/auth/verify/[token]", { "token": string }>
-    | StaticRoute<"/auth/verify">
     | StaticRoute<"/">
     | DynamicRoute<"/videos/[videoId]", { "videoId": string }>;
 
