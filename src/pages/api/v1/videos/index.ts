@@ -12,7 +12,6 @@ import { encodeVideoOnAzureFromBlob } from "@app/lib/azure/encode";
 import { videoTypes } from "@app/lib/types/prisma";
 import { basePaginationQuerySchema } from "@app/lib/types/zod";
 import { authenticateRequest } from "@app/lib/server/authenticateRequest";
-import { getSession } from "next-auth/react";
 import {
   zodPreprocessBoolean,
   zodPreprocessDate,
