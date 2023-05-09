@@ -53,12 +53,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     switch (req.method) {
       case "GET": {
-        const session = await getSession({ req });
-        const filters = getQuerySchema.parse(req.query);
-        const result = await getVideos({
-          filters,
-          authedUserId: session?.user?.id,
-        });
+        const result = await getVideos(getQuerySchema.parse(req.query));
         return res.status(result.success ? 200 : 500).json(result);
       }
       case "POST": {
@@ -93,29 +88,23 @@ export type GetVideosResp = {
 };
 
 const getVideos = async ({
-  filters: {
-    page,
-    limit,
-    searchText,
-    type,
-    createdAfterDate,
-    userId,
-    status,
-    onlyBookmarked,
-  },
-  authedUserId,
+  page,
+  limit,
+  searchText,
+  type,
+  createdAfterDate,
+  userId,
+  status,
+  onlyBookmarked,
 }: {
-  filters: {
-    page: number;
-    limit: number;
-    searchText?: string;
-    type?: VideoType;
-    createdAfterDate?: Date;
-    userId?: string;
-    status?: VideoStatus;
-    onlyBookmarked?: boolean;
-  };
-  authedUserId?: string;
+  page: number;
+  limit: number;
+  searchText?: string;
+  type?: VideoType;
+  createdAfterDate?: Date;
+  userId?: string;
+  status?: VideoStatus;
+  onlyBookmarked?: boolean;
 }): Promise<ApiReturnType<GetVideosResp>> => {
   const statusFilters: Prisma.VideoWhereInput = {};
 
