@@ -18,22 +18,16 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 
-type QueryParams = {
-  successfullyVerified?: string;
-};
-
 export default function SignIn() {
   const session = useSession();
   const router = useRouter();
-
-  const { successfullyVerified } = router.query as QueryParams;
 
   const [email, setEmail] = useState<string>("");
 
   if (session?.status === "authenticated") {
     router.push({
       pathname: "/",
-      query: successfullyVerified ? { successfullyVerified } : {},
+      query: {},
     });
     return <Text>Redirecting...</Text>;
   } else if (session?.status === "loading") {
@@ -65,7 +59,7 @@ export default function SignIn() {
         width={"30em"}
       >
         <Logo height="5em" width="9em" />
-        <Heading size={"lg"}>Sign in</Heading>
+        <Heading size={"lg"}>Sign up</Heading>
         <FormControl width="100%">
           <Flex flexDirection="column" gap={4}>
             <div>
@@ -86,7 +80,7 @@ export default function SignIn() {
             padding={6}
             onClick={handleSubmit}
           >
-            Sign in
+            Sign up
           </Button>
           <Button
             bgColor="gray.100"
@@ -95,12 +89,12 @@ export default function SignIn() {
           >
             <Flex align="center" justify="center" gap={3}>
               <Icon fontSize={24} as={FcGoogle} />
-              <Text>Sign in with Google</Text>
+              <Text>Sign up with Google</Text>
             </Flex>
           </Button>
         </Flex>
-        <BlueLink href="/auth/signup">
-          Don&apos;t have an account? Sign up.
+        <BlueLink href="/auth/signin">
+          Already have an account? Sign in.
         </BlueLink>
       </Flex>
     </Flex>

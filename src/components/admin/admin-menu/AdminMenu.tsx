@@ -77,14 +77,14 @@ export const AdminMenu = ({ flex = 1 }: Props) => {
 
   // Highlight correct menu item
   useEffect(() => {
-    if (session.status !== "loading") {
-      if (session.status === "authenticated") {
-        for (const [i, { routes }] of Object.entries(navbarItems)) {
-          if (routes.find(({ pathname }) => pathname === router.pathname)) {
-            setActiveMenuItemIndex(Number(i));
-            return;
-          }
-        }
+    if (session.status !== "authenticated") {
+      return;
+    }
+
+    for (const [i, { routes }] of Object.entries(navbarItems)) {
+      if (routes.find(({ pathname }) => pathname === router.pathname)) {
+        setActiveMenuItemIndex(Number(i));
+        return;
       }
     }
   }, [session, router, navbarItems]);

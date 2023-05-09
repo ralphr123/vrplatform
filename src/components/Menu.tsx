@@ -78,7 +78,7 @@ export const Menu = () => {
   return (
     <>
       <UnverifiedUserBanner
-        show={isOpenVerificationBanner}
+        show={isOpenVerificationBanner && successfullyVerified !== "true"}
         onClose={() => setIsOpenVerificationBanner(false)}
       />
       <Flex
@@ -153,7 +153,11 @@ export const Menu = () => {
               >
                 Sign in
               </Button>
-              <Button flex={1} padding="1.1em 2.5em">
+              <Button
+                flex={1}
+                padding="1.1em 2.5em"
+                onClick={() => router.push("/auth/signup")}
+              >
                 Create account
               </Button>
             </>

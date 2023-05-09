@@ -8,7 +8,7 @@ export default function SignOut() {
   useEffect(() => {
     (async () => {
       await signOut({ redirect: false });
-      router.push("/auth/signin");
+      router.push("/");
     })();
   }, [router]);
 
