@@ -67,7 +67,8 @@ export const VideoPlayer = ({
         const { Player } = await import("bitmovin-player");
         setPlayer(
           new Player(videoPlayer.current, {
-            key: process.env.BITMOVIN_SECRET!,
+            // This is fine to expose, only authorized domains can use the license
+            key: "406b8edb-10ba-447d-90f7-df4b5989cd0e",
             playback: { autoplay: true },
           })
         );
