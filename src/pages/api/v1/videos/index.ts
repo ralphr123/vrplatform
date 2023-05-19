@@ -141,8 +141,8 @@ const getVideos = async ({
       where: {
         ...(searchText && {
           OR: [
-            { name: { contains: searchText } },
-            { id: { contains: searchText } },
+            { name: { contains: searchText, mode: "insensitive" } },
+            { id: { contains: searchText, mode: "insensitive" } },
           ],
         }),
         ...(type && { type: { equals: type } }),

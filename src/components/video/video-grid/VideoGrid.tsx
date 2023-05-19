@@ -2,11 +2,19 @@ import { useVideos } from "@app/lib/client/hooks/api/useVideos";
 import { showToast } from "@app/lib/client/showToast";
 import { toastMessages } from "@app/lib/types/toast";
 import { Flex, Grid, Spinner } from "@chakra-ui/react";
+import { useRouter } from "next/router";
 import { VideoGridCard } from "./VideoGridCard";
 
+type QueryParams = {
+  searchText?: string;
+};
+
 export const VideoGrid = () => {
+  const router = useRouter();
+  const { searchText } = router.query as QueryParams;
   const { data: { videos } = {}, isLoading } = useVideos({
     status: "Published",
+    searchText,
   });
 
   if (isLoading) {

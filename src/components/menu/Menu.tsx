@@ -1,4 +1,5 @@
 import { fetchJson } from "@app/lib/client/fetchJson";
+import { useVideos } from "@app/lib/client/hooks/api/useVideos";
 import { showToast } from "@app/lib/client/showToast";
 import { rolePriority } from "@app/lib/types/api";
 import {
@@ -10,6 +11,7 @@ import {
   Input,
   Spinner,
   Link as ChakraLink,
+  Stack,
 } from "@chakra-ui/react";
 import { UserRole } from "@prisma/client";
 import { useSession } from "next-auth/react";
@@ -18,7 +20,9 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { FiLogOut, FiX } from "react-icons/fi";
 import { RiAdminLine } from "react-icons/ri";
-import { Logo } from "./Logo";
+import { Select } from "../input/Select";
+import { Logo } from "../Logo";
+import { MenuSearch } from "./MenuSearch";
 
 const UNVERIFIED_BANNER_HEIGHT = "2.5em";
 
@@ -38,10 +42,12 @@ export const Menu = () => {
   const { successfullyVerified } = router.query as QueryParams;
 
   const user = session?.data?.user;
-
   const isUnverifiedUser = !!user && !user.emailVerified;
+
   const [isOpenVerificationBanner, setIsOpenVerificationBanner] =
     useState<boolean>(isUnverifiedUser);
+
+  const { data: { videos } = {}, isLoading: isLoadingVideos } = useVideos();
 
   useEffect(() => {
     if (isUnverifiedUser) {
@@ -95,7 +101,7 @@ export const Menu = () => {
         zIndex={2}
       >
         <Logo height="3.5em" width="8em" />
-        <Input type="text" placeholder="Search" width="40em" />
+        <MenuSearch />
         <Flex gap={4} align="center">
           {user ? (
             <>

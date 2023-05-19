@@ -1,5 +1,5 @@
 import { AdminMenu } from "@app/components/admin/admin-menu/AdminMenu";
-import { Menu } from "@app/components/Menu";
+import { Menu } from "@app/components/menu/Menu";
 import { AccountMenu } from "@app/components/account/AccountMenu";
 import { ToastContainer } from "@app/lib/client/showToast";
 import "@app/styles/globals.css";

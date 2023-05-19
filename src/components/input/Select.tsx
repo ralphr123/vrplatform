@@ -12,6 +12,7 @@ type Props = {
   defaultIcon?: IconType; // Overrides option icon
   isLoading?: boolean;
   value?: string;
+  placeholder?: string;
 };
 
 export const Select = ({
@@ -21,15 +22,16 @@ export const Select = ({
   defaultIcon,
   isLoading,
   value,
+  placeholder,
 }: Props) => {
   return (
     <ReactSelect
       options={options}
+      placeholder={placeholder}
       onChange={(v) => onChange?.(v?.value)}
       isLoading={isLoading}
       isSearchable={isSearchable}
       value={options.find((option) => option.value === value)}
-      defaultValue={value ? undefined : options[0]}
       className="react-select-input"
       components={{
         Option: CustomOption,
