@@ -1,5 +1,6 @@
 import { Logo } from "@app/components/Logo";
 import { BlueLink } from "@app/components/misc/BlueLink";
+import { fetchJson } from "@app/lib/client/fetchJson";
 import { showToast } from "@app/lib/client/showToast";
 import {
   Button,
@@ -9,7 +10,6 @@ import {
   Heading,
   Icon,
   Input,
-  Link,
   Spinner,
   Text,
 } from "@chakra-ui/react";
@@ -17,11 +17,14 @@ import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
+import { SignUpBody } from "../api/v1/auth/signup";
 
 export default function SignIn() {
   const session = useSession();
   const router = useRouter();
 
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
 
   if (session?.status === "authenticated") {
@@ -35,6 +38,24 @@ export default function SignIn() {
   }
 
   const handleSubmit = async () => {
+    const signUpRes = await fetchJson<{}, SignUpBody>({
+      method: "POST",
+      url: "/api/v1/auth/signup",
+      body: {
+        name: `${firstName} ${lastName}`,
+        email,
+      },
+    });
+
+    if (!signUpRes.success) {
+      showToast({
+        status: "error",
+        description: "There was an error creating your account.",
+        contactSupport: true,
+      });
+      return;
+    }
+
     await signIn("email", { email, redirect: false });
     showToast({
       description: "A magic link has been sent to your email.",
@@ -63,12 +84,33 @@ export default function SignIn() {
         <FormControl width="100%">
           <Flex flexDirection="column" gap={4}>
             <div>
+              <FormLabel>First name</FormLabel>
+              <Input
+                width="100%"
+                type="text"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                placeholder="John"
+              />
+            </div>
+            <div>
+              <FormLabel>Last name</FormLabel>
+              <Input
+                width="100%"
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                placeholder="Doe"
+              />
+            </div>
+            <div>
               <FormLabel>Email</FormLabel>
               <Input
                 width="100%"
                 type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                placeholder="johndoe@gmail.com"
               />
             </div>
           </Flex>

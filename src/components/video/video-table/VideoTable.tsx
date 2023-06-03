@@ -105,7 +105,12 @@ export const VideoTable = ({ filters = {}, onClickRow }: Props) => {
               </Tbody>
             ) : (
               <Tr>
-                <Td colSpan={6} textAlign="center" height="5em">
+                <Td
+                  colSpan={6}
+                  textAlign="center"
+                  height="5em"
+                  hidden={!!isLoading}
+                >
                   <Text>No videos found.</Text>
                 </Td>
               </Tr>

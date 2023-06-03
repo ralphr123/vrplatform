@@ -37,7 +37,7 @@ export const AccountMenu = (props: StackProps) => {
       status: "error",
       description: toastMessages.userNotFound,
     });
-    router.push("/");
+    router.push("/auth/signin");
     return null;
   }
 

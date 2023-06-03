@@ -9,7 +9,6 @@ import {
   Heading,
   Icon,
   Input,
-  Link,
   Spinner,
   Text,
 } from "@chakra-ui/react";

@@ -31,6 +31,7 @@ declare module "nextjs-routes" {
     | DynamicRoute<"/api/auth/[...nextauth]", { "nextauth": string[] }>
     | StaticRoute<"/api/example">
     | StaticRoute<"/api/v1/auth/send-verification-email">
+    | StaticRoute<"/api/v1/auth/signup">
     | StaticRoute<"/api/v1/auth/verify-email">
     | StaticRoute<"/api/v1/azure/generateStorageSasToken">
     | DynamicRoute<"/api/v1/bookmark/user/[userId]", { "userId": string }>
