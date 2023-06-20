@@ -80,7 +80,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             // Call validation endpoint after a short wait
             setTimeout(() => {
               fetch(event.data.validationUrl);
-            }, 1000);
+            }, 4000);
 
             return;
         }
