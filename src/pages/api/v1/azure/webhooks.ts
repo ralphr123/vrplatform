@@ -2,33 +2,46 @@ import { generateThumbnailAndStreamingUrls } from "@app/lib/azure/encode";
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@app/lib/prismadb";
 
-type SupportedEventTypes =
+type SupportedMediaEventTypes =
   | "Microsoft.Media.JobOutputFinished"
-  | "Microsoft.Media.JobOutputErrored"
-  | "Microsoft.EventGrid.SubscriptionValidationEvent";
+  | "Microsoft.Media.JobOutputErrored";
 
-type AzureMediaWebhookEvent = {
-  topic: string;
-  subject: string;
-  eventType: SupportedEventTypes;
-  id: string;
-  data: {
-    output: {
-      "@odata.type": string;
-      assetName: string;
-      error: string | null;
-      label: string;
-      progress: number;
-      state: "Finished" | "Errored";
-    } | null;
-    previousState: "Processing";
-    state: "Finished";
-    correlationData: {};
-  };
-  dataVersion: string;
-  metadataVersion: string;
-  eventTime: string;
-};
+type AzureMediaWebhookEvent =
+  | {
+      topic: string;
+      subject: string;
+      eventType: SupportedMediaEventTypes;
+      id: string;
+      data: {
+        output: {
+          "@odata.type": string;
+          assetName: string;
+          error: string | null;
+          label: string;
+          progress: number;
+          state: "Finished" | "Errored";
+        } | null;
+        previousState: "Processing";
+        state: "Finished";
+        correlationData: {};
+      };
+      dataVersion: string;
+      metadataVersion: string;
+      eventTime: string;
+    }
+  | {
+      id: string;
+      topic: string;
+      subject: string;
+      data: {
+        validationCode: string;
+        validationUrl: string;
+      };
+      eventType: "Microsoft.EventGrid.SubscriptionValidationEvent";
+      eventTime: string;
+      metadataVersion: string;
+      dataVersion: string;
+    };
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const event = req.body[0] as AzureMediaWebhookEvent;
@@ -36,19 +49,18 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     switch (req.method) {
       case "POST":
-        const mediaServicesAssetName = event.data?.output?.assetName;
-
         switch (event.eventType) {
-          case "Microsoft.Media.JobOutputFinished":
+          case "Microsoft.Media.JobOutputFinished": {
+            const mediaServicesAssetName = event.data?.output?.assetName;
             if (!mediaServicesAssetName) {
               throw Error("No asset name found.");
             }
 
             await handleVideoEncodingComplete(mediaServicesAssetName);
-            return res.send({
-              validationCode: req.body[0].data.validationCode,
-            });
-          case "Microsoft.Media.JobOutputErrored":
+            return res.send({});
+          }
+          case "Microsoft.Media.JobOutputErrored": {
+            const mediaServicesAssetName = event.data?.output?.assetName;
             if (!mediaServicesAssetName) {
               throw Error("No asset name found.");
             }
@@ -57,14 +69,15 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
               mediaServicesAssetName,
               event.data.output!.error || "Unknown error"
             );
-            return res.send({
-              validationCode: req.body[0].data.validationCode,
-            });
-          default:
+            return res.send({});
+          }
+          case "Microsoft.EventGrid.SubscriptionValidationEvent":
+            await fetch(event.data.validationUrl);
             return res.send({
               validationCode: req.body[0].data.validationCode,
             });
         }
+
       default:
         return res
           .status(405)
