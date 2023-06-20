@@ -2,13 +2,8 @@ import { VideoStatus } from "@app/lib/types/api";
 import { Video } from "@prisma/client";
 
 export const getVideoStatus = (video: Video): VideoStatus => {
-  const {
-    mediaServicesAssetName,
-    encodingError,
-    reviewedDate,
-    rejectReason,
-    isPrivate,
-  } = video;
+  const { hlsUrl, encodingError, reviewedDate, rejectReason, isPrivate } =
+    video;
 
   if (encodingError) {
     return "Failed";
@@ -18,7 +13,7 @@ export const getVideoStatus = (video: Video): VideoStatus => {
     return "Private";
   }
 
-  if (!mediaServicesAssetName) {
+  if (!hlsUrl) {
     return "Encoding";
   }
 

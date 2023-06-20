@@ -1,6 +1,8 @@
 import { formatDate } from "@app/lib/client/formatDate";
 import { GridItem, Flex, Image, Text } from "@chakra-ui/react";
+import { VideoType } from "@prisma/client";
 import { useRouter } from "next/router";
+import { VideoVRTag } from "../VideoVRTag";
 
 type Props = {
   id: string;
@@ -8,6 +10,7 @@ type Props = {
   thumbnailUrl: string;
   createdDate: Date;
   views: number;
+  type: VideoType;
 };
 
 export const VideoGridCard = ({
@@ -16,6 +19,7 @@ export const VideoGridCard = ({
   thumbnailUrl,
   createdDate,
   views,
+  type,
 }: Props) => {
   const router = useRouter();
   return (
@@ -30,7 +34,17 @@ export const VideoGridCard = ({
       transition="transform 0.1s"
       onClick={() => router.push(`/videos/${id}`)}
     >
-      <Flex flexDirection="column" height="100%" width="100%">
+      <Flex
+        flexDirection="column"
+        height="100%"
+        width="100%"
+        position="relative"
+      >
+        {type === "VR" && (
+          <Flex position="absolute" top="8px" right="8px">
+            <VideoVRTag />
+          </Flex>
+        )}
         <Image
           src={thumbnailUrl}
           alt="video thumbnail"

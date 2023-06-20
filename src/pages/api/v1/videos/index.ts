@@ -1,4 +1,4 @@
-import prisma from "../../../../lib/prismadb";
+import prisma from "@app/lib/prismadb";
 import type { NextApiRequest, NextApiResponse } from "next/types";
 import { z } from "zod";
 import { Prisma, VideoType } from "@prisma/client";
@@ -109,28 +109,28 @@ const getVideos = async ({
 
   switch (status) {
     case "Pending Review":
-      statusFilters.mediaServicesAssetName = { not: { equals: null } };
+      statusFilters.hlsUrl = { not: { equals: null } };
       statusFilters.reviewedDate = { equals: null };
       break;
     case "Rejected":
-      statusFilters.mediaServicesAssetName = { not: { equals: null } };
+      statusFilters.hlsUrl = { not: { equals: null } };
       statusFilters.reviewedDate = { not: { equals: null } };
       statusFilters.rejectReason = { not: { equals: null } };
       break;
     case "Published":
-      statusFilters.mediaServicesAssetName = { not: { equals: null } };
+      statusFilters.hlsUrl = { not: { equals: null } };
       statusFilters.reviewedDate = { not: { equals: null } };
       statusFilters.rejectReason = { equals: null };
       statusFilters.isPrivate = { equals: false };
       break;
     case "Private":
-      statusFilters.mediaServicesAssetName = { not: { equals: null } };
+      statusFilters.hlsUrl = { not: { equals: null } };
       statusFilters.reviewedDate = { not: { equals: null } };
       statusFilters.rejectReason = { equals: null };
       statusFilters.isPrivate = { equals: true };
       break;
     case "Encoding":
-      statusFilters.mediaServicesAssetName = { equals: null };
+      statusFilters.hlsUrl = { equals: null };
       break;
   }
 
@@ -200,8 +200,11 @@ const encodeAndSaveVideo = async ({
 }): Promise<ApiReturnType<EncodeAndSaveVideoResp>> => {
   let videoId: string = "";
   try {
-    // 1. Create video without streaming URLs
-    // This video will be in a pending state until the encoding is complete
+    // 1. Encode video on Azure
+    const { outputAssetName } = await encodeVideoOnAzureFromBlob(blobUrl);
+
+    // 2. Create video without streaming URLs
+    // This video will be in a pending state until the encoding is complete and our webhook is called
     const video = await prisma.video.create({
       data: {
         userId,
@@ -210,35 +213,13 @@ const encodeAndSaveVideo = async ({
         blobUrl,
         type,
         duration_seconds: duration,
+        mediaServicesAssetName: outputAssetName,
       },
     });
 
     videoId = video.id;
 
-    // 2. Encode video on Azure
-    const encodeVideoResp = await encodeVideoOnAzureFromBlob(blobUrl);
-    const { streamingUrls, thumbnailUrl, mediaServicesAssetName } =
-      encodeVideoResp;
-
-    // 3. Update video with streaming URLs
-    await prisma.video.update({
-      where: {
-        id: videoId,
-      },
-      data: {
-        hlsUrl:
-          streamingUrls.find((url) => url.includes("format=m3u8-cmaf")) || null,
-        dashUrl:
-          streamingUrls.find((url) => url.includes("format=mpd-time-cmaf")) ||
-          null,
-        smoothStreamingUrl:
-          streamingUrls.find((url) => url[url.length - 1] === "t") || null,
-        thumbnailUrl,
-        mediaServicesAssetName,
-      },
-    });
-
-    return { success: true, data: { videoId: video.id } };
+    return { success: true, data: { videoId } };
   } catch (error) {
     console.error(error);
 

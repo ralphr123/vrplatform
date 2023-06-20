@@ -81,9 +81,9 @@ export const VideoPlayer = ({
     if (player) {
       player.load({
         title: name,
-        hls: hlsUrl || undefined,
+        // hls: hlsUrl || undefined,
         smooth: smoothStreamingUrl || undefined,
-        dash: dashUrl || undefined,
+        // dash: dashUrl || undefined,
         // Fallback to blob url
         progressive: blobUrl || undefined,
         // Player needs extra config to play VR videos

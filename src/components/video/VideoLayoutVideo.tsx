@@ -3,6 +3,8 @@ import { formatDate } from "@app/lib/client/formatDate";
 import { showToast } from "@app/lib/client/showToast";
 import { VideoData } from "@app/lib/types/api";
 import { Flex, Stack, Icon, Text, Button } from "@chakra-ui/react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
 import { useState } from "react";
 import { AiFillLike, AiOutlineLike } from "react-icons/ai";
 import { BsCalendar } from "react-icons/bs";
@@ -14,7 +16,7 @@ type Props = {
   video: VideoData;
 };
 
-export const VideoCard = ({ video }: Props) => {
+export const VideoLayoutView = ({ video }: Props) => {
   const {
     id,
     name,
@@ -32,25 +34,29 @@ export const VideoCard = ({ video }: Props) => {
 
   const [isLiked, setIsLiked] = useState<boolean>(!!isLikedByUser);
   const [numLikes, setNumLikes] = useState<number>(likes);
+  const session = useSession();
+  const router = useRouter();
 
-  const handleOnClickLiked = () => {
-    (async () => {
-      try {
-        if (isLiked) {
-          await deleteVideoLike(id);
-          setIsLiked(false);
-          setNumLikes(numLikes - 1);
-        } else {
-          await postVideoLike(id);
-          setIsLiked(true);
-          setNumLikes(numLikes + 1);
-        }
-      } catch (e) {
-        showToast({
-          description: "An error occurred while liking the video.",
-        });
+  const handleOnClickLiked = async () => {
+    if (session.status !== "authenticated") {
+      router.push("/auth/signup");
+      return;
+    }
+    try {
+      if (isLiked) {
+        await deleteVideoLike(id);
+        setIsLiked(false);
+        setNumLikes(numLikes - 1);
+      } else {
+        await postVideoLike(id);
+        setIsLiked(true);
+        setNumLikes(numLikes + 1);
       }
-    })();
+    } catch (e) {
+      showToast({
+        description: "An error occurred while liking the video.",
+      });
+    }
   };
 
   return (
@@ -109,7 +115,10 @@ export const VideoCard = ({ video }: Props) => {
 
         {/* ------------ Video likes ----------- */}
         <Flex gap={4} align="center" color="#999999">
-          <Button onClick={handleOnClickLiked}>
+          <Button
+            onClick={handleOnClickLiked}
+            isLoading={session.status === "loading"}
+          >
             <Flex gap={2} align="center" color="black">
               <Icon
                 as={isLiked ? AiFillLike : AiOutlineLike}

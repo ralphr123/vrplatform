@@ -40,11 +40,12 @@ export const VideoGrid = () => {
       templateColumns="repeat(auto-fill, minmax(18em, 1fr))"
       gridGap={5}
     >
-      {videos.map(({ id, name, thumbnailUrl, createdDate }) => (
+      {videos.map(({ id, name, thumbnailUrl, createdDate, type }) => (
         <VideoGridCard
           id={id}
           key={name}
           name={name}
+          type={type}
           thumbnailUrl={thumbnailUrl!}
           createdDate={createdDate}
           views={0}

@@ -2,7 +2,7 @@ import { useVideo } from "@app/lib/client/hooks/api/useVideo";
 import { Flex, Spinner, Stack, Text } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { VideoGrid } from "@app/components/video/video-grid/VideoGrid";
-import { VideoCard } from "@app/components/video/VideoCard";
+import { VideoLayoutView } from "@app/components/video/VideoLayoutVideo";
 
 export default function VideoPage() {
   const router = useRouter();
@@ -22,7 +22,7 @@ export default function VideoPage() {
 
   return (
     <Stack gap={5} width="100%">
-      <VideoCard video={video} />
+      <VideoLayoutView video={video} />
       <Stack gap={5} pl={10} pb={10}>
         <Text fontSize="1.8em" fontWeight={500}>
           More videos to watch
