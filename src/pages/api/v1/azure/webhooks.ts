@@ -72,10 +72,17 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             return res.send({});
           }
           case "Microsoft.EventGrid.SubscriptionValidationEvent":
-            await fetch(event.data.validationUrl);
-            return res.send({
-              validationCode: req.body[0].data.validationCode,
+            console.log(event.data.validationUrl);
+            res.send({
+              validationCode: event.data.validationCode,
             });
+
+            // Call validation endpoint after a short wait
+            setTimeout(() => {
+              fetch(event.data.validationUrl);
+            }, 1000);
+
+            return;
         }
 
       default:
