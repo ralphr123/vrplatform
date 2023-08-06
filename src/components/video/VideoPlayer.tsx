@@ -82,7 +82,7 @@ export const VideoPlayer = ({
       player.load({
         title: name,
         // hls: hlsUrl || undefined,
-        smooth: smoothStreamingUrl || undefined,
+        // smooth: smoothStreamingUrl || undefined,
         // dash: dashUrl || undefined,
         // Fallback to blob url
         progressive: blobUrl || undefined,
