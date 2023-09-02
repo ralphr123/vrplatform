@@ -1,38 +1,34 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
-
 ## Project Overview
 
 A work in progress.
 
-Online community to allow 360 video creators to share their content to the public.
+Online community to allow 360 video creators to share their content to the public. 
 
-## Getting Started
+**Main gallery**
+<img width="1465" alt="image" src="https://github.com/ralphr123/vrplatform/assets/29685125/a5be85f5-5b48-49dd-83d2-9287d848e7f4">
 
-First, run the development server:
+**Account page**
+<img width="1482" alt="image" src="https://github.com/ralphr123/vrplatform/assets/29685125/7fcbb71b-c713-49f2-aaae-a169c3f344d6">
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
+**My videos**
+<img width="1476" alt="image" src="https://github.com/ralphr123/vrplatform/assets/29685125/63067faa-2faf-4387-a1cd-72f5b4a324d3">
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**Search bar**
+<img width="1506" alt="image" src="https://github.com/ralphr123/vrplatform/assets/29685125/63e8498f-f628-4efa-82f6-bc1c22d17e82">
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+**Upload videos**
+- Videos are uploaded to Azure Blob Storage directly from the client by generating temporary SAS token. 
+- Uploading a video triggers a Azure Media Services job to encode the file and generate streaming URLs. 
+- Job completion calls a webhook that stores the streaming URLs and updates the video's status in the database. 
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+<img width="1481" alt="image" src="https://github.com/ralphr123/vrplatform/assets/29685125/82c516c6-ac13-47c0-ab49-949143068232">
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+**Admin panel: Videos**
+<img width="1498" alt="image" src="https://github.com/ralphr123/vrplatform/assets/29685125/0fc58353-a6ea-4758-ab14-7cc2c788806d">
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+**Admin panel: Users**
+<img width="1508" alt="image" src="https://github.com/ralphr123/vrplatform/assets/29685125/bceced22-b585-4818-aebb-ccee009d7aaa">
 
-## Learn More
+**Admin panel: Admin users**
+<img width="1493" alt="image" src="https://github.com/ralphr123/vrplatform/assets/29685125/10c380ee-725f-4891-88a9-2eaf6f6ba0cc">
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
